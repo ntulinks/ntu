@@ -90,21 +90,32 @@
 
 
    <script>
-       // 將 blob URL 換成你的 URL
-       //const blobUrl = 'blob:https://n-auxprxm53jznu5lr2tpkpapvzdsuuqboqfsczca-0lu-script.googleusercontent.com/03f9f9e0-987a-4c31-900f-60d6a0b941e7';
+fetch('https://script.google.com/macros/s/AKfycbwAuDwbKSwpzY4BMpSe9FeOGP29NzqyNsdsqeGN6Olp52XlqDw2lXoX_vN39_l9WdoAGA/exec', { // 替換為 Apps Script 部署 URL
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ photos: [base64Photo] }),
+          })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                document.getElementById('status').innerText = `上傳成功！照片 URL: ${data.photoUrls.join(', ')}`;
+              } else {
+                document.getElementById('status').innerText = `上傳失敗: ${data.error}`;
+              }
+            })
+            .catch(error => {
+              console.error('上傳失敗:', error);
+              document.getElementById('status').innerText = '上傳失敗，請檢查控制台。';
+            });
+        };
+        reader.readAsDataURL(photoBlob);
+      } catch (error) {
+        console.error('拍攝照片失敗:', error);
+        document.getElementById('status').innerText = '拍攝失敗，請檢查攝像頭權限。';
+      }
+    });
 
-
-       /*fetch(blobUrl)
-           .then(response => response.blob())
-           .then(blob => {
-               const reader = new FileReader();
-               reader.onloadend = function() {
-                   const base64data = reader.result;
-                   document.getElementById('image').src = base64data;
-               }
-               reader.readAsDataURL(blob);
-           })
-           .catch(error => console.error('Error fetching blob image:', error));
+           
    </script>
 </body>
 </body>
