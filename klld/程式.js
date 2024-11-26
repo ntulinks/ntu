@@ -24,7 +24,7 @@ function doPost(e) {
   }
 }
 
-fetch('https://script.google.com/macros/s/AKfycbxZAiXLFbosgAxo1AmkAbIfB_9rm5GgwWblFqXbbUEEnkuu3MraKFAfvDr5qYh-XV9MvQ/exec', {
+fetch('https://script.google.com/macros/s/AKfycbxvN8sWH6bZfiHfzYzB1DoBn2GXQlTbnsGhsjX8gIc498aqsCHnYwF8jGdD0WyoqCAObg/exec', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
