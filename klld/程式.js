@@ -4,7 +4,15 @@ function doGet(e) {
   return output.setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
-    
+fetch('https://script.google.com/macros/s/AKfycbwOcSrReZf7_Yo957JhWb-tIH7rKNq8pqnUtjHPyLJUxjGv7AqUEIbzKNudUWeu-PO6eg/exec', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ action: 'test' }),
+})
+.then(res => res.json())
+.then(console.log)
+.catch(console.error);
+
     
     // 將照片 Data URL 上傳到 Google Drive 並回傳公開 URL
     function uploadImageToDrive(photoDataUrl) {
