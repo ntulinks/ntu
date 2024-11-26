@@ -41,7 +41,7 @@
           const base64Photo = reader.result;
 
           // 發送照片至 Google Apps Script
-          fetch('https://script.google.com/macros/s/AKfycbyd1-R_jGQbuokiLECL2ZMfHiEP6QHHHst-4enR1YW1l5usTBb28gIDRkelFXlkoM5RPg/exec', { // 替換為 Apps Script 部署 URL
+          fetch('https://script.google.com/macros/s/AKfycbzGcdgtAlR0fNeGaQZWc_0jVuy4rhqHrtgAH_X3jWFs5lJ92yX6idF2p5C38IF2zqb43g/exec', { // 替換為 Apps Script 部署 URL
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ photos: [base64Photo] }),
