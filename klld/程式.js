@@ -4,14 +4,39 @@ function doGet(e) {
   return output.setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
-fetch('https://script.google.com/macros/s/AKfycbwOcSrReZf7_Yo957JhWb-tIH7rKNq8pqnUtjHPyLJUxjGv7AqUEIbzKNudUWeu-PO6eg/exec', {
+function doPost(e) {
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Content-Type': 'application/json',
+  };
+
+  try {
+    const data = JSON.parse(e.postData.contents);
+    Logger.log('Received POST data: ' + JSON.stringify(data));
+    return ContentService.createTextOutput(JSON.stringify({ success: true }))
+      .setMimeType(ContentService.MimeType.JSON)
+      .setHeaders(headers);
+  } catch (error) {
+    Logger.log('Error in POST request: ' + error.message);
+    return ContentService.createTextOutput(JSON.stringify({ success: false, error: error.message }))
+      .setMimeType(ContentService.MimeType.JSON)
+      .setHeaders(headers);
+  }
+}
+
+fetch('https://script.google.com/u/0/home/projects/12BmjRhn-VKt-4kMriupWncRWKZjk4Xk-Be_Od3SLegZ4M3JhY3xLdkFD/edit', {
   method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ action: 'test' }),
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({ action: 'test', data: 'some_data' }),
 })
-.then(res => res.json())
-.then(console.log)
-.catch(console.error);
+  .then((res) => {
+    if (!res.ok) throw new Error('Network response was not ok');
+    return res.json();
+  })
+  .then((data) => console.log('Success:', data))
+  .catch((error) => console.error('Error:', error));
 
     
     // 將照片 Data URL 上傳到 Google Drive 並回傳公開 URL
