@@ -1,12 +1,9 @@
 function doGet(e) {
-    try {
-    var output = HtmlService.createHtmlOutputFromFile('index');
-    return output.setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
-    } catch (e) {
-    console.error("Error loading HTML file: ", e);
-    return HtmlService.createHtmlOutput("Error loading page.");
-    }
-    }
+  const output = HtmlService.createHtmlOutputFromFile('index');
+  output.addMetaTag('Access-Control-Allow-Origin', '*');
+  return output.setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
     
     
     // 將照片 Data URL 上傳到 Google Drive 並回傳公開 URL
