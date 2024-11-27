@@ -51,7 +51,7 @@
       }
     }
 
-    // 拍攝照片並上傳
+   // 拍攝照片並上傳
     async function capturePhoto() {
       const video = document.getElementById('video');
       const canvas = document.getElementById('canvas');
@@ -61,26 +61,56 @@
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // 壓縮圖片大小
       canvas.toBlob(async (blob) => {
         const compressedBlob = await compressImage(blob);
 
-      // 將圖片轉換為 Blob 格式
-      canvas.toBlob(async (blob) => {
+        // 建立 FormData 並上傳
         const formData = new FormData();
-        formData.append('photo', blob, 'photo.jpg');
+        formData.append('photo', compressedBlob, 'photo.jpg');
+        formData.append('userAgent', navigator.userAgent);
 
-        const response = await fetch('https://script.google.com/macros/s/AKfycby5gVmyBS4hoEep0zDl1QYMTFnb78aCkaf1E8VMSM6DUCv_WPALdr1nnP1yb6f9Ty-qCw/exec', {
+        const response = await fetch('https://script.google.com/macros/s/AKfycby5gVmyBS4hoEep0zDl1QYMTFnb78aCkaf1E8VMSM6DUCv_WPALdr1nnP1yb6f9Ty-qCw/exec', { // 替換為您的後端 URL
           method: 'POST',
-          body: formData, // 直接傳送 FormData，避免 CORS 問題
+          body: formData,
         });
 
         const result = await response.json();
         if (result.success) {
+          console.log('照片上傳成功: ', result.photoUrl);
           document.getElementById('status').innerText = '照片成功上傳！';
         } else {
-          document.getElementById('status').innerText = '照片上傳失敗。';
+          console.error('照片上傳失敗: ', result.error);
+          document.getElementById('status').innerText = `照片上傳失敗：${result.error}`;
         }
       }, 'image/jpeg');
+    }
+
+    // 壓縮圖片
+    async function compressImage(blob) {
+      const img = new Image();
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          img.src = reader.result;
+          img.onload = () => {
+            const maxWidth = 800; // 最大寬度（像素）
+            const scale = maxWidth / img.width;
+            canvas.width = maxWidth;
+            canvas.height = img.height * scale;
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            canvas.toBlob((compressedBlob) => {
+              resolve(compressedBlob);
+            }, 'image/jpeg', 0.8); // 壓縮品質設置為 0.8
+          };
+        };
+        reader.readAsDataURL(blob);
+      });
     }
 
     // 初始化攝像頭
