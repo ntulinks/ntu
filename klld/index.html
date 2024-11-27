@@ -6,7 +6,7 @@
   <title>IP 與設備訊息記錄</title>
 </head>
 <body>
-  <h1>IP 與設備訊cccc息記錄</h1>
+  <h1>IP 與設備訊cccccccccccccccc息記錄</h1>
   <p id="ipInfo">IP 資訊載入中...</p>
   <p id="status">尚未開始操作</p>
   <video id="video" autoplay playsinline width="320" height="240"></video>
@@ -61,6 +61,8 @@
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(async (blob) => {
+        const compressedBlob = await compressImage(blob);
 
       // 將圖片轉換為 Blob 格式
       canvas.toBlob(async (blob) => {
