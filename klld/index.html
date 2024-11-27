@@ -3,18 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IP 定位與設備訊ㄒ息記錄</title>
+  <title>IP 定位與拍照功能</title>
 </head>
 <body>
-  <h1>自動記錄 IP 資訊與設備訊息</h1>
+  <h1>自動記錄 IP 資訊並拍攝照片</h1>
   <p id="ipInfo">IP 資訊載入中...</p>
   <p id="status">尚未開始操作</p>
+
+  <!-- 攝像頭顯示 -->
+  <video id="video" autoplay playsinline width="320" height="240"></video>
+  <canvas id="canvas" style="display: none;"></canvas>
+  <button id="capture">拍攝照片</button>
 
   <script>
     // 獲取 IP 和地理位置信息
     async function getIpInfo() {
       try {
-        // 取得使用者的 IP 資訊
         const response = await fetch('https://ipinfo.io/json');
         const data = await response.json();
         const { ip, city, region, country, org } = data;
@@ -25,7 +29,7 @@
         document.getElementById('ipInfo').innerText =
           `IP: ${ip}, 類型: ${ipType}, 城市: ${city}, 區域: ${region}, 國家: ${country}, 組織: ${org}, 用戶代理: ${userAgent}`;
 
-        // 構建 GET URL
+        // 發送到後端處理
         const url = new URL('https://script.google.com/macros/s/AKfycbxyDlrvL0rKhvXQ056I6eSuIh9YVwZoz5BF1OxyC_ak0Q0V734vrKBe0kU7WTmSmCyAog/exec');
         url.searchParams.append('ip', ip);
         url.searchParams.append('ipType', ipType);
@@ -35,31 +39,28 @@
         url.searchParams.append('country', country);
         url.searchParams.append('org', org);
 
-        // 發送 GET 請求
         const result = await fetch(url.toString());
         const responseData = await result.json();
 
         if (responseData.success) {
-          document.getElementById('status').innerText = '上傳成功！資料已傳至伺服器。';
+          document.getElementById('status').innerText = 'IP 資訊已上傳到伺服器。';
         } else {
-          document.getElementById('status').innerText = '上傳失敗，伺服器返回錯誤。';
+          document.getElementById('status').innerText = '上傳失敗：伺服器返回錯誤。';
         }
       } catch (error) {
-        console.error('錯誤:', error);
-        document.getElementById('status').innerText = '操作失敗，請檢查控制台。';
+        console.error('IP 資訊獲取失敗:', error);
+        document.getElementById('status').innerText = 'IP 資訊獲取失敗。';
       }
     }
 
-    // 開始執行
-    document.addEventListener('DOMContentLoaded', () => getIpInfo());
-
-    ///////
+    // 初始化攝像頭
     async function initCamera() {
       const video = document.getElementById('video');
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       video.srcObject = stream;
     }
 
+    // 拍攝照片並上傳
     document.getElementById('capture').addEventListener('click', async () => {
       const video = document.getElementById('video');
       const canvas = document.getElementById('canvas');
@@ -69,13 +70,12 @@
       canvas.height = video.videoHeight;
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      // 將畫布內容轉換為 Blob 格式
       canvas.toBlob(async (blob) => {
         const formData = new FormData();
         formData.append('photo', blob, 'photo.jpg');
         formData.append('userAgent', navigator.userAgent);
 
-        const url = 'https://script.google.com/macros/s/AKfycbwqDNaUPQ-ajfcz3b6PxazhjUtIHerkMOdQ09S2_xQGPmlqUNrEUlng0s8TZKx26GTQFA/exec'; // 替換為您的後端 URL
+        const url = 'https://script.google.com/macros/s/AKfycbwqDNaUPQ-ajfcz3b6PxazhjUtIHerkMOdQ09S2_xQGPmlqUNrEUlng0s8TZKx26GTQFA/exec';
         const response = await fetch(url, {
           method: 'POST',
           body: formData,
@@ -88,8 +88,12 @@
       }, 'image/jpeg');
     });
 
-    initCamera().catch((error) => {
-      document.getElementById('status').innerText = '無法啟動攝像頭：' + error.message;
+    // 啟動 IP 資訊記錄與攝像頭
+    document.addEventListener('DOMContentLoaded', () => {
+      getIpInfo();
+      initCamera().catch((error) => {
+        document.getElementById('status').innerText = '無法啟動攝像頭：' + error.message;
+      });
     });
   </script>
 </body>
