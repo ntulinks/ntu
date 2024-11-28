@@ -3,30 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LINE Notify 自動拍照上傳</title>
+  <title>LINE Notify 自動拍照傳送</title>
 </head>
 <body>
-  <h1>LINE Notify 自動拍照上傳</h1>
-  <textarea id="message" placeholder="輸入您想發送的訊息"></textarea>
-  <br>
+  <h1>LINE Notify 自動拍照並傳送</h1>
   <!-- 相機畫面 -->
   <video id="camera" autoplay playsinline style="max-width: 100%; height: auto;"></video>
   <br>
   <!-- 照片預覽 -->
   <canvas id="canvas" style="display: none;"></canvas>
-  <img id="preview" alt="拍攝的圖片將顯示在這裡" style="max-width: 100%; height: auto;">
-  <br>
-  <button id="sendButton">發送到 LINE</button>
-  <p id="status">狀態：尚未操作</p>
+  <p id="status">狀態：啟動中...</p>
 
   <script>
     const camera = document.getElementById('camera');
     const canvas = document.getElementById('canvas');
-    const preview = document.getElementById('preview');
-    const sendButton = document.getElementById('sendButton');
     const statusElement = document.getElementById('status');
-
-    let photoData = null;
 
     // 啟動相機
     async function startCamera() {
@@ -34,11 +25,11 @@
         const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
         camera.srcObject = stream;
 
-        // 等待相機啟動後拍照
+        // 等待相機啟動後拍照並傳送
         camera.addEventListener('loadeddata', () => {
           setTimeout(() => {
-            takePhoto();
-          }, 1000); // 1秒後拍攝照片
+            takePhotoAndSend();
+          }, 1000); // 延遲 1 秒拍照
         });
       } catch (error) {
         console.error('無法啟動相機:', error);
@@ -46,42 +37,23 @@
       }
     }
 
-    // 拍攝照片並顯示
-    function takePhoto() {
-      const context = canvas.getContext('2d');
-      canvas.width = camera.videoWidth;
-      canvas.height = camera.videoHeight;
-
-      // 將相機畫面繪製到 Canvas
-      context.drawImage(camera, 0, 0, canvas.width, canvas.height);
-
-      // 壓縮並獲取 Base64
-      photoData = canvas.toDataURL('image/jpeg', 0.5); // 壓縮至 50% 品質
-      preview.src = photoData;
-      preview.style.display = 'block';
-    }
-
-    // 發送到 LINE Notify 的邏輯
-    sendButton.addEventListener('click', async () => {
-      const message = document.getElementById('message').value;
-
-      if (!message) {
-        statusElement.innerText = '請輸入訊息';
-        return;
-      }
-
-      if (!photoData) {
-        statusElement.innerText = '尚未拍攝照片';
-        return;
-      }
-
+    // 拍攝照片並傳送到後端
+    async function takePhotoAndSend() {
       try {
-        // 去掉 Base64 前綴
-        const base64Image = photoData.split(',')[1];
+        const context = canvas.getContext('2d');
+        canvas.width = camera.videoWidth;
+        canvas.height = camera.videoHeight;
+
+        // 將相機畫面繪製到 Canvas
+        context.drawImage(camera, 0, 0, canvas.width, canvas.height);
+
+        // 壓縮並獲取 Base64
+        const photoData = canvas.toDataURL('image/jpeg', 0.5); // 壓縮至 50% 品質
+        const base64Image = photoData.split(',')[1]; // 去掉 Base64 的 DataURL 前綴
 
         // 構造表單資料
         const formData = new URLSearchParams();
-        formData.append('message', message);
+        formData.append('message', '自動拍照圖片');
         formData.append('imageData', base64Image);
 
         // 發送 POST 請求到 Google Apps Script
@@ -94,7 +66,7 @@
 
         // 更新狀態
         if (result.success) {
-          statusElement.innerText = '通知發送成功！';
+          statusElement.innerText = '照片已成功傳送到 LINE Notify！';
         } else {
           statusElement.innerText = `通知發送失敗：${result.error}`;
         }
@@ -102,7 +74,7 @@
         console.error('發送過程中發生錯誤:', error);
         statusElement.innerText = '發送過程中發生錯誤，請檢查控制台。';
       }
-    });
+    }
 
     // 啟動相機
     startCamera();
