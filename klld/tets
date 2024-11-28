@@ -1,1 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LINE Notify 測試</title>
+</head>
+<body>
+  <h1>LINE Notify 測試</h1>
+  <p id="status">尚未開始測試</p>
+  <canvas id="canvas" style="display:none;"></canvas>
+  <input type="file" id="imageUploader" accept="image/*">
+  <button id="sendImage">傳送圖片到 LINE</button>
+
+  <script>
+    const LINE_NOTIFY_TOKEN = '你的_LINE_NOTIFY_TOKEN'; // 填入你的 LINE Notify Token
+
+    // 將圖片上傳至 LINE Notify
+    async function sendImageToLine(imageBlob) {
+      const url = 'https://notify-api.line.me/api/notify';
+      const formData = new FormData();
+
+      // 添加訊息和圖片
+      formData.append('message', '測試圖片傳送');
+      formData.append('imageFile', imageBlob, 'image.jpg');
+
+      // 發送請求
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + LINE_NOTIFY_TOKEN,
+          },
+          body: formData,
+        });
+
+        if (response.ok) {
+          document.getElementById('status').innerText = '圖片已成功傳送到 LINE！';
+        } else {
+          const result = await response.json();
+          document.getElementById('status').innerText = `傳送失敗: ${result.message}`;
+        }
+      } catch (error) {
+        console.error('發送失敗:', error);
+        document.getElementById('status').innerText = '傳送過程中發生錯誤，請檢查控制台。';
+      }
+    }
+
+    // 選擇圖片後自動加載
+    document.getElementById('imageUploader').addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        sendImageToLine(file);
+      }
+    });
+
+    // 點擊按鈕測試 Canvas 圖片
+    document.getElementById('sendImage').addEventListener('click', () => {
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d');
+
+      // 創建一個簡單的圖案（模擬圖片）
+      canvas.width = 300;
+      canvas.height = 150;
+      ctx.fillStyle = '#FF0000';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = '20px Arial';
+      ctx.fillText('LINE Notify 測試', 50, 80);
+
+      canvas.toBlob((blob) => {
+        sendImageToLine(blob);
+      }, 'image/jpeg');
+    });
+  </script>
+</body>
+</html>
 
