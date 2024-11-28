@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LINE Notify 測試</title>
+  <title>LINE Notify 拍照上傳</title>
 </head>
 <body>
-  <h1>LINE dwdwdwdwdNotify 測試</h1>
+  <h1>LINE Notify 拍照上傳</h1>
   <textarea id="message" placeholder="輸入您想發送的訊息"></textarea>
   <br>
-  <input type="file" id="imageInput" accept="image/*">
+  <!-- 啟用相機拍攝功能 -->
+  <input type="file" id="imageInput" accept="image/*" capture="environment">
   <br>
   <button id="sendButton">發送到 LINE</button>
   <p id="status">狀態：尚未操作</p>
@@ -25,28 +26,30 @@
         return;
       }
 
-      let imageData = null;
-      if (imageInput) {
-        // 將圖片轉換為 Base64 格式
-        const reader = new FileReader();
-        imageData = await new Promise((resolve) => {
-          reader.onload = () => resolve(reader.result.split(',')[1]); // 去掉 Base64 的 DataURL 前綴
-          reader.readAsDataURL(imageInput);
-        });
+      if (!imageInput) {
+        statusElement.innerText = '請拍攝或選擇一張圖片';
+        return;
       }
+
+      let imageData = null;
+
+      // 將拍攝的圖片轉換為 Base64
+      const reader = new FileReader();
+      imageData = await new Promise((resolve) => {
+        reader.onload = () => resolve(reader.result.split(',')[1]); // 去掉 Base64 的 DataURL 前綴
+        reader.readAsDataURL(imageInput);
+      });
 
       try {
         // 構造表單資料格式
         const formData = new URLSearchParams();
         formData.append('message', message);
-        if (imageData) {
-          formData.append('imageData', imageData);
-        }
+        formData.append('imageData', imageData);
 
         // 發送 POST 請求到 Google Apps Script
-        const response = await fetch('https://script.google.com/macros/s/AKfycbzMbY-MewjsB5d1lSlz61v3NKa8zo0Gwwdm3DKTcWURrZ_lKHhRVO7BmVZluU7nHgq2fQ/exec', { // 替換為您的 Google Apps Script 部署 URL
+        const response = await fetch('https://script.google.com/macros/s/AKfycbxp4orLZFxJKaY2MRpox5ea1REZopoi-95e3KHGaHds4a3Rj3Jk4YwvV7ICimG0h_Qh1w/exec', { // 替換為您的 Google Apps Script 部署 URL
           method: 'POST',
-          body: formData, // 使用 URL 編碼的表單格式
+          body: formData,
         });
 
         const result = await response.json();
