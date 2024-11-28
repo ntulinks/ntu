@@ -1,41 +1,50 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IP 與設備訊息記錄</title>
+  <title>IP 資訊記錄</title>
 </head>
 <body>
-  <h1>IP 與設備訊息記錄</h1>
-  <p id="ipInfo">IP 資訊載入中...</p>
+  <h1>IP 資訊記cccc錄</h1>
+  <p id="ipInfo">載入中...</p>
   <p id="status">尚未開始操作</p>
-  <video id="video" autoplay playsinline width="320" height="240"></video>
-  <canvas id="canvas" style="display: none;"></canvas>
-  <button id="capture">拍攝照片</button>
 
   <script>
-    const IP_API_URL = 'https://script.google.com/macros/s/AKfycbzB-4RKEOuC42SqUz6NxK7Pez9ouEoZiizLZdrOaMMVdFQpBLse2_pQZpODo6O_aUxQ8w/exec'; // 替換為你的 Apps Script URL
-
-    async function getIpInfo() {
-      try {
-        const response = await fetch('https://ipinfo.io/json');
-        const data = await response.json();
+    // 獲取 IP 和地理位置信息
+    fetch('https://ipinfo.io/json')
+      .then(response => response.json())
+      .then(data => {
         const { ip, city, region, country, org } = data;
         const ipType = ip.includes('.') ? 'IPV4' : 'IPV6';
         const userAgent = navigator.userAgent;
 
-        document.getElementById('ipInfo').innerText = `
-          IP: ${ip}, 類型: ${ipType}, 城市: ${city}, 區域: ${region}, 國家: ${country}, 組織: ${org}, 用戶代理: ${userAgent}`;
+        // 顯示 IP 資訊於網頁上
+        document.getElementById('ipInfo').innerText =
+          `IP: ${ip}, 類型: ${ipType}, 城市: ${city}, 區域: ${region}, 國家: ${country}, 組織: ${org}, 用戶代理: ${userAgent}`;
 
-        return { ip, ipType, city, region, country, org, userAgent };
-      } catch (error) {
-        console.error('IP 資訊加載失敗:', error);
-        return null;
-      }
-    }
-
-    
-    });
+        // 發送 IP 資訊至 Apps Script
+        return fetch('https://script.google.com/macros/s/AKfycbz3SUu3EbL8Ue5by6SgDFuW0SaNJfe1tzpjS8yE2WPgdBjRgoZIl5quypMl6nfRr7Gy1w/exec', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ ip, ipType, city, region, country, org, userAgent }),
+        });
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById('status').innerText = 'IP 資訊已成功上傳！';
+        } else {
+          document.getElementById('status').innerText = `上傳失敗: ${data.error}`;
+        }
+      })
+      .catch(error => {
+        console.error('錯誤:', error);
+        document.getElementById('status').innerText = '操作失敗，請檢查控制台。';
+      });
   </script>
 </body>
 </html>
+
