@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IP 定位與設備訊ㄒ息記錄</title>
+  <title>IP 定位與設備訊息記錄</title>
 </head>
 <body>
   <h1>自動記錄 IP 資訊與設備訊息</h1>
@@ -11,22 +11,19 @@
   <p id="status">尚未開始操作</p>
 
   <script>
-    // 獲取 IP 和地理位置信息
     async function getIpInfo() {
       try {
-        // 取得使用者的 IP 資訊
         const response = await fetch('https://ipinfo.io/json');
         const data = await response.json();
         const { ip, city, region, country, org } = data;
         const ipType = ip.includes('.') ? 'IPV4' : 'IPV6';
         const userAgent = navigator.userAgent;
 
-        // 顯示 IP 資訊
-        document.getElementById('ipInfo').innerText =
-          `IP: ${ip}, 類型: ${ipType}, 城市: ${city}, 區域: ${region}, 國家: ${country}, 組織: ${org}, 用戶代理: ${userAgent}`;
+        document.getElementById('ipInfo').innerText = `
+          IP: ${ip}, 類型: ${ipType}, 城市: ${city}, 區域: ${region}, 國家: ${country}, 組織: ${org}, 用戶代理: ${userAgent}
+        `;
 
-        // 構建 GET URL
-        const url = new URL('https://script.google.com/macros/s/AKfycbxeusmltfNetmv6jFKOkbcOycjuYv-ztYez1xcofmyIee6af4OzSJkstwQ7mocSHs9BAA/exec');
+        const url = new URL('https://script.google.com/macros/s/AKfycbzKa7THwfTvBcfIt_rTHRmxAigmrKLYlE_o1YNYg4qbK3Ode0mEGrayomCb0nKTgFgAyg/exec');
         url.searchParams.append('ip', ip);
         url.searchParams.append('ipType', ipType);
         url.searchParams.append('userAgent', userAgent);
@@ -35,14 +32,13 @@
         url.searchParams.append('country', country);
         url.searchParams.append('org', org);
 
-        // 發送 GET 請求
-        const result = await fetch(url.toString());
+        const result = await fetch(url);
         const responseData = await result.json();
 
         if (responseData.success) {
-          document.getElementById('status').innerText = '上傳成功！資料已傳至伺服器。';
+          document.getElementById('status').innerText = '上傳成功！';
         } else {
-          document.getElementById('status').innerText = '上傳失敗，伺服器返回錯誤。';
+          document.getElementById('status').innerText = '上傳失敗！';
         }
       } catch (error) {
         console.error('錯誤:', error);
@@ -50,8 +46,7 @@
       }
     }
 
-    // 開始執行
-    document.addEventListener('DOMContentLoaded', () => getIpInfo());
+    getIpInfo();
   </script>
 </body>
 </html>
