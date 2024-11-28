@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LINE Notccccccify 測試</title>
+  <title>LINE Notify 測試</title>
 </head>
 <body>
   <h1>LINE Notify 測試</h1>
@@ -20,6 +20,7 @@
       const imageInput = document.getElementById('imageInput').files[0];
       const statusElement = document.getElementById('status');
 
+      // 檢查訊息是否輸入
       if (!message) {
         statusElement.innerText = '請輸入訊息';
         return;
@@ -35,12 +36,14 @@
       }
 
       try {
+        // 準備傳送的資料
         const data = {
           message: message,
           imageData: imageData, // 如果沒有圖片，這裡會是 null
         };
 
-        const response = await fetch('https://script.google.com/macros/s/AKfycbwqMD5EHsxhbT3IZFF8MbhlqThQFJxB4KljBkIE-Ndo81enCsdcOMAwDXu8plUxwygJEA/exec', { // 替換成 Google Apps Script 部署 URL
+        // 替換成 Google Apps Script 部署的 URL
+        const response = await fetch('https://script.google.com/macros/s/AKfycbwqMD5EHsxhbT3IZFF8MbhlqThQFJxB4KljBkIE-Ndo81enCsdcOMAwDXu8plUxwygJEA/exec', { 
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
