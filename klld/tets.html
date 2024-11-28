@@ -36,24 +36,29 @@
       }
 
       try {
-        const response = await fetch('https://script.google.com/macros/s/AKfycbz3Hb9uEbfH8oFUsOcfZSU0kErHoIxjPg8FkdUn-8MkOTF3pQjjzE-EairjsIFzua2gHg/exec', { // 替換為 Google Apps Script 部署的 URL
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ message, imageData }),
-        });
-
-        const result = await response.json();
-        if (result.success) {
-          statusElement.innerText = '通知發送成功！';
-        } else {
-          statusElement.innerText = '通知發送失敗：' + result.error;
+        // 將資料轉換為 URL 查詢字串格式
+        const formData = new URLSearchParams();
+        formData.append('message', message); // 替換 `message` 為您要發送的訊息
+        if (imageData) formData.append('imageData', imageData);
+        
+        try {
+          const response = await fetch('https://script.google.com/macros/s/AKfycbz3Hb9uEbfH8oFUsOcfZSU0kErHoIxjPg8FkdUn-8MkOTF3pQjjzE-EairjsIFzua2gHg/exec', { // 替換為 Apps Script 部署的 URL
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded', // 使用 URL 編碼格式
+            },
+            body: formData.toString(),
+          });
+          const result = await response.json();
+          if (result.success) {
+            console.log('通知發送成功！');
+          } else {
+            console.error('通知發送失敗：', result.error);
+          }
+        } catch (error) {
+          console.error('發送過程中發生錯誤:', error);
         }
-      } catch (error) {
-        console.error('通知發送失敗：', error);
-        statusElement.innerText = '通知發送失敗，請檢查控制台。';
-      }
+
     });
   </script>
 </body>
