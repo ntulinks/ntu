@@ -20,7 +20,6 @@
       const imageInput = document.getElementById('imageInput').files[0];
       const statusElement = document.getElementById('status');
 
-      // 確認訊息是否輸入
       if (!message) {
         statusElement.innerText = '請輸入訊息';
         return;
@@ -28,21 +27,23 @@
 
       let imageData = null;
       if (imageInput) {
+        // 將圖片轉換為 Base64 格式
         const reader = new FileReader();
         imageData = await new Promise((resolve) => {
-          reader.onload = () => resolve(reader.result.split(',')[1]); // 轉換 Base64，去掉 DataURL 開頭
+          reader.onload = () => resolve(reader.result.split(',')[1]); // 去掉 Base64 開頭
           reader.readAsDataURL(imageInput);
         });
       }
 
       try {
+        // 準備發送的資料
         const data = {
           message: message,
-          imageData: imageData, // 如果有圖片則包含圖片資料
+          imageData: imageData, // 如果有圖片，附帶圖片資料
         };
 
-        // 傳送 POST 請求至 Google Apps Script
-        const response = await fetch('https://script.google.com/macros/s/AKfycbzBlOf1B72dtijWHOh6pJ5elVfIlyR-MnH5b3AkhZguJkIm9-SQZZMqIk9UgV_rXyXflg/exec', { // 替換為 Google Apps Script 部署 URL
+        // 發送 POST 請求到 Google Apps Script
+        const response = await fetch('https://script.google.com/macros/s/AKfycbzqKSVNZ57X42bUJ7vSIHplnP-sd7_j-htC9cQkKr_wZzbTzR_sOwoM5fFcizw4JJYXOg/exec', { // 替換為您的 Google Apps Script 部署 URL
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
