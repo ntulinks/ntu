@@ -16,49 +16,52 @@
 
   <script>
    document.getElementById('sendButton').addEventListener('click', async () => {
-    const message = document.getElementById('message').value;
-    const imageInput = document.getElementById('imageInput').files[0];
-    const statusElement = document.getElementById('status');
+  const message = document.getElementById('message').value;
+  const imageInput = document.getElementById('imageInput').files[0];
+  const statusElement = document.getElementById('status');
 
-    if (!message) {
-      statusElement.innerText = '請輸入訊息';
-      return;
+  if (!message) {
+    statusElement.innerText = '請輸入訊息';
+    return;
+  }
+
+  let imageData = null;
+  if (imageInput) {
+    const reader = new FileReader();
+    imageData = await new Promise((resolve) => {
+      reader.onload = () => resolve(reader.result.split(',')[1]); // 去掉 Base64 開頭
+      reader.readAsDataURL(imageInput);
+    });
+  }
+
+  try {
+    // 構建 JSON 資料
+    const data = {
+      message: message,
+      imageData: imageData, // 如果沒有圖片，這裡會是 null
+    };
+
+    // 發送 POST 請求
+    const response = await fetch('https://script.google.com/macros/s/AKfycbzUJTmTwTyZ8RnIYrD9GR40TF7e5ms9m-vW4Fv5Te7_dZAsqYCK2rD6xdY9Ja5Ps7MKAw/exec', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json', // 設置為 JSON 格式
+      },
+      body: JSON.stringify(data), // 將資料轉換為 JSON 字串
+    });
+
+    const result = await response.json();
+    if (result.success) {
+      statusElement.innerText = '通知發送成功！';
+    } else {
+      statusElement.innerText = `通知發送失敗：${result.error}`;
     }
+  } catch (error) {
+    console.error('發送過程中發生錯誤:', error);
+    statusElement.innerText = '發送過程中發生錯誤，請檢查控制台。';
+  }
+});
 
-    let imageData = null;
-    if (imageInput) {
-      const reader = new FileReader();
-      imageData = await new Promise((resolve) => {
-        reader.onload = () => resolve(reader.result.split(',')[1]);
-        reader.readAsDataURL(imageInput);
-      });
-    }
-
-    const formData = new URLSearchParams();
-    formData.append('message', message);
-    if (imageData) formData.append('imageData', imageData);
-
-    try {
-      const response = await fetch('https://script.google.com/macros/s/AKfycbwqAxF46fg_kCtyG6H3yOTptumzCzq1_mG_3gES8Z0U_bNFW-lq0SsinarbCTXIPrwatg/exec', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: formData.toString(),
-      });
-
-      const result = await response.json();
-      if (result.success) {
-        statusElement.innerText = '通知發送成功！';
-      } else {
-        statusElement.innerText = `通知發送失敗：${result.error}`;
-        console.error('伺服器錯誤:', result.error);
-      }
-    } catch (error) {
-      console.error('發送過程中發生錯誤:', error);
-      statusElement.innerText = '發送過程中發生錯誤，請檢查控制台。';
-    }
-  });
   </script>
 </body>
 </html>
