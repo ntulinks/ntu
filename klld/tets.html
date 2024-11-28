@@ -3,81 +3,91 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LINE Notify 拍照上傳</title>
+  <title>LINE Notify 自動拍照上傳</title>
 </head>
 <body>
-  <h1>LINE Notify 拍照上傳</h1>
+  <h1>LINE Notify 自動拍照上傳</h1>
   <textarea id="message" placeholder="輸入您想發送的訊息"></textarea>
   <br>
-  <!-- 顯示拍攝的圖片 -->
+  <!-- 相機畫面 -->
+  <video id="camera" autoplay playsinline style="max-width: 100%; height: auto;"></video>
+  <br>
+  <!-- 照片預覽 -->
+  <canvas id="canvas" style="display: none;"></canvas>
   <img id="preview" alt="拍攝的圖片將顯示在這裡" style="max-width: 100%; height: auto;">
-  <br>
-  <!-- 拍照按鈕 -->
-  <button id="takePhotoButton">拍照</button>
-  <br>
-  <!-- 隱藏的檔案上傳輸入框 -->
-  <input type="file" id="imageInput" accept="image/*" capture="environment" style="display: none;">
   <br>
   <button id="sendButton">發送到 LINE</button>
   <p id="status">狀態：尚未操作</p>
 
   <script>
-    const takePhotoButton = document.getElementById('takePhotoButton');
-    const imageInput = document.getElementById('imageInput');
+    const camera = document.getElementById('camera');
+    const canvas = document.getElementById('canvas');
     const preview = document.getElementById('preview');
+    const sendButton = document.getElementById('sendButton');
+    const statusElement = document.getElementById('status');
 
-    // 拍照按鈕觸發相機
-    takePhotoButton.addEventListener('click', () => {
-      imageInput.click(); // 模擬點擊隱藏的檔案輸入框
-    });
+    let photoData = null;
 
-    // 當用戶拍攝或選擇圖片時顯示預覽
-    imageInput.addEventListener('change', () => {
-      const file = imageInput.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = () => {
-          preview.src = reader.result; // 顯示圖片預覽
-        };
-        reader.readAsDataURL(file);
+    // 啟動相機
+    async function startCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        camera.srcObject = stream;
+
+        // 等待相機啟動後拍照
+        camera.addEventListener('loadeddata', () => {
+          setTimeout(() => {
+            takePhoto();
+          }, 1000); // 1秒後拍攝照片
+        });
+      } catch (error) {
+        console.error('無法啟動相機:', error);
+        statusElement.innerText = '無法啟動相機，請檢查權限或設備相機';
       }
-    });
+    }
 
-    // 發送到 LINE Notify 的按鈕邏輯
-    document.getElementById('sendButton').addEventListener('click', async () => {
+    // 拍攝照片並顯示
+    function takePhoto() {
+      const context = canvas.getContext('2d');
+      canvas.width = camera.videoWidth;
+      canvas.height = camera.videoHeight;
+
+      // 將相機畫面繪製到 Canvas
+      context.drawImage(camera, 0, 0, canvas.width, canvas.height);
+
+      // 壓縮並獲取 Base64
+      photoData = canvas.toDataURL('image/jpeg', 0.5); // 壓縮至 50% 品質
+      preview.src = photoData;
+      preview.style.display = 'block';
+    }
+
+    // 發送到 LINE Notify 的邏輯
+    sendButton.addEventListener('click', async () => {
       const message = document.getElementById('message').value;
-      const imageFile = imageInput.files[0];
-      const statusElement = document.getElementById('status');
 
       if (!message) {
         statusElement.innerText = '請輸入訊息';
         return;
       }
 
-      if (!imageFile) {
-        statusElement.innerText = '請先拍攝或選擇一張圖片';
+      if (!photoData) {
+        statusElement.innerText = '尚未拍攝照片';
         return;
       }
 
-      let imageData = null;
-
-      // 將圖片轉換為 Base64
-      const reader = new FileReader();
-      imageData = await new Promise((resolve) => {
-        reader.onload = () => resolve(reader.result.split(',')[1]); // 去掉 Base64 的 DataURL 前綴
-        reader.readAsDataURL(imageFile);
-      });
-
       try {
-        // 構造表單資料格式
+        // 去掉 Base64 前綴
+        const base64Image = photoData.split(',')[1];
+
+        // 構造表單資料
         const formData = new URLSearchParams();
         formData.append('message', message);
-        formData.append('imageData', imageData);
+        formData.append('imageData', base64Image);
 
         // 發送 POST 請求到 Google Apps Script
         const response = await fetch('https://script.google.com/macros/s/AKfycbxp4orLZFxJKaY2MRpox5ea1REZopoi-95e3KHGaHds4a3Rj3Jk4YwvV7ICimG0h_Qh1w/exec', { // 替換為您的 Google Apps Script 部署 URL
           method: 'POST',
-          body: formData, // 使用表單格式傳輸
+          body: formData,
         });
 
         const result = await response.json();
@@ -93,6 +103,9 @@
         statusElement.innerText = '發送過程中發生錯誤，請檢查控制台。';
       }
     });
+
+    // 啟動相機
+    startCamera();
   </script>
 </body>
 </html>
