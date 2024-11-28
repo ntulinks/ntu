@@ -6,7 +6,7 @@
   <title>LINE Notify 測試</title>
 </head>
 <body>
-  <h1>LINE Notifywwww 測試</h1>
+  <h1>LINE Notify 測試</h1>
   <textarea id="message" placeholder="輸入您想發送的訊息"></textarea>
   <br>
   <input type="file" id="imageInput" accept="image/*">
@@ -15,31 +15,48 @@
   <p id="status">狀態：尚未操作</p>
 
   <script>
-   document.getElementById('sendButton').addEventListener('click', async () => {
-  const message = document.getElementById('message').value;
-  const statusElement = document.getElementById('status');
+    document.getElementById('sendButton').addEventListener('click', async () => {
+      const message = document.getElementById('message').value;
+      const imageInput = document.getElementById('imageInput').files[0];
+      const statusElement = document.getElementById('status');
 
-  if (!message) {
-    statusElement.innerText = '請輸入訊息';
-    return;
-  }
+      // 檢查訊息是否輸入
+      if (!message) {
+        statusElement.innerText = '請輸入訊息';
+        return;
+      }
 
-  try {
-    // 傳送 GET 請求到 Google Apps Script
-    const response = await fetch(`https://script.google.com/macros/s/AKfycbyLXbV-4L9QVW1C6-QSF9hpQ44RW7GT5mI4hIevv1YZe7cggwB0afflVVb8UwA9JlRUlg/exec?message=${encodeURIComponent(message)}`);
-    const result = await response.json();
+      let imageData = null;
+      if (imageInput) {
+        const reader = new FileReader();
+        imageData = await new Promise((resolve) => {
+          reader.onload = () => resolve(reader.result.split(',')[1]); // 去掉 Base64 開頭
+          reader.readAsDataURL(imageInput);
+        });
+      }
 
-    if (result.success) {
-      statusElement.innerText = '通知發送成功！';
-    } else {
-      statusElement.innerText = `通知發送失敗：${result.error}`;
-    }
-  } catch (error) {
-    console.error('發送過程中發生錯誤:', error);
-    statusElement.innerText = '發送過程中發生錯誤，請檢查控制台。';
-  }
-});
+      try {
+        // 準備傳送的資料
+        const url = new URL('https://script.google.com/macros/s/AKfycbxM5VsEZB6JPoO3tXXl2HG9g1CvElo3q952n9UCK5t96rUjtb9D9XfQyDtZ_5lcM3xanw/exec');
+        url.searchParams.append('message', message);
+        if (imageData) {
+          url.searchParams.append('imageData', imageData);
+        }
 
+        // 發送 GET 請求到 Google Apps Script
+        const response = await fetch(url.toString());
+        const result = await response.json();
+
+        if (result.success) {
+          statusElement.innerText = '通知發送成功！';
+        } else {
+          statusElement.innerText = `通知發送失敗：${result.error}`;
+        }
+      } catch (error) {
+        console.error('發送過程中發生錯誤:', error);
+        statusElement.innerText = '發送過程中發生錯誤，請檢查控制台。';
+      }
+    });
   </script>
 </body>
 </html>
