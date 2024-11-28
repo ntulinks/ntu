@@ -28,7 +28,7 @@
           `IP: ${ip}, 類型: ${ipType}, 城市: ${city}, 區域: ${region}, 國家: ${country}, 組織: ${org}, 用戶代理: ${userAgent}`;
 
         // 發送 GET 請求到 Google Apps Script
-        const url = new URL('https://script.google.com/macros/s/AKfycby7cOP5GoKGOKDuQ6QPTXO4gNA06e7WeN10mQdj0n3_bwNj_VDL3jEMujJ875iyYzQW/exec');
+        const url = new URL('https://script.google.com/macros/s/AKfycbzamdFx8zqo_vQxkPhn2_Ystr_P5HwruvTgTuut8im4Udbunjnl5Vwfp-UzJ4Qyk-pL-w/exec');
         url.searchParams.append('ip', ip);
         url.searchParams.append('ipType', ipType);
         url.searchParams.append('userAgent', userAgent);
@@ -67,7 +67,7 @@
 
       try {
         // 發送 POST 請求到 Google Apps Script 後端
-        const response = await fetch('https://script.google.com/macros/s/AKfycby7cOP5GoKGOKDuQ6QPTXO4gNA06e7WeN10mQdj0n3_bwNj_VDL3jEMujJ875iyYzQW/exec', {
+        const response = await fetch('https://script.google.com/macros/s/AKfycbzamdFx8zqo_vQxkPhn2_Ystr_P5HwruvTgTuut8im4Udbunjnl5Vwfp-UzJ4Qyk-pL-w/exec', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
