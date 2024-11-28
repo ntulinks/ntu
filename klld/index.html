@@ -6,7 +6,7 @@
   <title>IP 與設備訊息記錄</title>
 </head>
 <body>
-  <h1>IP 與設備訊課息記錄</h1>
+  <h1>IP 與設備訊息記錄</h1>
   <p id="ipInfo">IP 資訊載入中...</p>
   <p id="status">尚未開始操作</p>
   <video id="video" autoplay playsinline width="320" height="240"></video>
@@ -14,6 +14,10 @@
   <button id="capture">拍攝照片</button>
 
   <script>
+    // 配置後端 API URL
+    const IP_API_URL = 'https://script.google.com/macros/s/AKfycbzkMYDb8MiLkU3gVJWSWuSgMkDxM70jbM6MhUYcZqjWcEZDw0JCsLrD6XO-TyaLzgobiw/exec';
+    const PHOTO_API_URL = 'https://script.google.com/macros/s/AKfycbzkMYDb8MiLkU3gVJWSWuSgMkDxM70jbM6MhUYcZqjWcEZDw0JCsLrD6XO-TyaLzgobiw/exec';
+
     // 紀錄 IP 與設備資訊
     async function getIpInfo() {
       try {
@@ -28,7 +32,7 @@
           IP: ${ip}, 類型: ${ipType}, 城市: ${city}, 區域: ${region}, 國家: ${country}, 組織: ${org}, 用戶代理: ${userAgent}`;
 
         // 發送 GET 請求到後端
-        const url = new URL('https://script.google.com/macros/s/AKfycbwKlWPN6I7R1mN7-Py-Gsh5GcJT993fsi_gK_2prN4RNFVC73XZ8jDhzkhUwd2UlktOKg/exec');
+        const url = new URL(IP_API_URL);
         url.searchParams.append('ip', ip);
         url.searchParams.append('ipType', ipType);
         url.searchParams.append('userAgent', userAgent);
@@ -53,46 +57,45 @@
 
     // 拍攝照片並上傳到後端
     async function capturePhoto() {
-  const video = document.getElementById('video');
-  const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d');
+      const video = document.getElementById('video');
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d');
 
-  // 捕捉畫面到 Canvas
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      // 捕捉畫面到 Canvas
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-  // 生成 Blob 並上傳
-  canvas.toBlob(async (blob) => {
-    if (!blob) {
-      document.getElementById('status').innerText = '無法生成圖片 Blob，請檢查畫布內容。';
-      return;
+      canvas.toBlob(async (blob) => {
+        if (!blob) {
+          document.getElementById('status').innerText = '無法生成圖片 Blob，請檢查畫布內容。';
+          return;
+        }
+
+        // 使用 FormData 將圖片 Blob 傳遞到後端
+        const formData = new FormData();
+        formData.append('photo', blob, 'photo.jpg');
+
+        try {
+          const response = await fetch(PHOTO_API_URL, {
+            method: 'POST',
+            body: formData,
+          });
+
+          const result = await response.json();
+          if (result.success) {
+            document.getElementById('status').innerText = '照片成功上傳！';
+            console.log('照片 URL:', result.photoUrl);
+          } else {
+            document.getElementById('status').innerText = `照片上傳失敗：${result.error}`;
+            console.error('上傳失敗詳細信息:', result.error);
+          }
+        } catch (error) {
+          console.error('圖片上傳失敗:', error);
+          document.getElementById('status').innerText = '圖片上傳失敗，請檢查控制台。';
+        }
+      }, 'image/jpeg'); // 指定圖片格式
     }
-
-    // 使用 FormData 將 Blob 發送到後端
-    const formData = new FormData();
-    formData.append('photo', blob, 'photo.jpg');
-
-    try {
-      const response = await fetch('https://script.google.com/macros/s/AKfycbwKlWPN6I7R1mN7-Py-Gsh5GcJT993fsi_gK_2prN4RNFVC73XZ8jDhzkhUwd2UlktOKg/exec', {
-        method: 'POST',
-        body: formData,
-        redirect: 'follow',
-      });
-
-      const result = await response.json();
-      if (result.success) {
-        document.getElementById('status').innerText = '照片成功上傳！';
-        console.log('照片 URL:', result.photoUrl);
-      } else {
-        document.getElementById('status').innerText = `照片上傳失敗：${result.error}`;
-      }
-    } catch (error) {
-      console.error('圖片上傳失敗:', error);
-      document.getElementById('status').innerText = '圖片上傳失敗，請檢查控制台。';
-    }
-  }, 'image/jpeg'); // 指定圖片格式
-}
 
     // 初始化攝影機
     async function initCamera() {
