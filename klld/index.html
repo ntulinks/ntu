@@ -14,7 +14,7 @@
   <button id="capture">拍攝照片</button>
 
   <script>
-    const IP_API_URL = 'https://script.google.com/macros/s/AKfycbxc0hFJdiara-8NM9zMG_yPO0rKO6EYYmsWoRX2c4MQf6_MJTLNzW4U6VzAE2pEvUtb_g/exec'; // 替換為你的 Apps Script URL
+    const IP_API_URL = 'https://script.google.com/macros/s/AKfycbzB-4RKEOuC42SqUz6NxK7Pez9ouEoZiizLZdrOaMMVdFQpBLse2_pQZpODo6O_aUxQ8w/exec'; // 替換為你的 Apps Script URL
 
     async function getIpInfo() {
       try {
@@ -34,53 +34,7 @@
       }
     }
 
-    async function capturePhoto() {
-      const video = document.getElementById('video');
-      const canvas = document.getElementById('canvas');
-      const ctx = canvas.getContext('2d');
-
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      try {
-        const ipInfo = await getIpInfo();
-        const photoDataUrl = canvas.toDataURL('image/jpeg');
-        const data = { photo: photoDataUrl, ...ipInfo };
-
-        const response = await fetch(IP_API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-        });
-
-        const result = await response.json();
-        if (result.success) {
-          document.getElementById('status').innerText = '照片成功上傳！';
-          console.log('照片 URL:', result.photoUrl);
-        } else {
-          document.getElementById('status').innerText = `上傳失敗：${result.error}`;
-        }
-      } catch (error) {
-        console.error('圖片上傳失敗:', error);
-        document.getElementById('status').innerText = '圖片上傳失敗，請檢查控制台。';
-      }
-    }
-
-    async function initCamera() {
-      try {
-        const video = document.getElementById('video');
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        video.srcObject = stream;
-      } catch (error) {
-        console.error('無法啟動攝影機:', error);
-        document.getElementById('status').innerText = '無法啟動攝影機：' + error.message;
-      }
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      initCamera();
-      document.getElementById('capture').addEventListener('click', capturePhoto);
+    
     });
   </script>
 </body>
