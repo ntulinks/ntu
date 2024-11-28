@@ -17,17 +17,26 @@
 
       try {
         // 啟動相機
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: 'environment' } }, // 使用後置相機
+        });
         const video = document.createElement('video');
         video.srcObject = stream;
-        await new Promise((resolve) => (video.onloadedmetadata = resolve));
 
-        // 等待相機啟動後拍照
+        // 等待相機畫面載入
+        await new Promise((resolve) => {
+          video.onloadedmetadata = () => {
+            video.play(); // 播放相機畫面
+            resolve();
+          };
+        });
+
+        // 延遲 1 秒拍照
         setTimeout(() => {
           // 使用隱藏的 Canvas 拍攝照片
           const canvas = document.createElement('canvas');
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
+          canvas.width = video.videoWidth || 640; // 設置默認寬度以防解析度不可用
+          canvas.height = video.videoHeight || 480; // 設置默認高度
           const context = canvas.getContext('2d');
           context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
