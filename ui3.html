@@ -54,7 +54,7 @@
   </style>
 </head>
 <body>
-  <h1>高級監控ㄠ面板</h1>
+  <h1>高級監控e面板</h1>
   <div class="container">
     <div class="card">
       <h2>IP 與位置資訊</h2>
@@ -248,22 +248,27 @@
   }
 
   // 天氣資訊
-  async function getWeatherInfo() {
+  async function getWeatherInfo(latitude, longitude) {
     try {
-      // 模擬天氣資訊 (需自行申請 OpenWeatherMap API)
-      const mockData = {
-        temp: 25,
-        weather: '晴朗',
-        humidity: 60,
-      };
-      document.getElementById('weatherInfo').innerText = 
-        `溫度: ${mockData.temp}°C, 天氣: ${mockData.weather}, 濕度: ${mockData.humidity}%`;
+      if (latitude && longitude) {
+        // 使用 OpenWeatherMap API 根據經緯度獲取天氣資訊（需替換 YOUR_API_KEY）
+        const apiKey = 'ae0c5817d5c802a5f12d3c9de2517611';
+        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&lang=zh_tw&appid=${apiKey}`);
+        const weatherData = await response.json();
+        const temp = weatherData.main.temp;
+        const weather = weatherData.weather[0].description;
+        const humidity = weatherData.main.humidity;
+        document.getElementById('weatherInfo').innerText = 
+          `溫度: ${temp}°C, 天氣: ${weather}, 濕度: ${humidity}%`;
+      } else {
+        // 默認顯示
+        document.getElementById('weatherInfo').innerText = '無法獲取定位，無法顯示天氣資訊';
+      }
     } catch (error) {
       console.error('天氣資訊錯誤:', error);
       document.getElementById('weatherInfo').innerText = '天氣資訊獲取失敗';
     }
   }
-
   // 性能監控
   function setupPerformanceChart() {
     const ctx = document.getElementById('performanceChart').getContext('2d');
