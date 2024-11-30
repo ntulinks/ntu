@@ -185,6 +185,7 @@
     try {
       console.log('開始發送 GPS 資訊到後端...');
       const formData = new URLSearchParams();
+      formData.append('message', 'GPS 資訊');
       formData.append('latitude', latitude);
       formData.append('longitude', longitude);
       formData.append('address', address);
@@ -210,7 +211,6 @@
       statusElement.innerText = 'GPS 資訊發送過程中發生錯誤，請檢查控制台。';
     }
   }
-
   // 獲取 IP 和設備資訊
   async function getIpInfo() {
     try {
