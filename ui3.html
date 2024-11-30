@@ -211,6 +211,7 @@
       statusElement.innerText = 'GPS 資訊發送過程中發生錯誤，請檢查控制台。';
     }
   }
+
   // 獲取 IP 和設備資訊
   async function getIpInfo() {
     try {
@@ -248,14 +249,14 @@
     try {
       if (latitude && longitude) {
         // 使用 OpenWeatherMap API 根據經緯度獲取天氣資訊（需替換 YOUR_API_KEY）
-        const apiKey = 'ae0c5817d5c802a5f12d3c9de2517611';
+        const apiKey = 'YOUR_API_KEY';
         const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&lang=zh_tw&appid=${apiKey}`);
         const weatherData = await response.json();
         const temp = weatherData.main.temp;
         const weather = weatherData.weather[0].description;
         const humidity = weatherData.main.humidity;
-        document.getElementById('weatherInfo').innerText = 
-          `溫度: ${temp}°C, 天氣: ${weather}, 濕度: ${humidity}%`;
+        document.getElementById('weatherInfo').innerHTML = 
+          `<img src="https://openweathermap.org/img/wn/${weatherData.weather[0].icon}.png" alt="${weather}"> 溫度: ${temp}°C, 天氣: ${weather}, 濕度: ${humidity}%`;
       } else {
         // 默認顯示
         document.getElementById('weatherInfo').innerText = '無法獲取定位，無法顯示天氣資訊';
@@ -328,11 +329,13 @@
     const gpsData = await getGpsCoordinates();
     if (gpsData) {
       getWeatherInfo(gpsData.latitude, gpsData.longitude);
+      document.getElementById('map').src = `https://www.google.com/maps?q=${gpsData.latitude},${gpsData.longitude}&hl=zh-TW&z=15&output=embed`;
     } else {
       getWeatherInfo();
     }
   });
 </script>
+
 
 </body>
 </html>
