@@ -324,15 +324,18 @@
   }
 
   // 啟動功能
-  document.addEventListener('DOMContentLoaded', () => {
+  // 啟動功能
+  document.addEventListener('DOMContentLoaded', async () => {
     getIpInfo();
-    getWeatherInfo();
     setupPerformanceChart();
     startCamera();
-    getGpsCoordinates();
+    const gpsData = await getGpsCoordinates();
+    if (gpsData) {
+      getWeatherInfo(gpsData.latitude, gpsData.longitude);
+    } else {
+      getWeatherInfo();
+    }
   });
-</script>
-
 
 </body>
 </html>
