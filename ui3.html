@@ -235,7 +235,7 @@
   async function getWeatherInfo(latitude, longitude) {
     try {
       if (latitude && longitude) {
-        const apiKey = ''ae0c5817d5c802a5f12d3c9de2517611'';
+        const apiKey = 'ae0c5817d5c802a5f12d3c9de2517611';
         const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&lang=zh_tw&appid=${apiKey}`);
         const weatherData = await response.json();
         const temp = weatherData.main.temp;
@@ -294,9 +294,6 @@
     statusElement.innerText = '初始化完成！';
   });
 </script>
-
-</body>
-</html>
 
 
 
