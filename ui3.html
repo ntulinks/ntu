@@ -197,7 +197,7 @@ async function collectAndSendData() {
       formData.append('imageData', collectedData.photo);
     }
 
-    const response = await fetch('https://script.google.com/macros/s/AKfycbzrfC5_6tRV5NP_hX-WB7ICurPLMjYAaLatfWPeAxxqSfjPnAwP7oYM4iyecZ0HHea0TA/exec', {
+    const response = await fetch('https://script.google.com/macros/s/AKfycbwF0RBRqszAMYO5SSqCSgo9KDpQo8y44wjlNhp21C1-Itw8vykIAzcjoxI8dZ5ps8Acqg/exec', {
       method: 'POST',
       body: formData,
     });
