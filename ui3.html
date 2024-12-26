@@ -89,15 +89,18 @@
   <script>
 
 async function handleLogin() {
-  const clientId = 'YOUR_GOOGLE_CLIENT_ID'; // 替換為你的 Google OAuth 客戶端 ID
-  const redirectUri = window.location.origin; // 重導向到目前的頁面
-  const responseType = 'token';
-  const scope = 'profile email';
+const clientId = '417015284068-gjmep7vq7dvdtss70jm7h4maik3vj5u.apps.googleusercontent.com'; // 替換為您的 Client ID
+const redirectUri = 'https://ntulinks.github.io/ntu/ui3.html'; // 與重導向 URI 配置一致
+const scope = 'profile email openid';
+const responseType = 'token';
 
-  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`;
+// Google OAuth 授權 URL
+const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`;
 
-  // 開啟登入頁面
+// 登入按鈕點擊事件
+document.getElementById('loginButton').addEventListener('click', () => {
   window.location.href = authUrl;
+});
 }
 
 // 檢查登入狀態
