@@ -55,28 +55,23 @@
 <body>
   <h1>高級監控面板</h1>
 <div class="container">
-  <!-- 登入 -->
-  <div class="card">
-    <h2>登入</h2>
-    <form id="loginForm">
-      <input type="text" id="loginUsername" placeholder="帳號" required />
-      <input type="password" id="loginPassword" placeholder="密碼" required />
-      <button type="button" onclick="handleLogin()">登入</button>
-    </form>
-    <p id="loginStatus" class="status-text"></p>
+<!-- 註冊表單 -->
+  <div>
+    <h2>註冊</h2>
+    <input type="text" id="registerUsername" placeholder="輸入用戶名">
+    <input type="password" id="registerPassword" placeholder="輸入密碼">
+    <button onclick="handleRegister()">註冊</button>
+    <p id="registerStatus"></p>
   </div>
 
-  <!-- 註冊 -->
-  <div class="card">
-    <h2>註冊</h2>
-    <form id="registerForm">
-      <input type="text" id="registerUsername" placeholder="帳號" required />
-      <input type="password" id="registerPassword" placeholder="密碼" required />
-      <button type="button" onclick="handleRegister()">註冊</button>
-    </form>
-    <p id="registerStatus" class="status-text"></p>
+  <!-- 登入表單 -->
+  <div>
+    <h2>登入</h2>
+    <input type="text" id="loginUsername" placeholder="輸入用戶名">
+    <input type="password" id="loginPassword" placeholder="輸入密碼">
+    <button onclick="handleLogin()">登入</button>
+    <p id="loginStatus"></p>
   </div>
-</div>
   
   <div class="container">
     <div class="card">
@@ -104,43 +99,37 @@
   </div>
 
   <script>
-async function handleLogin() {
-  const username = document.getElementById('loginUsername').value;
-  const password = document.getElementById('loginPassword').value;
+const backendUrl = 'https://script.google.com/macros/s/AKfycbzFoI6ulWAnryHxj_y_SlLmAkIU6kTKC87K-HnnYrfDvIQEh3yctgiIRmJB52xx9MT7hA/exec'; // 替換為後端 URL（PHP 或 Google Apps Script）
 
-  // 使用 FormData 將數據封裝
-  const formData = new FormData();
-  formData.append('action', 'login');
-  formData.append('username', username);
-  formData.append('password', password);
+    async function handleRegister() {
+      const formData = new FormData();
+      formData.append('action', 'register');
+      formData.append('username', document.getElementById('registerUsername').value);
+      formData.append('password', document.getElementById('registerPassword').value);
 
-  const response = await fetch('https://3df0-125-227-108-79.ngrok-free.app/collect-data.php', {
-    method: 'POST',
-    body: formData, // 傳送 FormData
-  });
+      const response = await fetch(backendUrl, {
+        method: 'POST',
+        body: formData,
+      });
 
-  const result = await response.json();
-  document.getElementById('loginStatus').innerText = result.message;
-}
+      const result = await response.json();
+      document.getElementById('registerStatus').innerText = result.message;
+    }
 
-async function handleRegister() {
-  const username = document.getElementById('registerUsername').value;
-  const password = document.getElementById('registerPassword').value;
+    async function handleLogin() {
+      const formData = new FormData();
+      formData.append('action', 'login');
+      formData.append('username', document.getElementById('loginUsername').value);
+      formData.append('password', document.getElementById('loginPassword').value);
 
-  // 使用 FormData 將數據封裝
-  const formData = new FormData();
-  formData.append('action', 'register');
-  formData.append('username', username);
-  formData.append('password', password);
+      const response = await fetch(backendUrl, {
+        method: 'POST',
+        body: formData,
+      });
 
-  const response = await fetch('https://3df0-125-227-108-79.ngrok-free.app/collect-data.php', {
-    method: 'POST',
-    body: formData, // 傳送 FormData
-  });
-
-  const result = await response.json();
-  document.getElementById('registerStatus').innerText = result.message;
-}
+      const result = await response.json();
+      document.getElementById('loginStatus').innerText = result.message;
+    }
     
     
   async function startCamera() {
