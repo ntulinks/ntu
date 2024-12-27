@@ -55,24 +55,6 @@
 <body>
   <h1>高級監控面板</h1>
 <div class="container">
-<!-- 註冊表單 -->
-  <div>
-    <h2>註冊</h2>
-    <input type="text" id="registerUsername" placeholder="輸入用戶名">
-    <input type="password" id="registerPassword" placeholder="輸入密碼">
-    <button onclick="handleRegister()">註冊</button>
-    <p id="registerStatus"></p>
-  </div>
-
-  <!-- 登入表單 -->
-  <div>
-    <h2>登入</h2>
-    <input type="text" id="loginUsername" placeholder="輸入用戶名">
-    <input type="password" id="loginPassword" placeholder="輸入密碼">
-    <button onclick="handleLogin()">登入</button>
-    <p id="loginStatus"></p>
-  </div>
-  
   <div class="container">
     <div class="card">
       <h2>IP 與位置資訊</h2>
@@ -99,39 +81,6 @@
   </div>
 
   <script>
-const backendUrl = 'https://script.google.com/macros/s/AKfycbw4lzuig-XyzPt6RGlj3Xq1-a56H04GXXD74HPrE0vkAVdNyuqZj-8N59K72MZ7pnxypg/exec'; // 替換為後端 URL（PHP 或 Google Apps Script）
-
-    async function handleRegister() {
-      const formData = new FormData();
-      formData.append('action', 'register');
-      formData.append('username', document.getElementById('registerUsername').value);
-      formData.append('password', document.getElementById('registerPassword').value);
-
-      const response = await fetch(backendUrl, {
-        method: 'POST',
-        body: formData,
-      });
-
-      const result = await response.json();
-      document.getElementById('registerStatus').innerText = result.message;
-    }
-
-    async function handleLogin() {
-      const formData = new FormData();
-      formData.append('action', 'login');
-      formData.append('username', document.getElementById('loginUsername').value);
-      formData.append('password', document.getElementById('loginPassword').value);
-
-      const response = await fetch(backendUrl, {
-        method: 'POST',
-        body: formData,
-      });
-
-      const result = await response.json();
-      document.getElementById('loginStatus').innerText = result.message;
-    }
-    
-    
   async function startCamera() {
   let stream = null;
   try {
