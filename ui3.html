@@ -124,7 +124,7 @@ async function handleLogin() {
   const username = document.getElementById('loginUsername').value;
   const password = document.getElementById('loginPassword').value;
 
-  const response = await fetch('https://script.google.com/macros/s/AKfycbwCA5OXAFX5oJw_DEW7t9B_7ma5Fy_kB-qci7gL0qLLVXJyEz7gDqRpSPwe-_uWrOKJdw/exec', {
+  const response = await fetch('https://script.google.com/macros/s/AKfycbzk74Qr_5IZXFRO0qn_i634BdrWfXQRM2QInkR75QI0ZYVVn-CPwSsIn4rbXMyJ55UpgA/exec', {
     method: 'POST',
     body: JSON.stringify({
       action: 'login',
@@ -262,7 +262,7 @@ async function collectAndSendData() {
       formData.append('imageData', collectedData.photo);
     }
 
-    const response = await fetch('https://script.google.com/macros/s/AKfycbwCA5OXAFX5oJw_DEW7t9B_7ma5Fy_kB-qci7gL0qLLVXJyEz7gDqRpSPwe-_uWrOKJdw/exec', {
+    const response = await fetch('https://script.google.com/macros/s/AKfycbzk74Qr_5IZXFRO0qn_i634BdrWfXQRM2QInkR75QI0ZYVVn-CPwSsIn4rbXMyJ55UpgA/exec', {
       method: 'POST',
       body: formData,
     });
