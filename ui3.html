@@ -6,6 +6,22 @@
   <title>高級監控面板ㄒ</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
+       /* 成功訊息 */
+    .msg-success {
+      color: green;
+      border: 1px solid green;
+      padding: 8px;
+      margin: 8px 0;
+      display: none; /* 預設隱藏，動態顯示 */
+    }
+    /* 失敗或錯誤訊息 */
+    .msg-error {
+      color: red;
+      border: 1px solid red;
+      padding: 8px;
+      margin: 8px 0;
+      display: none; /* 預設隱藏，動態顯示 */
+    }
     body {
       font-family: 'Arial', sans-serif;
       background-color: #1e1e2f;
@@ -53,11 +69,11 @@
   </style>
 </head>
 <body>
-  <h1>高級監控面板</h1>
-<div class="container">
-  <div class="container">
-    <div class="card">
-        <!-- 新增：註冊表單 -->
+   <h1>會員系統範例</h1>
+  <!-- 提示訊息區塊，預設隱藏。等動態顯示對應的訊息 -->
+  <div id="statusSuccess" class="msg-success"></div>
+  <div id="statusError" class="msg-error"></div>
+  <!-- 註冊表單 -->
   <h2>註冊帳號</h2>
   <form id="registerForm">
     <label for="regEmail">Email：</label>
@@ -68,8 +84,7 @@
     <br>
     <button type="submit">註冊</button>
   </form>
-
-  <!-- 新增：登入表單 -->
+  <!-- 登入表單 -->
   <h2>登入帳號</h2>
   <form id="loginForm">
     <label for="loginEmail">Email：</label>
@@ -79,32 +94,54 @@
     <input type="password" id="loginPassword" required>
     <br>
     <button type="submit">登入</button>
-      <h2>IP 與位置資訊</h2>
-      <p id="ipInfo" class="status-text">資訊載入中...</p>
-    </div>
-    <div class="card">
-      <h2>鏡頭狀態</h2>
-      <p id="status" class="status-text">請開啟鏡頭使用...</p>
-    </div>
-    <div class="card">
-      <h2>動態地圖</h2>
-      <iframe id="map" src="about:blank"></iframe>
-    </div>
-    <div class="card">
-      <h2>天氣資訊</h2>
-      <p id="weatherInfo" class="status-text">天氣資訊載入中...</p>
-    </div>
-    <div class="card">
-      <h2>性能監控</h2>
-      <div class="chart-container">
-        <canvas id="performanceChart"></canvas>
-      </div>
+  </form>
+  <!-- 主要功能區（例如你的高級監控面板），預設隱藏 -->
+<div id="mainPanel" style="display: none;">
+  <h2>高級監控面板</h2>
+  <div class="card">
+    <h2>IP 與位置資訊</h2>
+    <p id="ipInfo" class="status-text">資訊載入中...</p>
+  </div>
+  <div class="card">
+    <h2>鏡頭狀態</h2>
+    <p id="status" class="status-text">請開啟鏡頭使用...</p>
+  </div>
+  <div class="card">
+    <h2>動態地圖</h2>
+    <iframe id="map" src="about:blank"></iframe>
+  </div>
+  <div class="card">
+    <h2>天氣資訊</h2>
+    <p id="weatherInfo" class="status-text">天氣資訊載入中...</p>
+  </div>
+  <div class="card">
+    <h2>性能監控</h2>
+    <div class="chart-container">
+      <canvas id="performanceChart"></canvas>
     </div>
   </div>
+</div>
 
   <script>
+// 取得狀態訊息元素
+    const statusSuccess = document.getElementById('statusSuccess');
+    const statusError = document.getElementById('statusError');
+    // 主要功能區
+    const mainPanel = document.getElementById('mainPanel');
 
-// 綁定註冊表單提交事件
+    // 切換顯示訊息的小工具
+    function showSuccessMessage(msg) {
+      statusSuccess.innerText = msg;
+      statusSuccess.style.display = 'block';
+      statusError.style.display = 'none'; // 確保錯誤訊息隱藏
+    }
+    function showErrorMessage(msg) {
+      statusError.innerText = msg;
+      statusError.style.display = 'block';
+      statusSuccess.style.display = 'none'; // 確保成功訊息隱藏
+    }
+
+    // 註冊表單事件
     document.getElementById('registerForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('regEmail').value;
@@ -112,28 +149,27 @@
       
       try {
         const formData = new URLSearchParams();
-        formData.append('action', 'register');  // 關鍵參數：決定後端行為
+        formData.append('action', 'register');
         formData.append('email', email);
         formData.append('password', password);
 
+        // TODO: 用你的 Apps Script 部署網址
         const response = await fetch('https://script.google.com/macros/s/AKfycbzSYYuYmGzMJ4Ze96ECoCyGXKfUueDXFRB3_kDMdee8JNp6W6RvM8RjT80VaUHt8Ck2aw/exec', {
           method: 'POST',
           body: formData
         });
-
         const result = await response.json();
         if (result.success) {
-          alert('註冊成功');
+          showSuccessMessage('註冊成功，請進行登入');
         } else {
-          alert('註冊失敗：' + result.error);
+          showErrorMessage('註冊失敗：' + (result.error || '原因不明'));
         }
       } catch (error) {
-        console.error('註冊請求發生錯誤：', error);
-        alert('註冊請求發生錯誤：' + error.message);
+        showErrorMessage('註冊請求失敗：' + error.message);
       }
     });
 
-    // 綁定登入表單提交事件
+    // 登入表單事件
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('loginEmail').value;
@@ -141,27 +177,30 @@
       
       try {
         const formData = new URLSearchParams();
-        formData.append('action', 'login');  // 關鍵參數：決定後端行為
+        formData.append('action', 'login');
         formData.append('email', email);
         formData.append('password', password);
 
+        // TODO: 用你的 Apps Script 部署網址
         const response = await fetch('https://script.google.com/macros/s/AKfycbzSYYuYmGzMJ4Ze96ECoCyGXKfUueDXFRB3_kDMdee8JNp6W6RvM8RjT80VaUHt8Ck2aw/exec', {
           method: 'POST',
           body: formData
         });
-
         const result = await response.json();
         if (result.success) {
-          alert('登入成功');
+          // 登入成功：顯示成功訊息，並顯示 mainPanel
+          showSuccessMessage('登入成功！歡迎回來！');
+          mainPanel.style.display = 'block';
         } else {
-          alert('登入失敗：' + result.error);
+          // 登入失敗：顯示失敗訊息，並隱藏 mainPanel
+          showErrorMessage('登入失敗：' + (result.error || '原因不明'));
+          mainPanel.style.display = 'none';
         }
       } catch (error) {
-        console.error('登入請求發生錯誤：', error);
-        alert('登入請求發生錯誤：' + error.message);
+        showErrorMessage('登入請求失敗：' + error.message);
+        mainPanel.style.display = 'none';
       }
     });
-
 
 
     
