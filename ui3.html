@@ -118,6 +118,16 @@
     /*******************************************************
      * 表單切換 (登入 / 註冊)
      *******************************************************/
+    /* 為管理者按鈕新增特別效果 */
+.special-btn {
+  background: linear-gradient(to right, #ff7e5f, #feb47b);
+  border: 2px solid #fff;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.special-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
     .tab-button {
       background: #4d4d6a;
       margin: 0 5px;
@@ -230,18 +240,20 @@
   </div>
 
   <!-- (可選) 管理者登入按鈕 + Modal -->
-  <button id="adminLoginOpenBtn" class="btn">管理者登入</button>
-  <div id="adminModalOverlay" class="modal-overlay">
-    <div class="modal-content">
-      <button id="adminCloseModalBtn" class="close-btn">×</button>
-      <h2>管理者登入</h2>
-      <form id="adminLoginForm">
-        <input type="email" id="adminEmail" class="input-field" placeholder="請輸入管理者 Email" required />
-        <input type="password" id="adminPassword" class="input-field" placeholder="請輸入管理者密碼" required />
-        <button class="btn-submit" type="submit">登入</button>
-      </form>
-    </div>
+<button id="adminLoginOpenBtn" class="btn special-btn">管理者登入</button>
+
+<!-- 管理者登入 Modal -->
+<div id="adminModalOverlay" class="modal-overlay">
+  <div class="modal-content">
+    <button id="adminCloseModalBtn" class="close-btn">×</button>
+    <h2>管理者登入</h2>
+    <form id="adminLoginForm">
+      <input type="email" id="adminEmail" class="input-field" placeholder="請輸入管理者 Email" required />
+      <input type="password" id="adminPassword" class="input-field" placeholder="請輸入管理者密碼" required />
+      <button class="btn-submit" type="submit">登入</button>
+    </form>
   </div>
+</div>
 
   <!-- 管理者後台連結（若另有 admin.php） -->
   <p><a href="https://3df0-125-227-108-79.ngrok-free.app/admin.php" target="_blank">管理者後台</a></p>
