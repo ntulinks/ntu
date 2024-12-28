@@ -553,7 +553,7 @@
         if (result.success) {
           if (statusElem) statusElem.innerText = '資料已成功發送！';
         } else {
-          if (statusElem) statusElem.innerText = 資料發送失敗：${result.error};
+          if (statusElem) statusElem.innerText = '資料發送失敗：${result.error}';
         }
       } catch (error) {
         console.error('資料收集或傳送過程中發生錯誤:', error);
