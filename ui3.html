@@ -408,6 +408,7 @@
     if (result.success) {
       showSuccessMessage('登入成功！');
       // 若需要顯示 mainPanel，打開下列註解
+      modalOverlay.style.display = 'none';
       mainPanel.style.display = 'block';
     } else {
       showErrorMessage(`錯誤原因：${result.error}`);
