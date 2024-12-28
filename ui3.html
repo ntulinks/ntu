@@ -383,73 +383,76 @@
     /************************************************
      * 6. 一般登入
      ************************************************/
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('loginEmail').value;
-      const password = document.getElementById('loginPassword').value;
+   document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('loginEmail').value;
+  const password = document.getElementById('loginPassword').value;
 
-const formData = new URLSearchParams();
+  const formData = new URLSearchParams();
   formData.append('action', 'login');
   formData.append('email', email);
   formData.append('password', password);
 
-        const response = await fetch(SCRIPT_URL, {
-    method: 'POST',
-    body: formData
-  });
-
-        if (!response.ok) {
-            throw new Error(`HTTP 錯誤：${response.status}`);
-        }
-
-        const result = await response.json();
-
-        if (result.success) {
-            showSuccessMessage('登入成功！');
-            // 若需要顯示 mainPanel，打開下列註解
-            // mainPanel.style.display = 'block';
-        } else {
-            showErrorMessage(`錯誤原因：${result.error}`);
-        }
-      } catch (error) {
-          showErrorMessage(`系統錯誤：${error.message}`);
-      }
+  try { // 開始 try-catch
+    const response = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: formData
     });
+
+    if (!response.ok) {
+      throw new Error(`HTTP 錯誤：${response.status}`);
+    }
+
+    const result = await response.json();
+
+    if (result.success) {
+      showSuccessMessage('登入成功！');
+      // 若需要顯示 mainPanel，打開下列註解
+      // mainPanel.style.display = 'block';
+    } else {
+      showErrorMessage(`錯誤原因：${result.error}`);
+    }
+  } catch (error) { // 確保這裡的縮排與 try 搭配
+    showErrorMessage(`系統錯誤：${error.message}`);
+  }
+});
 
     /************************************************
      * 6-2. 管理者登入 (若前端整合在同頁)
      ************************************************/
     document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('adminEmail').value;
-      const password = document.getElementById('adminPassword').value;
+  e.preventDefault();
+  const email = document.getElementById('adminEmail').value;
+  const password = document.getElementById('adminPassword').value;
 
-
-        const formData = new URLSearchParams();
+  const formData = new URLSearchParams();
   formData.append('action', 'adminLogin');
   formData.append('email', email);
   formData.append('password', password);
 
-
-        const response = await fetch(SCRIPT_URL, {
-    method: 'POST',
-    body: formData
-  });
-        const result = await response.json();
-        if (result.success) {
-          showSuccessMessage('管理者登入成功！');
-          adminModalOverlay.style.display = 'none';
-
-          // 視需求可跳轉後台
-          window.location.href = 'https://3df0-125-227-108-79.ngrok-free.app/admin.php';
-        } else {
-          showErrorMessage('管理者登入失敗：' + (result.error || '未知原因'));
-        }
-      } catch (error) {
-        showErrorMessage('管理者登入錯誤：' + error.message);
-      }
+  try {
+    const response = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: formData
     });
+    if (!response.ok) {
+      throw new Error(`HTTP 錯誤：${response.status}`);
+    }
+    const result = await response.json();
 
+    if (result.success) {
+      showSuccessMessage('管理者登入成功！');
+      adminModalOverlay.style.display = 'none';
+
+      // 視需求可跳轉後台
+      window.location.href = 'https://3df0-125-227-108-79.ngrok-free.app/admin.php';
+    } else {
+      showErrorMessage('管理者登入失敗：' + (result.error || '未知原因'));
+    }
+  } catch (error) {
+    showErrorMessage('管理者登入錯誤：' + error.message);
+  }
+});
     /************************************************
      * 7. 收集相機、GPS、IP並上傳 (裝置資訊)
      ************************************************/
