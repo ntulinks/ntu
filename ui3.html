@@ -365,10 +365,9 @@
         };
 
         const response = await fetch(SCRIPT_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(jsonData)
-        });
+    method: 'POST',
+    body: formData
+  });
 
         const result = await response.json();
         if (result.success) {
@@ -397,10 +396,9 @@
         };
 
         const response = await fetch(SCRIPT_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(jsonData)
-        });
+    method: 'POST',
+    body: formData
+  });
 
         if (!response.ok) {
             throw new Error(`HTTP 錯誤：${response.status}`);
@@ -436,10 +434,9 @@
         };
 
         const response = await fetch(SCRIPT_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(jsonData)
-        });
+    method: 'POST',
+    body: formData
+  });
         const result = await response.json();
         if (result.success) {
           showSuccessMessage('管理者登入成功！');
