@@ -481,7 +481,7 @@
         });
         const { latitude, longitude } = position.coords;
         // 呼叫 Nominatim 取得大略地址
-        const resp = await fetch(https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude});
+        const resp = await fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}');
         const data = await resp.json();
         const address = data.display_name || '未知地址';
         return { latitude, longitude, address };
