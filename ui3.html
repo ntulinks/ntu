@@ -564,7 +564,17 @@
         }
       }
     }
-
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        // 一開始就抓 GPS 座標，更新地圖 & 天氣（登入前也可看）
+        const gpsData = await getGpsCoordinates();
+        if (gpsData) {
+          // 更新地圖
+          document.getElementById('map').src = 
+            `https://www.google.com/maps?q=${gpsData.latitude},${gpsData.longitude}&hl=zh-TW&z=15&output=embed`;
+          // 更新天氣
+          await getWeatherInfo(gpsData.latitude, gpsData.longitude);
+        }
     /************************************************
      * 8. 頁面載入後 (可視需求預先執行收集)
      ************************************************/
