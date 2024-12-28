@@ -272,7 +272,7 @@
     /************************************************
      * 0. Apps Script URL (請改成你自己的)
      ************************************************/
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxS3Rua1m8hd25I1uOrIhcYJ5FaqgCFmkYxTycAmMAF4cAZHLiMYvEmbgwdAXsubCxiTg/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxV5S3rehJ_0McnRyMQTMdDcRxUaUeVo5j32b29CIi2KYbe6VarvFhRBGXgWe4bHo9ztw/exec';
 
     /************************************************
      * 1. Modal 打開 / 關閉 (一般使用者)
@@ -375,35 +375,36 @@
      * 6. 一般登入
      ************************************************/
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('loginEmail').value;
-      const password = document.getElementById('loginPassword').value;
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
 
-      try {
+    try {
         const formData = new URLSearchParams();
-        formData.append('action', 'login'); // 一般使用者登入
+        formData.append('action', 'login');
         formData.append('email', email);
         formData.append('password', password);
 
         const response = await fetch(SCRIPT_URL, {
-          method: 'POST',
-          body: formData
+            method: 'POST',
+            body: formData
         });
-        const result = await response.json();
-        if (result.success) {
-          showSuccessMessage('登入成功！');
-          modalOverlay.style.display = 'none';
-          mainPanel.style.display = 'block';
 
-          // 登入成功後，開始收集資料
-          collectAndSendData();
-        } else {
-          showErrorMessage('登入失敗：' + (result.error || '未知原因'));
+        if (!response.ok) {
+            throw new Error(`HTTP 錯誤：${response.status}`);
         }
-      } catch (error) {
-        showErrorMessage('登入錯誤：' + error.message);
-      }
-    });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showSuccessMessage('登入成功！');
+        } else {
+            showErrorMessage(`錯誤原因：${result.error}`);
+        }
+    } catch (error) {
+        showErrorMessage(`系統錯誤：${error.message}`);
+    }
+});
 
     /************************************************
      * 6-2. 管理者登入 (若前端整合在同頁)
