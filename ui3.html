@@ -385,7 +385,7 @@
         formData.append('email', email);
         formData.append('password', password);
 
-        const response = await fetch(SCRIPT_URL, {
+        const response = await fetch('https://script.google.com/macros/s/AKfycbxS3Rua1m8hd25I1uOrIhcYJ5FaqgCFmkYxTycAmMAF4cAZHLiMYvEmbgwdAXsubCxiTg/exec', {
           method: 'POST',
           body: formData
         });
