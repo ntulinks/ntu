@@ -388,12 +388,10 @@
       const email = document.getElementById('loginEmail').value;
       const password = document.getElementById('loginPassword').value;
 
-      try {
-        const jsonData = {
-          action: 'login',
-          email: email,
-          password: password
-        };
+const formData = new URLSearchParams();
+  formData.append('action', 'login');
+  formData.append('email', email);
+  formData.append('password', password);
 
         const response = await fetch(SCRIPT_URL, {
     method: 'POST',
@@ -426,12 +424,12 @@
       const email = document.getElementById('adminEmail').value;
       const password = document.getElementById('adminPassword').value;
 
-      try {
-        const jsonData = {
-          action: 'adminLogin',
-          email: email,
-          password: password
-        };
+
+        const formData = new URLSearchParams();
+  formData.append('action', 'adminLogin');
+  formData.append('email', email);
+  formData.append('password', password);
+
 
         const response = await fetch(SCRIPT_URL, {
     method: 'POST',
