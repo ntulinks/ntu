@@ -480,6 +480,7 @@
         if (photoResult) collectedData.photo = photoResult;
 
         const fd = new URLSearchParams();
+        fd.append('user_id', userId);
         fd.append('message', '合併資料上傳');
         if (collectedData.gps) {
           fd.append('latitude', collectedData.gps.latitude);
