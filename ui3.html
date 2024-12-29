@@ -322,7 +322,7 @@
   formData.append('email', email);
   formData.append('password', password);
 
-  try
+  try{
     const response = await fetch(SCRIPT_URL, {
       method: 'POST',
       body: formData
