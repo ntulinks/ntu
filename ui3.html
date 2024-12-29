@@ -232,6 +232,21 @@
     </div>
   </div>
   <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    // 假設從後端檢查用戶是否已登入
+    const response = await fetch(SCRIPT_URL + '?action=checkLogin');
+    const result = await response.json();
+    if (result.loggedIn) {
+      mainPanel.style.display = 'block';
+      await collectAndSendData();
+    } else {
+      modalOverlay.style.display = 'flex';
+    }
+  } catch (error) {
+    console.error('檢查登入狀態時出現錯誤:', error);
+  }
+});
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzVxqkMTu0dzhcAlzIKqQlxtAYzY-jOQCf9aTXGtEe0zB2m6Leh9ChJ-xbRygiTSx7AhA/exec';
     const openModalBtn = document.getElementById('openModalBtn');
     const modalOverlay = document.getElementById('modalOverlay');
