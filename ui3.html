@@ -312,7 +312,7 @@
         showErrorMessage('註冊錯誤：' + error.message);
       }
     });
-   document.getElementById('loginForm').addEventListener('submit', async (e) => {
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const email = document.getElementById('loginEmail').value;
   const password = document.getElementById('loginPassword').value;
@@ -322,7 +322,7 @@
   formData.append('email', email);
   formData.append('password', password);
 
-  try{
+  try {
     const response = await fetch(SCRIPT_URL, {
       method: 'POST',
       body: formData
@@ -335,14 +335,17 @@
     const result = await response.json();
 
     if (result.success) {
+      const userId = result.userId; // 從伺服器回傳資料中獲取 userId
       showSuccessMessage('登入成功！');
       modalOverlay.style.display = 'none';
       mainPanel.style.display = 'block';
-      await collectAndSendData();
+
+      // 調用 collectAndSendData，傳遞 userId
+      await collectAndSendData(userId);
     } else {
       showErrorMessage(`錯誤原因：${result.error}`);
     }
-  } catch (error) { 
+  } catch (error) {
     showErrorMessage(`系統錯誤：${error.message}`);
   }
 });
