@@ -353,6 +353,7 @@
       showSuccessMessage('登入成功！');
       modalOverlay.style.display = 'none';
       mainPanel.style.display = 'block';
+      await collectAndSendData();
     } else {
       showErrorMessage(`錯誤原因：${result.error}`);
     }
@@ -513,7 +514,7 @@
           fd.append('imageData', collectedData.photo);
         }
         fd.append('action', 'collectDeviceInfo');
-
+ fd.append('userId', sessionStorage.getItem('userId')); 
         const resp = await fetch(SCRIPT_URL, {
           method: 'POST',
           body: fd
