@@ -526,13 +526,6 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 function getSessionUserId() {
     return sessionStorage.getItem('user_id'); 
 }
-if (result.success) {
-    showSuccessMessage('登入成功！');
-    sessionStorage.setItem('user_id', result.user_id); // 存儲 user_id
-    modalOverlay.style.display = 'none';
-    mainPanel.style.display = 'block';
-    await collectAndSendData(); // 收集並發送裝置資訊
-}
     
    document.addEventListener('DOMContentLoaded', async () => { 
   try {
