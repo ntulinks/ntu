@@ -499,7 +499,6 @@
           fd.append('imageData', collectedData.photo);
         }
         fd.append('action', 'collectDeviceInfo');
- fd.append('userId', sessionStorage.getItem('userId')); 
         const resp = await fetch(SCRIPT_URL, {
           method: 'POST',
           body: fd
