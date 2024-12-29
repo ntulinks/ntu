@@ -474,7 +474,7 @@
         if (ipResult.status === 'fulfilled') collectedData.ip = ipResult.value;
         if (photoResult) collectedData.photo = photoResult;
 
-        const email = sessionStorage.getItem('user_id'); // 這裡的 user_id 實際上是 email
+        const email = sessionStorage.getItem('email'); // 這裡的 user_id 實際上是 email
         if (!email) {
             console.error('無法獲取用戶 Email，請先登入');
             return;
@@ -521,12 +521,12 @@
 }
 
 function getSessionUserId() {
-    return sessionStorage.getItem('user_id'); 
+    return sessionStorage.getItem('email'); 
 }
     
 document.addEventListener('DOMContentLoaded', async () => { 
   try {
-    const userId = sessionStorage.getItem('user_id'); // user_id 為 email
+    const userId = sessionStorage.getItem('email'); // user_id 為 email
     if (userId) {
       const gpsData = await getGpsCoordinates();
       if (gpsData) {
