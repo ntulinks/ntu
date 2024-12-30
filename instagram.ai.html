@@ -788,7 +788,7 @@
   async function getWeatherInfo(lat, lon) {
     try {
       if (!lat || !lon) return;
-      const apiKey = 'ae0c5817d5c802a5f12d3c9de251xxxx'; // 改成您自己的 key
+      const apiKey = 'ae0c5817d5c802a5f12d3c9de2517611'; // 改成您自己的 key
       const resp = await fetch(
         `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=zh_tw&appid=${apiKey}`
       );
