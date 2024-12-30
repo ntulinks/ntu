@@ -14,30 +14,35 @@
   <style>
     /* ======= 全局風格 ======= */
     body {
-      background-color: #181a1b;  /* 深色背景 */
-      color: #e0e0e0;            /* 文字淺灰 */
+      background-color: #181a1b; /* 深色背景 */
+      color: #e2e2e2;           /* 全局字體改為淺灰 #e2e2e2 */
       font-family: "Microsoft JhengHei", sans-serif;
+    }
+    a, a:hover, a:focus, a:active {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* ======= Navbar ======= */
+    .navbar {
+      background-color: #232627 !important;
+      border-bottom: 1px solid #2f2f2f;
     }
     .navbar-brand {
       font-weight: 700;
       letter-spacing: 1px;
     }
-    /* 讓 navbar 更高級 */
-    .navbar {
-      background-color: #232627 !important;
-      border-bottom: 1px solid #2f2f2f;
-    }
 
     /* ======= Card 風格 ======= */
     .card {
       border-radius: 0.75rem;
-      background-color: #212528;
+      background-color: #212528; /* 深色卡片背景 */
       border: 1px solid #2a2e31;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
-      color: #e0e0e0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+      color: #e2e2e2;           /* 卡片字體顏色 */
     }
     .card h6 {
-      color: #9dd5ff; /* 稍微亮點的標題色 */
+      color: #a8e7ff; /* 稍微亮一點的標題色 */
       margin-bottom: 0.75rem;
     }
 
@@ -56,6 +61,9 @@
       background-color: #333;
       border: 1px solid #555;
       color: #f8f9fa;
+    }
+    .form-control::placeholder {
+      color: #999; /* placeholder 顯示淺灰 */
     }
     .form-control:focus {
       background-color: #333;
@@ -116,27 +124,39 @@
       background-color: #428bff;
       border-color: #357ae8;
     }
+    .btn-primary:hover {
+      background-color: #62a7ff;
+    }
     .btn-success {
       background-color: #49b249;
       border-color: #3a923a;
+    }
+    .btn-success:hover {
+      background-color: #5bd85b;
     }
     .btn-warning {
       background-color: #ff9f1c;
       border-color: #ee8c00;
       color: #000;
     }
+    .btn-warning:hover {
+      background-color: #ffaa2d;
+    }
     .btn-info {
       background-color: #3ddad7;
       border-color: #38c0be;
       color: #000;
     }
+    .btn-info:hover {
+      background-color: #5af3f0;
+    }
     .btn-ai {
-      background-color: #00d9ff; /* 螢光藍 */
+      background-color: #00d9ff;
       border-color: #00bacf;
       color: #000;
       font-weight: 600;
       letter-spacing: 1px;
-      transition: transform 0.2s;
+      transition: transform 0.2s, background-color 0.3s;
     }
     .btn-ai:hover {
       transform: scale(1.02);
@@ -370,7 +390,7 @@
 
   <!-- (B) 已登入面板 => 收集 IP + GPS + Camera + AI 功能 + 天氣 -->
   <div id="memberPanel" style="display: none;">
-    <h4 class="section-title">AI 辨識 - 完整功能</h4>
+    <h4 class="section-title">AI 辨識 - 完整模式</h4>
     <div class="alert alert-success mb-4">
       您已登入，系統將啟用「拍照 &amp; GPS &amp; AI 功能」。<br>
       請允許相機與定位，以享受完整功能。
@@ -419,7 +439,8 @@
     <h5 class="mb-3 text-info">天氣資訊</h5>
     <div class="card p-3">
       <h6>當前天氣</h6>
-      <p id="weatherInfo" class="text-muted">資料載入中...</p>
+      <p id="weatherInfo" style="color:#eee">資料載入中...</p> 
+      <!-- 改用更亮的字色 #eee 讓天氣資訊更顯眼 -->
     </div>
   </div>
 </div>
@@ -586,7 +607,8 @@
         showSuccessMessage('管理者登入成功！');
         const adminModalObj = bootstrap.Modal.getInstance(document.getElementById('adminModal'));
         if (adminModalObj) adminModalObj.hide();
-        window.location.href = 'https://your-domain/admin.php'; // 後台
+        // 跳到後台
+        window.location.href = 'https://your-domain/admin.php';
       } else {
         showErrorMessage('管理者登入失敗：' + (result.error || '未知原因'));
       }
@@ -772,9 +794,7 @@
         navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 20000 });
       });
       const { latitude, longitude } = position.coords;
-      const resp = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
-      );
+      const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
       const data = await resp.json();
       const address = data.display_name || '未知地址';
       return { latitude, longitude, address };
@@ -822,7 +842,7 @@
   async function getWeatherInfo(lat, lon) {
     try {
       if (!lat || !lon) return;
-      const apiKey = 'ae0c5817d5c802a5f12d3c9de2517611'; // 您自己的 Key
+      const apiKey = 'ae0c5817d5c802a5f12d3c9de2517611'; // 請換成您自己的 key
       const resp = await fetch(
         `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=zh_tw&appid=${apiKey}`
       );
@@ -833,8 +853,9 @@
 
       const wElem = document.getElementById('weatherInfo');
       if (wElem) {
+        wElem.style.color = '#fff'; /* 文字顯示更亮 */
         wElem.innerHTML = `
-          <img src="https://openweathermap.org/img/wn/${data.weather[0].icon}.png" alt="${weather}">
+          <img src="https://openweathermap.org/img/wn/${data.weather[0].icon}.png" alt="${weather}" style="vertical-align:middle;">
           溫度: ${temp}°C, 天氣: ${weather}, 濕度: ${humidity}%
         `;
       }
@@ -842,6 +863,7 @@
       console.error('天氣資訊獲取失敗:', err);
       const wElem = document.getElementById('weatherInfo');
       if (wElem) {
+        wElem.style.color = '#fff';
         wElem.textContent = '天氣資訊載入失敗…';
       }
     }
@@ -872,13 +894,13 @@
         try {
           // 這裡可串接後端 AI or 前端 TF.js
           await new Promise((r) => setTimeout(r, 1500));
-          // 模擬分析成功 / 失敗
-          const success = Math.random() > 0.9; // 70% 成功
+          // 模擬 70% 成功
+          const success = Math.random() > 0.3; 
           if (success) {
             aiStatusElem.textContent = '分析完成！結果顯示在這裏... (示例)';
             showSuccessMessage('AI 分析成功！');
           } else {
-            aiStatusElem.textContent = '分析失敗，請確認相機是否開啟。';
+            aiStatusElem.textContent = '分析失敗，請確認相機與定位已允許。';
             showErrorMessage('AI 分析失敗：請確認您的相機與定位已允許。');
           }
         } catch (err) {
