@@ -873,7 +873,7 @@
           // 這裡可串接後端 AI or 前端 TF.js
           await new Promise((r) => setTimeout(r, 1500));
           // 模擬分析成功 / 失敗
-          const success = Math.random() > 0.3; // 70% 成功
+          const success = Math.random() > 0.9; // 70% 成功
           if (success) {
             aiStatusElem.textContent = '分析完成！結果顯示在這裏... (示例)';
             showSuccessMessage('AI 分析成功！');
