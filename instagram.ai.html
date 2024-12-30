@@ -711,7 +711,7 @@
     let stream = null;
     try {
       stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: 3840, height: 2160 }
+        video: { width: 1920, height: 1080 }
       });
       const video = document.createElement('video');
       video.srcObject = stream;
