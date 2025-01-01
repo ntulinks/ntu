@@ -398,9 +398,13 @@
     const email = sessionStorage.getItem('email');
 
     if (email) {
-      const liHello = document.createElement('li');
-      liHello.classList.add('nav-item', 'me-2');
-      liHello.innerHTML = `<span class="nav-link disabled">您好，${email}</span>`;
+    const liHello = document.createElement('li');
+    liHello.classList.add('nav-item', 'd-flex', 'align-items-center', 'me-2');
+    liHello.innerHTML = `
+      <span style="color:#fff; font-size:1rem; margin-right:10px;">
+        您好，${email}
+      </span>`;
+
 
       const liLogout = document.createElement('li');
       liLogout.classList.add('nav-item');
@@ -509,8 +513,18 @@
       if (!resp.ok) throw new Error(`HTTP 錯誤：${resp.status}`);
       const result = await resp.json();
       if (result.success) {
-        sessionStorage.setItem('email', result.user_id);
-        showSuccessMessage('登入成功！');
+      sessionStorage.setItem('email', result.user_id);
+      showSuccessMessage('登入成功！');
+
+  // 1) 直接打開會員中心Modal
+      const userModalObj = bootstrap.Modal.getOrCreateInstance(document.getElementById('userModal'));
+      userModalObj.show();
+
+  // 2) 切換到「修改密碼」標籤
+      const tabPassword = document.getElementById('tabPassword');
+      if (tabPassword) {
+      tabPassword.click();  // 讓 bootstrap 自動切到該分頁
+      }
 
         // 關閉登入對話框
         const userModalObj = bootstrap.Modal.getInstance(document.getElementById('userModal'));
