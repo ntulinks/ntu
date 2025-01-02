@@ -392,59 +392,80 @@
   const guestTip      = document.getElementById('guestTip');
   const memberPanel   = document.getElementById('memberPanel');
   
-  // 動態更新 Navbar
-  function updateNavbar() {
-    const navRight = document.getElementById('navRight');
-    navRight.innerHTML = '';
-    const email = sessionStorage.getItem('email');
+// 動態更新 Navbar
+function updateNavbar() {
+  const navRight = document.getElementById('navRight');
+  navRight.innerHTML = '';
+  const email = sessionStorage.getItem('email');
 
-    if (email) {
-      // 已登入
-      const liHello = document.createElement('li');
-      liHello.classList.add('nav-item', 'd-flex', 'align-items-center', 'me-2');
-      liHello.innerHTML = `<span style="color:#fff; margin-right:10px;">您好，${email}</span>`;
+  if (email) {
+    // 已登入
+    
+    // ★★ 新增的程式碼：建立「您好，xxx」文字
+    const liHello = document.createElement('li');
+    liHello.classList.add('nav-item', 'd-flex', 'align-items-center', 'me-2');
+    liHello.innerHTML = `<span style="color:#fff; margin-right:10px;">您好，${email}</span>`;
 
-      const liLogout = document.createElement('li');
-      liLogout.classList.add('nav-item');
-      const logoutBtn = document.createElement('button');
-      logoutBtn.classList.add('btn', 'btn-secondary', 'btn-sm');
-      logoutBtn.textContent = '登出';
-      logoutBtn.onclick = () => {
-        sessionStorage.removeItem('email');
-        location.reload();
-      };
-      liLogout.appendChild(logoutBtn);
+    // ★★ 新增的程式碼：建立「修改密碼」按鈕
+    const liChangePwd = document.createElement('li');
+    liChangePwd.classList.add('nav-item', 'me-2');
+    const changePwdBtn = document.createElement('button');
+    changePwdBtn.classList.add('btn', 'btn-danger', 'btn-sm');
+    changePwdBtn.textContent = '修改密碼';
+    changePwdBtn.onclick = () => {
+      // 開啟 userModal
+      const modal = new bootstrap.Modal(document.getElementById('userModal'));
+      modal.show();
+      // 直接切到「修改密碼」分頁
+      document.getElementById('tabPassword').click();
+    };
+    liChangePwd.appendChild(changePwdBtn);
 
-      navRight.appendChild(liHello);
-      navRight.appendChild(liLogout);
-    } else {
-      // 未登入
-      const liUserCenter = document.createElement('li');
-      liUserCenter.classList.add('nav-item', 'me-2');
-      const userBtn = document.createElement('button');
-      userBtn.classList.add('btn', 'btn-secondary', 'btn-sm');
-      userBtn.textContent = '會員中心';
-      userBtn.onclick = () => {
-        const modal = new bootstrap.Modal(document.getElementById('userModal'));
-        modal.show();
-      };
-      liUserCenter.appendChild(userBtn);
+    // ★★ 新增的程式碼：建立「登出」按鈕
+    const liLogout = document.createElement('li');
+    liLogout.classList.add('nav-item');
+    const logoutBtn = document.createElement('button');
+    logoutBtn.classList.add('btn', 'btn-secondary', 'btn-sm');
+    logoutBtn.textContent = '登出';
+    logoutBtn.onclick = () => {
+      sessionStorage.removeItem('email');
+      location.reload();
+    };
+    liLogout.appendChild(logoutBtn);
 
-      const liAdmin = document.createElement('li');
-      liAdmin.classList.add('nav-item');
-      const adminBtn = document.createElement('button');
-      adminBtn.classList.add('btn', 'btn-warning', 'btn-sm');
-      adminBtn.textContent = '管理者登入';
-      adminBtn.onclick = () => {
-        const modal = new bootstrap.Modal(document.getElementById('adminModal'));
-        modal.show();
-      };
-      liAdmin.appendChild(adminBtn);
+    // ★★ 新增的程式碼：依序加到 navRight
+    navRight.appendChild(liHello);
+    navRight.appendChild(liChangePwd);
+    navRight.appendChild(liLogout);
 
-      navRight.appendChild(liUserCenter);
-      navRight.appendChild(liAdmin);
-    }
+  } else {
+    // 未登入
+    const liUserCenter = document.createElement('li');
+    liUserCenter.classList.add('nav-item', 'me-2');
+    const userBtn = document.createElement('button');
+    userBtn.classList.add('btn', 'btn-secondary', 'btn-sm');
+    userBtn.textContent = '會員中心';
+    userBtn.onclick = () => {
+      const modal = new bootstrap.Modal(document.getElementById('userModal'));
+      modal.show();
+    };
+    liUserCenter.appendChild(userBtn);
+
+    const liAdmin = document.createElement('li');
+    liAdmin.classList.add('nav-item');
+    const adminBtn = document.createElement('button');
+    adminBtn.classList.add('btn', 'btn-warning', 'btn-sm');
+    adminBtn.textContent = '管理者登入';
+    adminBtn.onclick = () => {
+      const modal = new bootstrap.Modal(document.getElementById('adminModal'));
+      modal.show();
+    };
+    liAdmin.appendChild(adminBtn);
+
+    navRight.appendChild(liUserCenter);
+    navRight.appendChild(liAdmin);
   }
+}
 
   // 顯示成功訊息
   function showSuccessMessage(msg) {
